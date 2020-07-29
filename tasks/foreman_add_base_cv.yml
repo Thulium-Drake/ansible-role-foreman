@@ -19,3 +19,14 @@
     name: "CV {{ item.name }}"
     repositories: "{{ cv_repo_list }}"
     state: 'present'
+  register: 'cv_created'
+
+- name: 'Publish convent view version for newly created content views'
+  theforeman.foreman.content_view_version:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    content_view: "CV {{ item.name }}"
+  when: cv_created.changed

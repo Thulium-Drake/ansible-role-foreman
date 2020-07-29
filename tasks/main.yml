@@ -91,6 +91,7 @@
     product: "{{ repo.0.name }}"
     gpg_key: "{{ repo.0.gpg_key }}"
     state: 'present'
+  register: 'repo_created'
   loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
   loop_control:
     loop_var: 'repo'
@@ -108,9 +109,10 @@
     loop_var: 'product'
   async: 3600
   poll: 0
+  when: repo_created.changed
   changed_when: false # This task always changes something, but it is not relevant to Ansible
 
-- name: 'Ensure content views'
+- name: 'Ensure content views and versions'
   include_tasks: 'foreman_add_base_cv.yml'
   loop: "{{ foreman_products }}"
 
@@ -125,6 +127,21 @@
     composite: true
     auto_publish: true
     components: "{{ comp_content_view.components}}"
+  register: 'cov_created'
+  loop: "{{ foreman_composite_content_views }}"
+  loop_control:
+    loop_var: 'comp_content_view'
+
+- name: 'Promote convent view version for newly created composite content views'
+  theforeman.foreman.content_view_version:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    content_view: "{{ comp_content_view.name }}"
+    lifecycle_environments: "{{ foreman_lifecycle }}"
+  when: cov_created.changed
   loop: "{{ foreman_composite_content_views }}"
   loop_control:
     loop_var: 'comp_content_view'
