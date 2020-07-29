@@ -1,0 +1,130 @@
+---
+- name: 'Ensure dependencies'
+  pip:
+    name: 'apypie'
+
+- name: 'Ensure organization'
+  theforeman.foreman.organization:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ foreman_organization }}"
+
+- name: 'Ensure Lifecycle environments'
+  theforeman.foreman.lifecycle_environment:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ lifecycle }}"
+    prior: "{{ foreman_lifecycle[index-1] }}"
+    state: 'present'
+  loop: "{{ foreman_lifecycle }}"
+  when: lifecycle != 'Library'
+  loop_control:
+    index_var: 'index'
+    loop_var: 'lifecycle'
+
+- name: 'Ensure daily sync plan'
+  theforeman.foreman.sync_plan:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    interval: 'daily'
+    name: 'Daily repo sync'
+    enabled: true
+    sync_date: '2020-01-01 00:00:00 UTC'
+    state: 'present'
+
+- name: 'Ensure product GPG keys'
+  theforeman.foreman.content_credential:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ product.gpg_key }}"
+    content_type: 'gpg_key'
+    content: "{{ lookup('url', product.gpg_key_url) }}"
+    state: 'present'
+  loop: "{{ foreman_products }}"
+  loop_control:
+    loop_var: 'product'
+
+- name: 'Ensure products'
+  theforeman.foreman.product:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ product.name }}"
+    gpg_key: "{{ product.gpg_key }}"
+    sync_plan: 'Daily repo sync'
+    state: 'present'
+  loop: "{{ foreman_products }}"
+  loop_control:
+    loop_var: 'product'
+
+- name: 'Ensure product repositories'
+  theforeman.foreman.repository:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    download_policy: 'immediate'
+    http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
+    http_proxy: "{{ foreman_http_proxy | default(omit) }}"
+    name: "{{ repo.0.name }}-{{ repo.1.name }}"
+    url: "{{ repo.1.url }}"
+    content_type: "{{ repo.0.type }}"
+    ssl_ca_cert: "{{ repo.1.ssl_ca_cert | default(omit) }}"
+    ssl_client_cert: "{{ repo.1.ssl_client_cert | default(omit) }}"
+    ssl_client_key: "{{ repo.1.ssl_client_key | default(omit) }}"
+    upstream_username: "{{ repo.1.upstream_username | default(omit) }}"
+    upstream_password: "{{ repo.1.upstream_password | default(omit) }}"
+    product: "{{ repo.0.name }}"
+    gpg_key: "{{ repo.0.gpg_key }}"
+    state: 'present'
+  loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
+  loop_control:
+    loop_var: 'repo'
+
+- name: 'Sync repositories'
+  theforeman.foreman.repository_sync:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    product: "{{ product.name }}"
+  loop: "{{ foreman_products }}"
+  loop_control:
+    loop_var: 'product'
+  async: 3600
+  poll: 0
+  changed_when: false # This task always changes something, but it is not relevant to Ansible
+
+- name: 'Ensure content views'
+  include_tasks: 'foreman_add_base_cv.yml'
+  loop: "{{ foreman_products }}"
+
+- name: 'Ensure composite content views'
+  theforeman.foreman.content_view:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ comp_content_view.name }}"
+    composite: true
+    auto_publish: true
+    components: "{{ comp_content_view.components}}"
+  loop: "{{ foreman_composite_content_views }}"
+  loop_control:
+    loop_var: 'comp_content_view'
