@@ -10,6 +10,21 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ foreman_organization }}"
+    state: 'present'
+
+- name: 'Ensure Locations'
+  theforeman.foreman.location:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organizations:
+      - "{{ foreman_organization }}"
+    name: "{{ location }}"
+    state: 'present'
+  loop: "{{ foreman_locations }}"
+  loop_control:
+    loop_var: 'location'
 
 - name: 'Ensure Lifecycle environments'
   theforeman.foreman.lifecycle_environment:
@@ -26,6 +41,27 @@
   loop_control:
     index_var: 'index'
     loop_var: 'lifecycle'
+
+- name: 'Ensure Lifecycle Host Collections'
+  theforeman.foreman.host_collection:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ host_collection }}"
+    state: 'present'
+  loop: >-
+    {%- set results = [] -%}
+    {%- for lifecycle in foreman_lifecycle -%}
+    {%-   for os in foreman_host_collections_os -%}
+    {%-     set line = os + '-' + lifecycle|lower -%}
+    {%-     set _ = results.append(line) if lifecycle != 'Library' -%}
+    {%-   endfor -%}
+    {%- endfor -%}
+    {{ results }}
+  loop_control:
+    loop_var: 'host_collection'
 
 - name: 'Ensure daily sync plan'
   theforeman.foreman.sync_plan:
@@ -96,7 +132,7 @@
   loop_control:
     loop_var: 'repo'
 
-- name: 'Sync repositories'
+- name: 'Trigger repository sync'
   theforeman.foreman.repository_sync:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -110,10 +146,9 @@
   async: 3600
   poll: 0
   when: repo_created.changed
-  changed_when: false # This task always changes something, but it is not relevant to Ansible
 
 - name: 'Ensure content views and versions'
-  include_tasks: 'foreman_add_base_cv.yml'
+  include_tasks: 'cv_add_base.yml'
   loop: "{{ foreman_products }}"
 
 - name: 'Ensure composite content views'
@@ -145,3 +180,43 @@
   loop: "{{ foreman_composite_content_views }}"
   loop_control:
     loop_var: 'comp_content_view'
+
+- name: 'Ensure Activation key Host Collections'
+  theforeman.foreman.host_collection:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ collection.name | lower }}"
+    state: 'present'
+  loop: "{{ foreman_activation_keys }}"
+  loop_control:
+    loop_var: 'collection'
+
+- name: 'Ensure Activation key extra Host Collections'
+  theforeman.foreman.host_collection:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ collection.1 }}"
+    state: 'present'
+  loop: "{{ foreman_activation_keys | subelements('host_collections', { 'skip_missing': true}) }}"
+  loop_control:
+    loop_var: 'collection'
+
+- name: 'Ensure Activation keys'
+  include_tasks: 'activation_key_add.yml'
+  loop: >-
+    {%- set results = [] -%}
+    {%- for lifecycle in foreman_lifecycle -%}
+    {%-   for os in foreman_host_collections_os -%}
+    {%-     set line = {'os': os, 'host_collection': [os + '-' + lifecycle|lower], 'lifecycle': lifecycle} -%}
+    {%-     set _ = results.append(line) if lifecycle != 'Library' -%}
+    {%-   endfor -%}
+    {%- endfor -%}
+    {{ results }}
+  loop_control:
+    loop_var: 'key_lifecycle'

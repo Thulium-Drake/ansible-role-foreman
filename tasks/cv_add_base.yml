@@ -21,7 +21,9 @@
     state: 'present'
   register: 'cv_created'
 
-- name: 'Publish convent view version for newly created content views'
+- name: |
+    Publish content view version for newly created content views
+                    This may take long...
   theforeman.foreman.content_view_version:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"

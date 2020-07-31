@@ -7,8 +7,11 @@ foreman_admin_password: 'secret'
 foreman_url: 'https://foreman.example.com'
 foreman_validate_certs: false
 
-# Organization and Lifecycle path
+# Organization, Locations and Lifecycle path
 foreman_organization: 'Example-Org'
+foreman_locations:
+  - 'Example Location'
+  - 'Cloud/Other Location' # Nested example
 
 # Set the environments in the order you wish to have them
 foreman_lifecycle:
@@ -17,34 +20,53 @@ foreman_lifecycle:
   - 'QA'
   - 'Production'
 
-# Product definitions
-foreman_products:
-  - name: 'CentOS7' # This name will be used for products as well as CVs (content views)
-    type: 'yum'
-    repositories: # Also supports ssl_ca_cert, ssl_client_cert, ssl_client_key, upstream_password, upstream_username
-                  # Check https://theforeman.github.io/foreman-ansible-modules/v1.0.1/modules/repository_module.html#repository-module for more documentation
-      - name: 'Base'
-        url: 'http://mirror.centos.org/centos/7/os/x86_64'
-      - name: 'Updates'
-        url: 'http://mirror.centos.org/centos/7/updates/x86_64'
-      - name: 'Extras'
-        url: 'http://mirror.centos.org/centos/7/extras/x86_64'
-    gpg_key: 'RPM-GPG-KEY-CentOS7'
-    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'
-  - name: 'EPEL7'
-    type: 'yum'
-    repositories:
-      - name: 'Base'
-        url: 'https://epel.mirror.wearetriple.com/7/x86_64'
-    gpg_key: 'RPM-GPG-KEY-EPEL-7'
-    gpg_key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x91E97D7C4A5E96F17F3E888F6A2FAEA2352C64E5'
+# Create a host collection for all lifecycle environments
+# The example below will result in the following collections
+# if used with the default lifecycle path:
+#
+# - centos7-development
+# - centos7-qa
+# - centos7-production
+foreman_host_collections_lifecycle:
+  - 'centos7'
 
-# COVs (Composite Content Views) to create
-foreman_composite_content_views:
-  - name: 'COV CentOS7-Base'
-    components:
-      - content_view: 'CV CentOS7-Base'
-        latest: true
+foreman_products: []
+# Below is an example of an Product and it's Repositories
+#  - name: 'CentOS7' # This name will be used for products as well as CVs (content views)
+#    type: 'yum'
+#    repositories: # Also supports ssl_ca_cert, ssl_client_cert, ssl_client_key, upstream_password, upstream_username
+#                  # For details https://theforeman.github.io/foreman-ansible-modules/v1.0.1/modules/repository_module.html#repository-module
+#      - name: 'Base'
+#        url: 'http://mirror.centos.org/centos/7/os/x86_64'
+#    gpg_key: 'RPM-GPG-KEY-CentOS7'
+#    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'
 
-foreman_activation_keys:
-  - 'CentOS7Base'
+foreman_composite_content_views: []
+# Below is an example of an Composite Content View
+#  - name: 'COV Example'
+#    components:
+#      - content_view: 'CV Example'
+#        latest: true
+
+# Activation keys to create, for each Lifecycle (except Library)
+# The key will always be associated with the Host Collection for it's Lifecycle
+#
+# The example key below will be added to the following host collections:
+#
+# - rhel7-servers     # all Lifecycle versions of this key
+# - rhel7-production  # ExampleKey-Production
+# - rhel7-qa          # ExampleKey-QA
+# - rhel7-development # ExampleKey-Development
+foreman_activation_keys: []
+# For more details, check https://theforeman.github.io/foreman-ansible-modules/v1.0.1/modules/activation_key_module.html#activation-key-module
+# - key: 'ExampleKey
+#   content_view: 'COV Example'
+#   subscriptions:
+#     - name: 'Red Hat Enterprise Linux'
+#   release_version: '7Server'
+#   content_overrides:
+#     - label: 'rhel-7-server-optional-rpms'
+#       override: 'enabled'
+#   auto_attach: true
+#   host_collections:
+#     - 'rhel7-servers'
