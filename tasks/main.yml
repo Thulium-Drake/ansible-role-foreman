@@ -167,7 +167,7 @@
   loop_control:
     loop_var: 'comp_content_view'
 
-- name: 'Promote convent view version for newly created composite content views'
+- name: 'Promote content view version for newly created composite content views'
   theforeman.foreman.content_view_version:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"

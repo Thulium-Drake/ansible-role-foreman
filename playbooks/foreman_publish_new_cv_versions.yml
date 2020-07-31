@@ -1,0 +1,91 @@
+---
+- name: 'Publish new Content View Versions'
+  hosts: 'localhost'
+  gather_facts: false
+  vars_prompt:
+    - name: 'input_prods'
+      prompt: |
+        Which Products, separated by commas, would you like to update?
+
+        all               = all products will be updated, a new COV will be published
+        product1,product2 = selected products will be updated, a new COV will be published
+        none              = no products will be updated, the COVs will be promoted to the selected Lifecycles
+
+        Use 'none' for promoting Lifecycles, define products if you want to make new versions
+
+        NOTE: You MUST follow the Lifecycle Paths.
+      default: 'all'
+      private: false
+
+    - name: 'input_envs'
+      prompt: 'Which Lifecycle environments, separated by commas, should have the latest COV available?'
+      default: 'Development'
+      private: false
+
+  tasks:
+    - name: 'Process input'
+      set_fact:
+        input_prod_list: "{{ input_prods.split(',') }}"
+      when: input_prods != 'all'
+
+    - name: 'Process input'
+      set_fact:
+        input_prod_list: []
+      when: input_prods == 'none'
+
+    - name: 'Process input'
+      set_fact:
+        input_prod_list: "{{ foreman_products }}"
+      when: input_prods == 'all'
+
+    - name: 'Process input'
+      set_fact:
+        input_env_list: "{{ input_envs.split(',') }}"
+
+    - name: 'Publish new CV versions for selected products'
+      theforeman.foreman.content_view_version:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        content_view: "CV {{ product.name | default(product)}}"
+      loop: "{{ input_prod_list }}"
+      loop_control:
+        loop_var: 'product'
+      register: 'product_published'
+
+    - name: 'Wait for COV autopublish to settle'
+      pause:
+        minutes: 5
+      when: input_prod_list | length > 0
+
+    - name: 'Publish new version for all COVs for selected Lifecycle environments'
+      theforeman.foreman.content_view_version:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        content_view: "{{ comp_content_view.name }}"
+        lifecycle_environments: "{{ input_env_list }}"
+        current_lifecycle_environment: 'Library'
+      loop: "{{ foreman_composite_content_views }}"
+      loop_control:
+        loop_var: 'comp_content_view'
+      when: product_published.changed
+
+    - name: 'Promote all COVs for selected Lifecycle environments'
+      theforeman.foreman.content_view_version:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        content_view: "{{ comp_content_view.name }}"
+        lifecycle_environments: "{{ input_env_list }}"
+        current_lifecycle_environment: 'Library'
+      loop: "{{ foreman_composite_content_views }}"
+      loop_control:
+        loop_var: 'comp_content_view'
+      when: not product_published.changed or product_published.changed is not defined
