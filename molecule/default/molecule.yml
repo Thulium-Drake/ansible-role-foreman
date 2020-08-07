@@ -17,6 +17,7 @@ platforms:
     privileged: true
 provisioner:
   name: 'ansible'
-  env: ANSIBLE_COLLECTIONS_PATHS: '/root/.ansible/collections'
+  env:
+    ANSIBLE_COLLECTIONS_PATHS: '/root/.ansible/collections'
 verifier:
   name: 'ansible'
