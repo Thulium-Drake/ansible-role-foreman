@@ -1,0 +1,21 @@
+---
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'docker'
+lint: |
+  set -e
+  yamllint -c molecule/default/yamllint.yml .
+  ansible-lint molecule/default/converge.yml
+platforms:
+  - name: "empty"
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-debian10}-ansible:latest"
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    privileged: true
+provisioner:
+  name: 'ansible'
+verifier:
+  name: 'ansible'

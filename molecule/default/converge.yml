@@ -1,0 +1,7 @@
+---
+- name: 'Converge'
+  hosts: 'all'
+  tasks:
+    - name: 'Run role'
+      import_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
