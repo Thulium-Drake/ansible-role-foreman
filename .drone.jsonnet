@@ -7,6 +7,7 @@
         name: "Lint code",
         image: "registry.element-networks.nl/tools/molecule",
         commands: [
+          "ansible-galaxy collection install theforeman.foreman",
           "molecule lint",
           "molecule syntax"
         ],
