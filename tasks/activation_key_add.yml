@@ -8,7 +8,12 @@
     name: "{{ key.name }}-{{ key_lifecycle.lifecycle }}"
     lifecycle_environment: "{{ key_lifecycle.lifecycle }}"
     content_view: "{{ key.content_view }}"
-    host_collections: "{{ key_lifecycle.host_collection + [ key.name | lower ] }}"
+    subscriptions: "{{ key.subscriptions | default(omit) }}"
+    content_overrides: "{{ key.content_overrides | default(omit) }}"
+    host_collections: >-
+      {{ key_lifecycle.host_collection +
+      [ key.name | lower ] +
+      [ key.os | lower ] }}
     release_version: "{{ key.release_version }}"
   loop: "{{ foreman_activation_keys }}"
   when:
@@ -27,7 +32,13 @@
     name: "{{ key.name }}-{{ key_lifecycle.lifecycle }}"
     lifecycle_environment: "{{ key_lifecycle.lifecycle }}"
     content_view: "{{ key.content_view }}"
-    host_collections: "{{ key_lifecycle.host_collection + [ key.name | lower ] + key.host_collections}}"
+    subscriptions: "{{ key.subscriptions | default(omit) }}"
+    content_overrides: "{{ key.content_overrides | default(omit) }}"
+    host_collections: >-
+      {{ key_lifecycle.host_collection +
+      [ key.name | lower ] +
+      [ key.os | lower ] +
+      key.host_collections}}
     release_version: "{{ key.release_version }}"
   loop: "{{ foreman_activation_keys }}"
   when:

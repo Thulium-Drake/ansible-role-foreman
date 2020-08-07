@@ -63,6 +63,19 @@
   loop_control:
     loop_var: 'host_collection'
 
+- name: 'Ensure OS Host Collections'
+  theforeman.foreman.host_collection:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ os_collection }}"
+    state: 'present'
+  loop: "{{ foreman_host_collections_os }}"
+  loop_control:
+    loop_var: 'os_collection'
+
 - name: 'Ensure daily sync plan'
   theforeman.foreman.sync_plan:
     username: "{{ foreman_admin_user }}"
@@ -85,7 +98,7 @@
     organization: "{{ foreman_organization }}"
     name: "{{ product.gpg_key }}"
     content_type: 'gpg_key'
-    content: "{{ lookup('url', product.gpg_key_url) }}"
+    content: "{{ lookup('url', product.gpg_key_url, split_lines=False) }}"
     state: 'present'
   loop: "{{ foreman_products }}"
   loop_control:
