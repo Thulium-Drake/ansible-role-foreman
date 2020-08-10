@@ -1,7 +1,13 @@
 ---
-- name: 'Ensure dependencies'
+- name: 'Ensure package dependencies'
+  package:
+    name: 'python-pip'
+    state: 'present'
+
+- name: 'Ensure PiP dependencies'
   pip:
     name: 'apypie'
+    state: 'present'
 
 - name: 'Ensure organization'
   theforeman.foreman.organization:
@@ -10,6 +16,7 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ foreman_organization }}"
+    description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
 
 - name: 'Ensure Locations'
@@ -34,6 +41,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ lifecycle }}"
+    description: 'Managed by Ansible, your changes will be lost'
     prior: "{{ foreman_lifecycle[index-1] }}"
     state: 'present'
   loop: "{{ foreman_lifecycle }}"
@@ -50,6 +58,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ host_collection }}"
+    description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
   loop: >-
     {%- set results = [] -%}
@@ -71,6 +80,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ os_collection }}"
+    description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
   loop: "{{ foreman_host_collections_os }}"
   loop_control:
@@ -85,6 +95,7 @@
     organization: "{{ foreman_organization }}"
     interval: 'daily'
     name: 'Daily repo sync'
+    description: 'Managed by Ansible, your changes will be lost'
     enabled: true
     sync_date: '2020-01-01 00:00:00 UTC'
     state: 'present'
@@ -112,6 +123,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ product.name }}"
+    description: 'Managed by Ansible, your changes will be lost'
     gpg_key: "{{ product.gpg_key }}"
     sync_plan: 'Daily repo sync'
     state: 'present'
@@ -172,6 +184,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ comp_content_view.name }}"
+    description: 'Managed by Ansible, your changes will be lost'
     composite: true
     auto_publish: true
     components: "{{ comp_content_view.components}}"
@@ -202,6 +215,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ collection.name | lower }}"
+    #description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
   loop: "{{ foreman_activation_keys }}"
   loop_control:
@@ -215,6 +229,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ collection.1 }}"
+    #description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
   loop: "{{ foreman_activation_keys | subelements('host_collections', { 'skip_missing': true}) }}"
   loop_control:
@@ -233,3 +248,10 @@
     {{ results }}
   loop_control:
     loop_var: 'key_lifecycle'
+
+- name: 'start'
+  debug:
+
+- name: 'Configure Foreman for OS deployment'
+  include_tasks: 'enable_deployment.yml'
+  when: foreman_configure_deployment

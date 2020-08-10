@@ -1,0 +1,99 @@
+---
+- name: 'Configure Foreman instance for deployment'
+  shell: |
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+    /usr/sbin/foreman-installer \
+    --foreman-proxy-dns true \
+    --foreman-proxy-dns-interface {{ foreman_deploy_interface }} \
+    --foreman-proxy-dns-zone {{ foreman_dns_zone }} \
+    --foreman-proxy-dns-forwarders {{ foreman_dns_forwarders }} \
+    --foreman-proxy-dns-reverse {{ foreman_deploy_network_address.split('.')[0:3] | reverse | join('.') }}.in-addr.arpa \
+    --foreman-proxy-dhcp true \
+    --foreman-proxy-dhcp-interface {{ foreman_deploy_interface }} \
+    --foreman-proxy-dhcp-range "{{ foreman_deploy_network_range_start }} {{ foreman_deploy_network_range_end }}" \
+    --foreman-proxy-dhcp-gateway {{ foreman_deploy_network_gateway }} \
+    --foreman-proxy-dhcp-nameservers {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
+    --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
+    --foreman-proxy-tftp true \
+    --foreman-proxy-tftp-managed true \
+    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }}
+
+- name: 'Ensure Foreman Domain'
+  theforeman.foreman.domain:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ foreman_dns_zone }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    organizations:
+      - "{{ foreman_organization }}"
+    locations: "{{ foreman_locations }}"
+    dns_proxy: "{{ ansible_facts['fqdn'] }}"
+    state: 'present'
+
+- name: 'Ensure Foreman Subnet'
+  theforeman.foreman.subnet:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ foreman_deploy_network_name }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    organizations:
+      - "{{ foreman_organization }}"
+    locations: "{{ foreman_locations }}"
+    domains:
+      - "{{ foreman_dns_zone }}"
+    network: "{{ foreman_deploy_network_address | ipaddr('network') }}"
+    cidr: "{{ foreman_deploy_network_address | ipaddr('prefix') }}"
+    from_ip: "{{ foreman_deploy_network_range_start }}"
+    to_ip: "{{ foreman_deploy_network_range_end }}"
+    boot_mode: 'DHCP'
+
+    dns_proxy: "{{ ansible_facts['fqdn'] }}"
+    dhcp_proxy: "{{ ansible_facts['fqdn'] }}"
+    tftp_proxy: "{{ ansible_facts['fqdn'] }}"
+    httpboot_proxy: "{{ ansible_facts['fqdn'] }}"
+    template_proxy: "{{ ansible_facts['fqdn'] }}"
+    state: 'present'
+
+- name: 'Ensure Installation Media'
+  theforeman.foreman.installation_medium:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ medium.name }} {{ medium.major_version }}"
+    locations: "{{ foreman_locations }}"
+    organizations:
+      - "{{ foreman_organization }}"
+    path: "{{ medium.path }}"
+    os_family: "{{ medium.os_family }}"
+    state: 'present'
+  loop: "{{ foreman_operating_systems }}"
+  loop_control:
+    loop_var: 'medium'
+
+- name: 'Ensure Operating Systems'
+  theforeman.foreman.operatingsystem:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    description: "{{ os.name }} {{ os.major_version }}"
+    major: "{{ os.major_version }}"
+    release: "{{ os.release | default(omit) }}"
+    name: "{{ os.name }}"
+    family: "{{ os.os_family }}"
+    password_hash: "{{ os.password_hash | default('SHA512') }}"
+    parameters: "{{ os.parameters | default(omit) }}"
+    provisioning_templates: "{{ os.provisioning_templates | default(omit) }}"
+    architectures: "{{ os.arch }}"
+    media:
+      - "{{ os.name }} {{ os.major_version }}"
+    ptables: "{{ os.partitions | default(omit) }}"
+  loop: "{{ foreman_operating_systems }}"
+  loop_control:
+    loop_var: 'os'

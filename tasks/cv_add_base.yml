@@ -17,6 +17,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "CV {{ item.name }}"
+    description: 'Managed by Ansible, your changes will be lost'
     repositories: "{{ cv_repo_list }}"
     state: 'present'
   register: 'cv_created'

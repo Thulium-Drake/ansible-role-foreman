@@ -35,6 +35,8 @@
       loop:
         - '7/tcp'
         - '7/udp'
+        - '53/tcp'
+        - '53/udp'
         - '67/udp'
         - '69/udp'
         - '80/tcp'

@@ -70,3 +70,45 @@ foreman_activation_keys: []
 #   auto_attach: true
 #   host_collections:
 #     - 'rhel7-servers'
+
+###
+# Deployment settings
+###
+# Configure Foreman for OS deployment
+foreman_configure_deployment: false
+
+# Which network interface to configure DHCP/DNS for
+foreman_deploy_interface: 'eth1'
+
+# Which DNS domain machines deployed by this instance should be placed in
+foreman_dns_zone: 'nl.example.com'
+
+# Which upstream DNS server Foreman should use
+foreman_dns_forwarders: '9.9.9.9'
+
+# Name of the deployment network
+foreman_deploy_network_name: 'Deployment Network'
+
+# Which network machines deployed by this instance should be placed in
+foreman_deploy_network_address: '192.168.1.0/24'
+
+# The network range used by the DHCP server
+foreman_deploy_network_range_start: '192.168.1.100'
+foreman_deploy_network_range_end: '192.168.1.200'
+
+# The network gateway provided to systems in this network
+foreman_deploy_network_gateway: '192.168.1.1'
+
+foreman_operating_systems:
+  - name: 'CentOS'
+    major_version: 7
+    arch:
+     - 'x86_64'
+    os_family: 'Redhat'
+    path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS7/CentOS7-Base/'
+  - name: 'CentOS'
+    major_version: 8
+    arch:
+     - 'x86_64'
+    os_family: 'Redhat'
+    path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS8/CentOS8-Base/'
