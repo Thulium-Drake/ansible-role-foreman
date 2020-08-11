@@ -4,8 +4,8 @@
 
 - name: 'Make repo list for content views'
   set_fact:
-    cv_repo_list: "{{ cv_repo_list + [{'product': item.name, 'name': item.name + '-' + repo.name } ] }}"
-  loop: "{{ item.repositories }}"
+    cv_repo_list: "{{ cv_repo_list + [{'product': item['name'], 'name': item['name'] + '-' + repo['name'] } ] }}"
+  loop: "{{ item['repositories'] }}"
   loop_control:
     loop_var: 'repo'
 
@@ -16,7 +16,7 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    name: "CV {{ item.name }}"
+    name: "CV {{ item['name'] }}"
     description: 'Managed by Ansible, your changes will be lost'
     repositories: "{{ cv_repo_list }}"
     state: 'present'
@@ -31,5 +31,5 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    content_view: "CV {{ item.name }}"
-  when: cv_created.changed
+    content_view: "CV {{ item['name'] }}"
+  when: cv_created['changed']

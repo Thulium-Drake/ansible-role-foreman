@@ -51,31 +51,40 @@ foreman_composite_content_views: []
 # Activation keys to create, for each Lifecycle (except Library)
 # The key will always be associated with the Host Collection for it's Lifecycle
 #
+# The name of the key must contain the OS name as reported by facter and the major version
+# if you wish to also configure them for deployment
+#
 # The example key below will be added to the following host collections:
 #
-# - rhel7-servers     # all Lifecycle versions of this key
-# - rhel7-production  # ExampleKey-Production
-# - rhel7-qa          # ExampleKey-QA
-# - rhel7-development # ExampleKey-Development
+# - centos7             # all machines with this version of the OS
+# - centos7-servers     # all Lifecycle versions of this key
+# - centos7-production  # CentOS7-Base-Production
+# - centos7-qa          # CentOS7-Base-QA
+# - centos7-development # CentOS7-Base-Development
 foreman_activation_keys: []
 # For more details, check https://theforeman.github.io/foreman-ansible-modules/v1.0.1/modules/activation_key_module.html#activation-key-module
-# - key: 'ExampleKey
+# - key: 'CentOS7-Base'
 #   content_view: 'COV Example'
 #   subscriptions:
-#     - name: 'Red Hat Enterprise Linux'
+#     - name: 'CentOS 7'
 #   release_version: '7Server'
 #   content_overrides:
-#     - label: 'rhel-7-server-optional-rpms'
+#     - label: 'epel-test'
 #       override: 'enabled'
 #   auto_attach: true
 #   host_collections:
-#     - 'rhel7-servers'
+#     - 'centos7-servers'
 
 ###
 # Deployment settings
 ###
 # Configure Foreman for OS deployment
 foreman_configure_deployment: false
+
+# Run Foreman Installer to configure deployment components
+# NOTE: This role currently assumes a 'default' setup where Foreman manages DHCP, DNS and TFTP.
+# If you require a different setup, disable this and prepare the node manually.
+foreman_deploy_run_installer: true
 
 # Which network interface to configure DHCP/DNS for
 foreman_deploy_interface: 'eth1'
@@ -93,22 +102,22 @@ foreman_deploy_network_name: 'Deployment Network'
 foreman_deploy_network_address: '192.168.1.0/24'
 
 # The network range used by the DHCP server
-foreman_deploy_network_range_start: '192.168.1.100'
+foreman_deploy_network_range_start: '192.168.1.150'
 foreman_deploy_network_range_end: '192.168.1.200'
 
 # The network gateway provided to systems in this network
 foreman_deploy_network_gateway: '192.168.1.1'
 
+# Operating systems to configure for deployment
 foreman_operating_systems:
-  - name: 'CentOS'
+  - name: 'CentOS'   # Name as supplied by Facter, this will be combined with the Major version to a friendly name
     major_version: 7
     arch:
      - 'x86_64'
     os_family: 'Redhat'
+    partitions: 'Kickstart default'
     path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS7/CentOS7-Base/'
-  - name: 'CentOS'
-    major_version: 8
-    arch:
-     - 'x86_64'
-    os_family: 'Redhat'
-    path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS8/CentOS8-Base/'
+    # The URL above is the location of the CV 'CentOS7-Base' for the 'Example-Org' organization
+
+# Which version of the Foreman Discorvery Image to use
+foreman_discovery_image_release: 'latest'

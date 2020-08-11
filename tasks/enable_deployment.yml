@@ -17,7 +17,9 @@
     --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
-    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }}
+    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} \
+    --enable-foreman-plugin-discovery
+  when: foreman_deploy_run_installer
 
 - name: 'Ensure Foreman Domain'
   theforeman.foreman.domain:
@@ -26,7 +28,7 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ foreman_dns_zone }}"
-    description: 'Managed by Ansible, your changes will be lost'
+    description: "{{ foreman_dns_zone }} - Managed by Ansible"
     organizations:
       - "{{ foreman_organization }}"
     locations: "{{ foreman_locations }}"
@@ -65,12 +67,12 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ medium.name }} {{ medium.major_version }}"
+    name: "{{ medium['name'] }} {{ medium['major_version'] }}"
     locations: "{{ foreman_locations }}"
     organizations:
       - "{{ foreman_organization }}"
-    path: "{{ medium.path }}"
-    os_family: "{{ medium.os_family }}"
+    path: "{{ medium['path'] }}"
+    os_family: "{{ medium['os_family'] }}"
     state: 'present'
   loop: "{{ foreman_operating_systems }}"
   loop_control:
@@ -82,18 +84,85 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    description: "{{ os.name }} {{ os.major_version }}"
-    major: "{{ os.major_version }}"
-    release: "{{ os.release | default(omit) }}"
-    name: "{{ os.name }}"
-    family: "{{ os.os_family }}"
-    password_hash: "{{ os.password_hash | default('SHA512') }}"
-    parameters: "{{ os.parameters | default(omit) }}"
-    provisioning_templates: "{{ os.provisioning_templates | default(omit) }}"
-    architectures: "{{ os.arch }}"
+    description: "{{ os['name'] }} {{ os['major_version'] }}"
+    major: "{{ os['major_version'] }}"
+    release: "{{ os['release'] | default(omit) }}"
+    name: "{{ os['name'] }}"
+    family: "{{ os['os_family'] }}"
+    password_hash: "{{ os['password_hash'] | default('SHA512') }}"
+    parameters: "{{ os['parameters'] | default(omit) }}"
+    provisioning_templates: "{{ os['provisioning_templates'] | default(omit) }}"
+    architectures: "{{ os['arch'] }}"
     media:
-      - "{{ os.name }} {{ os.major_version }}"
-    ptables: "{{ os.partitions | default(omit) }}"
+      - "{{ os['name'] }} {{ os['major_version'] }}"
+    ptables: "{{ os['partitions'] | default(omit) }}"
   loop: "{{ foreman_operating_systems }}"
   loop_control:
     loop_var: 'os'
+
+- name: 'Ensure Host Groups'
+  theforeman.foreman.hostgroup:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ hostgroup['name'] }}-{{ hostgroup['lifecycle'] }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    organization: "{{ foreman_organization }}"
+    locations: "{{ foreman_locations }}"
+    lifecycle_environment: "{{ hostgroup['lifecycle'] }}"
+    content_view: "COV {{ hostgroup['name'] }}"
+    content_source: "{{ ansible_facts['fqdn'] }}"
+    domain: "{{ foreman_dns_zone }}"
+    subnet: "{{ foreman_deploy_network_name }}"
+    architecture: "{{ hostgroup.arch[0] }}"
+    operatingsystem: "{{ hostgroup['os'] }}"
+    medium: "{{ hostgroup['os'] }}"
+    parameters: "{{ hostgroup['parameters'] }}"
+    pxe_loader: "{{ hostgroup['pxe_loader'] }}"
+  loop: >- # This loop combines the following information: Activation Keys, Lifecycles and OS deployment variables
+    {%- set results = [] -%}
+    {%- for lifecycle in foreman_lifecycle -%}
+    {%-   for key in foreman_activation_keys  -%}
+    {%-     for os in foreman_operating_systems -%}
+    {%-       if key.name.split('-')[0] == os['name'] + os['major_version'] | string -%}
+    {%-         set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] }] -%}
+    {%-         set line = {'name': key['name'], 'arch': os['arch'],
+                            'lifecycle': lifecycle, 'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
+                            'os': os['name'] + ' ' + os['major_version'] | string,
+                            'parameters': parameters + os['parameters'] | default([]) }  -%}
+    {%-         set _ = results.append(line) if lifecycle != 'Library' -%}
+    {%-       endif -%}
+    {%-     endfor -%}
+    {%-   endfor -%}
+    {%- endfor -%}
+    {{ results }}
+  loop_control:
+    loop_var: 'hostgroup'
+
+- name: 'Ensure Setting for booting unknown hosts'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'default_pxe_item_global'
+    value: 'discovery'
+
+- name: 'Set Random Hostname generator to MAC based'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'name_generator_type'
+    value: 'MAC-based'
+
+- name: 'Ensure Discovery Image present'
+  unarchive:
+    src: "http://downloads.theforeman.org/discovery/releases/{{ foreman_discovery_image_release }}/fdi-image-latest.tar"
+    dest: '/var/lib/tftpboot/boot'
+    remote_src: true
+
+- name: 'Build PXE Default'
+  command: hammer template build-pxe-default
