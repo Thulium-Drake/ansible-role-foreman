@@ -79,3 +79,4 @@
         -e foreman_repositories_version={{ foreman_version }} \
         -e katello_repositories_version={{ katello_version }} \
         -e foreman_installer_admin_password={{ foreman_initial_admin_password }}
+      no_log: "{{ not foreman_debug }}"

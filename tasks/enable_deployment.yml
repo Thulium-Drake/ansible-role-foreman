@@ -14,7 +14,7 @@
     --foreman-proxy-dhcp-interface {{ foreman_deploy_interface }} \
     --foreman-proxy-dhcp-range "{{ foreman_deploy_network_range_start }} {{ foreman_deploy_network_range_end }}" \
     --foreman-proxy-dhcp-gateway {{ foreman_deploy_network_gateway }} \
-    --foreman-proxy-dhcp-nameservers {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
+    --foreman-proxy-dhcp-nameservers {{ foreman_deploy_dhcp_nameserver | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }} \
     --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
