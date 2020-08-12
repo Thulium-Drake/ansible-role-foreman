@@ -108,6 +108,10 @@ foreman_deploy_network_range_end: '192.168.1.200'
 # The network gateway provided to systems in this network
 foreman_deploy_network_gateway: '192.168.1.1'
 
+# The root password set on all machines deployed by Foreman
+# If not set, will default to 'changemeNOW!'
+foreman_deploy_root_pass: 'SuperSecretPassword'
+
 # Operating systems to configure for deployment
 foreman_operating_systems:
   - name: 'CentOS'   # Name as supplied by Facter, this will be combined with the Major version to a friendly name
