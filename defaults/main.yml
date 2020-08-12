@@ -82,7 +82,8 @@ foreman_activation_keys: []
 foreman_configure_deployment: false
 
 # Run Foreman Installer to configure deployment components
-# NOTE: This role currently assumes a 'default' setup where Foreman manages DHCP, DNS and TFTP.
+# NOTE: This role currently assumes a 'default' scenario where Foreman manages DHCP, DNS and TFTP.
+# For DNS, different scenario's are avaiable, see below
 # If you require a different setup, disable this and prepare the node manually.
 foreman_deploy_run_installer: true
 
@@ -92,8 +93,22 @@ foreman_deploy_interface: 'eth1'
 # Which DNS domain machines deployed by this instance should be placed in
 foreman_dns_zone: 'nl.example.com'
 
+# Select a DNS deployment scenario
+foreman_deploy_dns_scenario: 'internal' # internal or nsupdate
+
+### DNS scenario: nsupdate
+# Upstream server
+foreman_deploy_dns_server: '192.168.1.1'
+# RNDC credentials, make sure this file exists before running this role!
+foreman_deploy_dns_rndc_key: '/etc/rndc.key'
+# Default TTL for created records
+foreman_deploy_dns_ttl: 600
+###
+
+### DNS Scenario: internal
 # Which upstream DNS server Foreman should use
 foreman_dns_forwarders: '9.9.9.9'
+###
 
 # Name of the deployment network
 foreman_deploy_network_name: 'Deployment Network'
