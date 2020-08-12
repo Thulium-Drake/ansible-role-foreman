@@ -116,8 +116,22 @@ foreman_operating_systems:
      - 'x86_64'
     os_family: 'Redhat'
     partitions: 'Kickstart default'
+    root_pass: 'SuperSecretPassword'
+    parameters:
+      - name: 'remote_execution_create_user'
+        value: 'true'
+        parameter_type: 'boolean'
+      - name: 'remote_execution_ssh_user'
+        value: 'ansible'
+      - name: 'remote_execution_effective_user_method'
+        value: 'sudo'
+      - name: 'remote_execution_ssh_keys'
+        value: "{{ lookup('file', 'ssh_keys/ansible.pub') }}"
     path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS7/CentOS7-Base/'
     # The URL above is the location of the CV 'CentOS7-Base' for the 'Example-Org' organization
 
 # Which version of the Foreman Discorvery Image to use
 foreman_discovery_image_release: 'latest'
+
+# Enable to allow logging for tasks that can contain sensitive information
+foreman_debug: false

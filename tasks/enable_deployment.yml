@@ -74,6 +74,7 @@
     path: "{{ medium['path'] }}"
     os_family: "{{ medium['os_family'] }}"
     state: 'present'
+  no_log: "{{ not foreman_debug }}"
   loop: "{{ foreman_operating_systems }}"
   loop_control:
     loop_var: 'medium'
@@ -96,11 +97,12 @@
     media:
       - "{{ os['name'] }} {{ os['major_version'] }}"
     ptables: "{{ os['partitions'] | default(omit) }}"
+  no_log: "{{ not foreman_debug }}"
   loop: "{{ foreman_operating_systems }}"
   loop_control:
     loop_var: 'os'
 
-- name: 'Ensure Host Groups'
+- name: 'Ensure Host Groups, always changes as the current root_pass can not be compared'
   theforeman.foreman.hostgroup:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -117,17 +119,22 @@
     subnet: "{{ foreman_deploy_network_name }}"
     architecture: "{{ hostgroup.arch[0] }}"
     operatingsystem: "{{ hostgroup['os'] }}"
+    ptable: "{{ hostgroup['ptable'] }}"
     medium: "{{ hostgroup['os'] }}"
     parameters: "{{ hostgroup['parameters'] }}"
+    root_pass: "{{ hostgroup['root_pass'] }}"
     pxe_loader: "{{ hostgroup['pxe_loader'] }}"
+  no_log: "{{ not foreman_debug }}"
   loop: >- # This loop combines the following information: Activation Keys, Lifecycles and OS deployment variables
     {%- set results = [] -%}
     {%- for lifecycle in foreman_lifecycle -%}
     {%-   for key in foreman_activation_keys  -%}
     {%-     for os in foreman_operating_systems -%}
     {%-       if key.name.split('-')[0] == os['name'] + os['major_version'] | string -%}
-    {%-         set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] }] -%}
+    {%-         set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] + '-' + lifecycle }] -%}
     {%-         set line = {'name': key['name'], 'arch': os['arch'],
+                            'root_pass': os['root_pass'] | default('changemeNOW!'),
+                            'ptable': os['partitions'] | default('Kickstart default'),
                             'lifecycle': lifecycle, 'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
                             'os': os['name'] + ' ' + os['major_version'] | string,
                             'parameters': parameters + os['parameters'] | default([]) }  -%}

@@ -236,7 +236,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ collection['name'] | lower }}"
-    #description: 'Managed by Ansible, your changes will be lost'
+    description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
   loop: "{{ foreman_activation_keys }}"
   loop_control:
@@ -269,9 +269,6 @@
     {{ results }}
   loop_control:
     loop_var: 'key_lifecycle'
-
-- name: 'start'
-  debug:
 
 - name: 'Configure Foreman for OS deployment'
   include_tasks: 'enable_deployment.yml'
