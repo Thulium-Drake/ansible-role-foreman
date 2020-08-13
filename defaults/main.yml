@@ -20,6 +20,11 @@ foreman_lifecycle:
   - 'QA'
   - 'Production'
 
+# Set the environments for the Infrastructure environment
+foreman_infrastructure_lifecycle:
+  - 'Library'
+  - 'Infra'
+
 # Create a host collection for all lifecycle environments
 # The example below will result in the following collections
 # if used with the default lifecycle path:
@@ -79,29 +84,6 @@ foreman_activation_keys: []
 # Deployment settings
 ###
 
-# Run Foreman Installer to configure deployment components
-# NOTE: This role currently assumes a 'default' scenario where Foreman manages DHCP, DNS and TFTP.
-# For DNS, different scenario's are avaiable, see below
-# If you require a different setup, disable this and prepare the node manually.
-foreman_deploy_run_installer: true
-
-# Select a DNS deployment scenario
-foreman_deploy_dns_scenario: 'internal' # internal or nsupdate
-
-### DNS scenario: nsupdate
-# Upstream server
-foreman_deploy_dns_server: '192.168.1.1'
-# RNDC credentials, make sure this file exists before running this role!
-foreman_deploy_dns_rndc_key: '/etc/rndc.key'
-# Default TTL for created records
-foreman_deploy_dns_ttl: 600
-###
-
-### DNS Scenario: internal
-# Which upstream DNS server Foreman should use
-foreman_dns_forwarders: '9.9.9.9'
-###
-
 ## Global network settings
 # These networks are made available in the Foreman infrastructure
 # The names of the networks must be following the lifecycle path
@@ -140,13 +122,28 @@ foreman_deploy_networks:
     smart_proxy: 'foreman-proxy.prod.example.com' # If not defined, will use the global foreman server
 ##
 
-## Foreman instance network settings
-# Which network interface to configure DHCP/DNS for the current instance
-foreman_instance_deploy_interface: 'eth1'
-# Which Network is used by this instance
-foreman_instance_network: 'Development'
-##
+# Run Foreman Installer to configure deployment components
+# NOTE: This role currently assumes a 'default' scenario where Foreman manages DHCP, DNS and TFTP.
+# For DNS, different scenario's are avaiable, see below
+# If you require a different setup, disable this and prepare the node manually.
+foreman_deploy_run_installer: true
 
+# Select a DNS deployment scenario
+foreman_deploy_dns_scenario: 'internal' # internal or nsupdate
+
+### DNS scenario: nsupdate
+# Upstream server
+foreman_deploy_dns_server: '192.168.1.1'
+# RNDC credentials, make sure this file exists before running this role!
+foreman_deploy_dns_rndc_key: '/etc/rndc.key'
+# Default TTL for created records
+foreman_deploy_dns_ttl: 600
+###
+
+### DNS Scenario: internal
+# Which upstream DNS server Foreman should use
+foreman_dns_forwarders: '9.9.9.9'
+###
 
 # The root password set on all machines deployed by Foreman
 # If not set, will default to 'changemeNOW!'
@@ -176,6 +173,16 @@ foreman_operating_systems:
 
 # Which version of the Foreman Discorvery Image to use
 foreman_discovery_image_release: 'latest'
+## end of global settings
+
+## Foreman instance network settings
+# Which network interface to configure DHCP/DNS for the current instance
+foreman_instance_deploy_interface: 'eth1'
+# Which Network is used by this instance
+foreman_instance_network: 'Development'
+##
+
+
 
 # Enable to allow logging for tasks that can contain sensitive information
 foreman_debug: false

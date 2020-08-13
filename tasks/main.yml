@@ -54,6 +54,23 @@
   loop_control:
     loop_var: 'location'
 
+- name: 'Ensure Infrastructure Lifecycle environment'
+  theforeman.foreman.lifecycle_environment:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ infra_lifecycle }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    prior: "{{ foreman_infrastructure_lifecycle[index-1] }}"
+    state: 'present'
+  loop: "{{ foreman_infrastructure_lifecycle }}"
+  when: infra_lifecycle != 'Library'
+  loop_control:
+    index_var: 'index'
+    loop_var: 'infra_lifecycle'
+
 - name: 'Ensure Lifecycle environments'
   theforeman.foreman.lifecycle_environment:
     username: "{{ foreman_admin_user }}"
@@ -83,7 +100,7 @@
     state: 'present'
   loop: >-
     {%- set results = [] -%}
-    {%- for lifecycle in foreman_lifecycle -%}
+    {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
     {%-   for os in foreman_host_collections_os -%}
     {%-     set line = os + '-' + lifecycle|lower -%}
     {%-     set _ = results.append(line) if lifecycle != 'Library' -%}
@@ -177,7 +194,10 @@
   loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
   loop_control:
     loop_var: 'repo'
+- debug:
+    var: 'repo_created'
 
+- meta: end_play
 - name: 'Sync changed Product Repositories, this may take long...'
   theforeman.foreman.repository_sync:
     username: "{{ foreman_admin_user }}"
@@ -260,7 +280,7 @@
   include_tasks: 'activation_key_add.yml'
   loop: >-
     {%- set results = [] -%}
-    {%- for lifecycle in foreman_lifecycle -%}
+    {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
     {%-   for os in foreman_host_collections_os -%}
     {%-     set line = {'os': os, 'host_collection': [os + '-' + lifecycle|lower], 'lifecycle': lifecycle} -%}
     {%-     set _ = results.append(line) if lifecycle != 'Library' -%}
@@ -384,7 +404,7 @@
   no_log: "{{ not foreman_debug }}"
   loop: >- # This loop combines the following information: Activation Keys, Lifecycles, OS deployment variables and Deployment Networks
     {%- set results = [] -%}
-    {%- for lifecycle in foreman_lifecycle -%}
+    {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
     {%-   for network in foreman_deploy_networks -%}
     {%-     if network['name'] == lifecycle -%}
     {%-       for key in foreman_activation_keys  -%}
