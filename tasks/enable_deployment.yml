@@ -4,6 +4,12 @@
     that:
       - foreman_deploy_dns_scenario in foreman_deploy_dns_scenarios
 
+- name: 'Retrieve Foreman instance network settings'
+  set_fact:
+    foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('name', 'equalto', foreman_instance_network) }}"
+
+- debug:
+    var: foreman_instance_network_settings
 - name: 'Configure Foreman instance for deployment'
   shell: |
     export LANG="en_US.UTF-8"
@@ -12,9 +18,9 @@
     {{ lookup('vars', 'foreman_dns_scenario_' + foreman_deploy_dns_scenario ) }}
     --foreman-proxy-dhcp true \
     --foreman-proxy-dhcp-interface {{ foreman_deploy_interface }} \
-    --foreman-proxy-dhcp-range "{{ foreman_deploy_network_range_start }} {{ foreman_deploy_network_range_end }}" \
-    --foreman-proxy-dhcp-gateway {{ foreman_deploy_network_gateway }} \
-    --foreman-proxy-dhcp-nameservers {{ foreman_deploy_dhcp_nameserver | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }} \
+    --foreman-proxy-dhcp-range "{{ foreman_instance_network_settings[0]['range_start'] }} {{ foreman_instance_network_settings[0]['range_end'] }}" \
+    --foreman-proxy-dhcp-gateway {{ foreman_instance_network_settings[0]['network_gateway'] }} \
+    --foreman-proxy-dhcp-nameservers {{ foreman_instance_network_settings[0]['nameserver'] | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }} \
     --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
@@ -28,13 +34,16 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ foreman_dns_zone }}"
-    description: "{{ foreman_dns_zone }} - Managed by Ansible"
+    name: "{{ zone.dns_zone }}"
+    description: "{{ zone.dns_zone }} - Managed by Ansible"
     organizations:
       - "{{ foreman_organization }}"
-    locations: "{{ foreman_locations }}"
+    locations: "{{ zone.locations }}"
     dns_proxy: "{{ ansible_facts['fqdn'] }}"
     state: 'present'
+  loop: "{{ foreman_deploy_networks }}"
+  loop_control:
+    loop_var: 'zone'
 
 - name: 'Ensure Foreman Subnet'
   theforeman.foreman.subnet:
@@ -42,25 +51,27 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ foreman_deploy_network_name }}"
+    name: "{{ network.name }}"
     description: 'Managed by Ansible, your changes will be lost'
     organizations:
       - "{{ foreman_organization }}"
-    locations: "{{ foreman_locations }}"
+    locations: "{{ network.locations }}"
     domains:
-      - "{{ foreman_dns_zone }}"
-    network: "{{ foreman_deploy_network_address | ipaddr('network') }}"
-    cidr: "{{ foreman_deploy_network_address | ipaddr('prefix') }}"
-    from_ip: "{{ foreman_deploy_network_range_start }}"
-    to_ip: "{{ foreman_deploy_network_range_end }}"
+      - "{{ network.dns_zone }}"
+    network: "{{ network.address | ipaddr('network') }}"
+    cidr: "{{ network.address | ipaddr('prefix') }}"
+    from_ip: "{{ network.range_start }}"
+    to_ip: "{{ network.range_end }}"
     boot_mode: 'DHCP'
-
     dns_proxy: "{{ ansible_facts['fqdn'] }}"
     dhcp_proxy: "{{ ansible_facts['fqdn'] }}"
     tftp_proxy: "{{ ansible_facts['fqdn'] }}"
     httpboot_proxy: "{{ ansible_facts['fqdn'] }}"
     template_proxy: "{{ ansible_facts['fqdn'] }}"
     state: 'present'
+  loop: "{{ foreman_deploy_networks }}"
+  loop_control:
+    loop_var: 'network'
 
 - name: 'Ensure Installation Media'
   theforeman.foreman.installation_medium:
@@ -116,8 +127,8 @@
     lifecycle_environment: "{{ hostgroup['lifecycle'] }}"
     content_view: "COV {{ hostgroup['name'] }}"
     content_source: "{{ ansible_facts['fqdn'] }}"
-    domain: "{{ foreman_dns_zone }}"
-    subnet: "{{ foreman_deploy_network_name }}"
+    domain: "{{ hostgroup['dns_zone'] }}"
+    subnet: "{{ hostgroup['network'] }}"
     architecture: "{{ hostgroup.arch[0] }}"
     operatingsystem: "{{ hostgroup['os'] }}"
     ptable: "{{ hostgroup['ptable'] }}"
@@ -126,21 +137,27 @@
     root_pass: "{{ hostgroup['root_pass'] }}"
     pxe_loader: "{{ hostgroup['pxe_loader'] }}"
   no_log: "{{ not foreman_debug }}"
-  loop: >- # This loop combines the following information: Activation Keys, Lifecycles and OS deployment variables
+  loop: >- # This loop combines the following information: Activation Keys, Lifecycles, OS deployment variables and Deployment Networks
     {%- set results = [] -%}
     {%- for lifecycle in foreman_lifecycle -%}
     {%-   for key in foreman_activation_keys  -%}
     {%-     for os in foreman_operating_systems -%}
-    {%-       if key.name.split('-')[0] == os['name'] + os['major_version'] | string -%}
-    {%-         set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] + '-' + lifecycle }] -%}
-    {%-         set line = {'name': key['name'], 'arch': os['arch'],
-                            'root_pass': os['root_pass'] | default('changemeNOW!'),
-                            'ptable': os['partitions'] | default('Kickstart default'),
-                            'lifecycle': lifecycle, 'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
-                            'os': os['name'] + ' ' + os['major_version'] | string,
-                            'parameters': parameters + os['parameters'] | default([]) }  -%}
-    {%-         set _ = results.append(line) if lifecycle != 'Library' -%}
-    {%-       endif -%}
+    {%-       for network in foreman_deploy_networks -%}
+    {%-         if key.name.split('-')[0] == os['name'] + os['major_version'] | string -%}
+    {%-           if network['name'] == lifecycle -%}
+    {%-             set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] + '-' + lifecycle }] -%}
+    {%-             set line = {'name': key['name'], 'arch': os['arch'], 'network': network['name'],
+                                'root_pass': os['root_pass'] | default('changemeNOW!'),
+                                'locations': network['locations'], 'dns_zone': network['dns_zone'],
+                                'smart_proxy': network['smart_proxy'],
+                                'ptable': os['partitions'] | default('Kickstart default'),
+                                'lifecycle': lifecycle, 'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
+                                'os': os['name'] + ' ' + os['major_version'] | string,
+                                'parameters': parameters + os['parameters'] | default([]) }  -%}
+    {%-             set _ = results.append(line) if lifecycle != 'Library' -%}
+    {%-           endif -%}
+    {%-         endif -%}
+    {%-       endfor -%}
     {%-     endfor -%}
     {%-   endfor -%}
     {%- endfor -%}

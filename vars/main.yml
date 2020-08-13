@@ -6,14 +6,14 @@ foreman_deploy_dns_scenarios:
 foreman_dns_scenario_internal: |-
   --foreman-proxy-dns true \
   --foreman-proxy-dns-interface {{ foreman_deploy_interface }} \
-  --foreman-proxy-dns-zone {{ foreman_dns_zone }} \
-  --foreman-proxy-dns-forwarders {{ foreman_dns_forwarders }} \
-  --foreman-proxy-dns-reverse {{ foreman_deploy_network_address.split('.')[0:3] | reverse | join('.') }}.in-addr.arpa \
+  --foreman-proxy-dns-zone {{ foreman_instance_network_settings[0]['dns_zone'] }} \
+  --foreman-proxy-dns-forwarders {{ foreman_instance_network_settings[0]['nameserver'] }} \
+  --foreman-proxy-dns-reverse {{ foreman_instance_network_settings['address'].split('.')[0:3] | reverse | join('.') }}.in-addr.arpa \
 
 foreman_dns_scenario_nsupdate: |-
   --foreman-proxy-dns true \
   --foreman-proxy-dns-managed false \
   --foreman-proxy-dns-provider nsupdate \
-  --foreman-proxy-dns-server {{ foreman_deploy_dns_server }} \
+  --foreman-proxy-dns-server {{ foreman_instance_network_settings[0]['nameserver'] }} \
   --foreman-proxy-keyfile {{ foreman_deploy_dns_rndc_key }} \
   --foreman-proxy-dns-ttl {{ foreman_deploy_dns_ttl }} \
