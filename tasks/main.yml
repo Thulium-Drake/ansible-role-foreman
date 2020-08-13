@@ -279,11 +279,11 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ zone.dns_zone }}"
-    description: "{{ zone.dns_zone }} - Managed by Ansible"
+    name: "{{ zone['dns_zone'] }}"
+    description: "{{ zone['dns_zone'] }} - Managed by Ansible"
     organizations:
       - "{{ foreman_organization }}"
-    locations: "{{ zone.locations }}"
+    locations: "{{ zone['locations'] }}"
     dns_proxy: "{{ ansible_facts['fqdn'] }}"
     state: 'present'
   loop: "{{ foreman_deploy_networks }}"
@@ -296,17 +296,17 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ network.name }}"
+    name: "{{ network['name'] }}"
     description: 'Managed by Ansible, your changes will be lost'
     organizations:
       - "{{ foreman_organization }}"
-    locations: "{{ network.locations }}"
+    locations: "{{ network['locations'] }}"
     domains:
-      - "{{ network.dns_zone }}"
-    network: "{{ network.address | ipaddr('network') }}"
-    cidr: "{{ network.address | ipaddr('prefix') }}"
-    from_ip: "{{ network.range_start }}"
-    to_ip: "{{ network.range_end }}"
+      - "{{ network['dns_zone'] }}"
+    network: "{{ network['address'] | ipaddr('network') }}"
+    cidr: "{{ network['address'] | ipaddr('prefix') }}"
+    from_ip: "{{ network['range_start'] }}"
+    to_ip: "{{ network['range_end'] }}"
     boot_mode: 'DHCP'
     dns_proxy: "{{ ansible_facts['fqdn'] }}"
     dhcp_proxy: "{{ ansible_facts['fqdn'] }}"
@@ -374,7 +374,7 @@
     content_source: "{{ ansible_facts['fqdn'] }}"
     domain: "{{ hostgroup['dns_zone'] }}"
     subnet: "{{ hostgroup['network'] }}"
-    architecture: "{{ hostgroup.arch[0] }}"
+    architecture: "{{ hostgroup['arch'][0] }}"
     operatingsystem: "{{ hostgroup['os'] }}"
     ptable: "{{ hostgroup['ptable'] }}"
     medium: "{{ hostgroup['os'] }}"
