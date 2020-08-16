@@ -1,0 +1,90 @@
+---
+- name: 'Install dependencies'
+  yum:
+    name:
+      - 'foreman-proxy-content'
+      - 'puppet-agent-oauth'
+    state: 'present'
+
+- name: 'Ensure firewall ports'
+  firewalld:
+    port: "{{ port }}"
+    permanent: true
+    immediate: true
+    state: 'enabled'
+  loop:
+    - '7/tcp'
+    - '7/udp'
+    - '53/tcp'
+    - '53/udp'
+    - '67/udp'
+    - '69/udp'
+    - '80/tcp'
+    - '443/tcp'
+    - '8000/tcp'
+    - '8443/tcp'
+    - '8140/tcp'
+    - '9090/tcp'
+  loop_control:
+    loop_var: 'port'
+
+- name: 'Generate certificates on Foreman Server'
+  shell: |
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    /usr/sbin/foreman-proxy-certs-generate \
+      --no-colors \
+      --foreman-proxy-fqdn "{{ ansible_facts['fqdn'] }}" \
+      --certs-tar /root/{{ ansible_facts['fqdn'] }}.tar
+  delegate_to: "{{ groups['foreman'][0] }}"
+  register: 'foreman_certs_gen'
+
+- name: 'Copy certificate tar to Ansible Controller'
+  fetch:
+    src: "/root/{{ ansible_facts['fqdn'] }}.tar"
+    dest: '/tmp/'
+    flat: true
+  delegate_to: "{{ groups['foreman'][0] }}"
+
+- name: 'Copy certificate tar to Foreman Proxy'
+  copy:
+    src: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
+    dest: '/root'
+
+- name: 'Remove certificate tar from Ansible Controller'
+  file:
+    path: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
+    state: 'absent'
+  delegate_to: 'localhost'
+
+- name: 'Compose foreman-installer command'
+  set_fact:
+    foreman_installer_cmd: "{{ ['export LANG=en_US.UTF-8', 'export LC_ALL=en_US.UTF-8'] + foreman_certs_gen['stdout_lines'][-11:] }}"
+
+- name: 'Run foreman-installer on Proxy'
+  shell: "{{ foreman_installer_cmd | join('\n') }}"
+
+- name: 'Configure Foreman for deployment'
+  include_tasks: 'enable_deployment.yml'
+
+- name: 'Configure Host Discovery'
+  shell: |
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery
+
+- name: 'Fix MongoDB warnings by setting permissions'
+  acl:
+    path: '/var/lib/mongodb'
+    entity: 'foreman-proxy'
+    etype: 'user'
+    permissions: 'r'
+    state: 'present'
+
+- name: 'After installation message'
+  pause:
+    prompt: |
+      Installation succesful!
+      As of this time there is no module available to configure Smart Proxies in Ansible.
+      Please log in on {{ foreman_url }} , assign it manually and sync the proxy.
+      Also run a configuration run for Foreman again to update any Host Groups with the new proxy.

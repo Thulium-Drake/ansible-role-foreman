@@ -8,8 +8,16 @@
   set_fact:
     foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('name', 'equalto', foreman_instance_network) }}"
 
-- debug:
-    var: foreman_instance_network_settings
+- name: 'Check permissions on rndc key'
+  file:
+    path: "{{ foreman_deploy_dns_rndc_key }}"
+    owner: 'root'
+    group: 'foreman-proxy'
+    mode: 0640
+    setype: 'dnssec_t'
+    serole: 'object_r'
+  when: foreman_deploy_dns_scenario == 'nsupdate'
+
 - name: 'Configure Foreman instance for deployment'
   shell: |
     export LANG="en_US.UTF-8"
@@ -24,8 +32,7 @@
     --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
-    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} \
-    --enable-foreman-plugin-discovery
+    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }}
   when: foreman_deploy_run_installer
 
 - name: 'Ensure Discovery Image present'
@@ -33,6 +40,3 @@
     src: "http://downloads.theforeman.org/discovery/releases/{{ foreman_discovery_image_release }}/fdi-image-latest.tar"
     dest: '/var/lib/tftpboot/boot'
     remote_src: true
-
-- name: 'Build PXE Default'
-  command: hammer template build-pxe-default

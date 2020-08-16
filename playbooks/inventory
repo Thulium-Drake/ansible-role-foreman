@@ -1,0 +1,5 @@
+[foreman] # This is where the foreman server is in
+foreman.example.com
+
+[foreman_proxies]
+fm-proxy.nl.example.com

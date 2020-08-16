@@ -93,7 +93,9 @@ foreman_deploy_networks:
     range_start: '192.168.1.150'
     range_end: '192.168.1.200'
     network_gateway: '192.168.1.1'
-    nameserver: '192.168.1.1' # If not defined, will use the IP address of the foreman server
+    auth_nameserver: '192.168.1.1'
+    dns_primary: '192.168.1.1' # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.1.1' # optional
     dns_zone: 'dev.example.com'
     locations:
       - 'DC1'
@@ -103,7 +105,9 @@ foreman_deploy_networks:
     range_start: '192.168.2.150'
     range_end: '192.168.2.200'
     network_gateway: '192.168.2.1'
-    nameserver: '192.168.2.1'
+    auth_nameserver: '192.168.2.1'
+    dns_primary: '192.168.2.1' # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.2.1' # optional
     dns_zone: 'qa.example.com'
     locations:
       - 'DC1'
@@ -114,7 +118,9 @@ foreman_deploy_networks:
     range_start: '192.168.3.150'
     range_end: '192.168.3.200'
     network_gateway: '192.168.3.1'
-    nameserver: '192.168.3.1'
+    auth_nameserver: '192.168.3.1'
+    dns_primary: '192.168.3.1' # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.3.1' # optional
     dns_zone: 'prod.example.com'
     locations:
       - 'DC1'

@@ -188,30 +188,27 @@
     upstream_username: "{{ repo[1]['upstream_username'] | default(omit) }}"
     upstream_password: "{{ repo[1]['upstream_password'] | default(omit) }}"
     product: "{{ repo[0]['name'] }}"
-    gpg_key: "{{ repo[0]['gpg_key'] }}"
+    gpg_key: "{% if repo[1]['no_gpg_key'] | default(false) %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
     state: 'present'
   register: 'repo_created'
   loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
   loop_control:
     loop_var: 'repo'
-- debug:
-    var: 'repo_created'
 
-- meta: end_play
-- name: 'Sync changed Product Repositories, this may take long...'
+- name: 'Sync repositories for changed Products, this may take long...'
   theforeman.foreman.repository_sync:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    product: "{{ product['name'] }}"
-  loop: "{{ foreman_products }}"
+    product: "{{ product['repo'][0]['name'] }}"
+  loop: "{{ repo_created['results'] }}"
+  when: product['changed']
   loop_control:
     loop_var: 'product'
   async: 10800
   poll: 60
-  when: repo_created['changed']
 
 - name: 'Ensure content views and versions'
   include_tasks: 'cv_add_base.yml'
@@ -241,10 +238,10 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    content_view: "{{ comp_content_view['name'] }}"
-    lifecycle_environments: "{{ foreman_lifecycle }}"
-  when: cov_created['changed']
-  loop: "{{ foreman_composite_content_views }}"
+    content_view: "{{ comp_content_view['comp_content_view']['name'] }}"
+    lifecycle_environments: "{{ foreman_lifecycle + foreman_infrastructure_lifecycle }}"
+  when: comp_content_view['changed']
+  loop: "{{ cov_created['results'] }}"
   loop_control:
     loop_var: 'comp_content_view'
 
@@ -270,7 +267,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ collection[1] }}"
-    #description: 'Managed by Ansible, your changes will be lost'
+    description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
   loop: "{{ foreman_activation_keys | subelements('host_collections', { 'skip_missing': true}) }}"
   loop_control:
@@ -290,10 +287,16 @@
   loop_control:
     loop_var: 'key_lifecycle'
 
-- name: 'start'
-  debug:
+- name: 'Configure Foreman for deployment'
+  include_tasks: 'enable_deployment.yml'
 
-- name: 'Ensure Foreman Domain'
+- name: 'Configure Host Discovery'
+  shell: |
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+    /usr/sbin/foreman-installer --enable-foreman-plugin-discovery
+
+- name: 'Ensure Foreman Domains'
   theforeman.foreman.domain:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -304,13 +307,13 @@
     organizations:
       - "{{ foreman_organization }}"
     locations: "{{ zone['locations'] }}"
-    dns_proxy: "{{ ansible_facts['fqdn'] }}"
+    dns_proxy: "{{ zone['smart_proxy'] }}"
     state: 'present'
   loop: "{{ foreman_deploy_networks }}"
   loop_control:
     loop_var: 'zone'
 
-- name: 'Ensure Foreman Subnet'
+- name: 'Ensure Foreman Subnets'
   theforeman.foreman.subnet:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -324,15 +327,18 @@
     domains:
       - "{{ network['dns_zone'] }}"
     network: "{{ network['address'] | ipaddr('network') }}"
+    dns_primary: "{{ network['dns_primary'] | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }}"
+    dns_secondary: "{{ network['dns_secondary'] | default(omit) }}"
     cidr: "{{ network['address'] | ipaddr('prefix') }}"
     from_ip: "{{ network['range_start'] }}"
     to_ip: "{{ network['range_end'] }}"
     boot_mode: 'DHCP'
-    dns_proxy: "{{ ansible_facts['fqdn'] }}"
-    dhcp_proxy: "{{ ansible_facts['fqdn'] }}"
-    tftp_proxy: "{{ ansible_facts['fqdn'] }}"
-    httpboot_proxy: "{{ ansible_facts['fqdn'] }}"
-    template_proxy: "{{ ansible_facts['fqdn'] }}"
+    dns_proxy: "{{ network['smart_proxy'] }}"
+    dhcp_proxy: "{{ network['smart_proxy'] }}"
+    tftp_proxy: "{{ network['smart_proxy'] }}"
+    httpboot_proxy: "{{ network['smart_proxy'] }}"
+    template_proxy: "{{ network['smart_proxy'] }}"
+    discovery_proxy: "{% if network['smart_proxy'] == ansible_facts['fqdn'] %}{{ omit }}{% else %}{{ network['smart_proxy'] }}{% endif %}"
     state: 'present'
   loop: "{{ foreman_deploy_networks }}"
   loop_control:
@@ -379,6 +385,45 @@
   loop_control:
     loop_var: 'os'
 
+- name: 'Ensure pxelinux_discovery Snippet'
+  theforeman.foreman.provisioning_template:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'pxelinux_discovery_custom'
+    kind: 'snippet'
+    locations: "{{ ['Default Location'] + foreman_locations }}"
+    organizations:
+      - 'Default Organization'
+      - '{{ foreman_organization }}'
+    state: 'present'
+    template: "{{ lookup('file', 'pxelinux_discovery_custom.snippet') }}"
+
+- name: 'Ensure Global Default PXE Provisioning Template'
+  theforeman.foreman.provisioning_template:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'PXELinux global default custom'
+    kind: 'PXELinux'
+    locations: "{{ ['Default Location'] + foreman_locations }}"
+    organizations:
+      - 'Default Organization'
+      - '{{ foreman_organization }}'
+    state: 'present'
+    template: "{{ lookup('file', 'pxelinux_global_default.template') }}"
+
+- name: 'Ensure Global Default PXELinux Template Setting'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'global_PXELinux'
+    value: 'PXELinux global default custom'
+
 - name: 'Ensure Host Groups, always changes as the current root_pass can not be compared'
   theforeman.foreman.hostgroup:
     username: "{{ foreman_admin_user }}"
@@ -391,7 +436,7 @@
     locations: "{{ foreman_locations }}"
     lifecycle_environment: "{{ hostgroup['lifecycle'] }}"
     content_view: "COV {{ hostgroup['name'] }}"
-    content_source: "{{ ansible_facts['fqdn'] }}"
+    content_source: "{{ hostgroup['smart_proxy'] }}"
     domain: "{{ hostgroup['dns_zone'] }}"
     subnet: "{{ hostgroup['network'] }}"
     architecture: "{{ hostgroup['arch'][0] }}"
@@ -446,3 +491,14 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: 'name_generator_type'
     value: 'MAC-based'
+
+- name: 'Build PXE Default'
+  command: hammer template build-pxe-default
+
+- name: 'Fix MongoDB warnings by setting permissions'
+  acl:
+    path: '/var/lib/mongodb'
+    entity: 'foreman-proxy'
+    etype: 'user'
+    permissions: 'r'
+    state: 'present'
