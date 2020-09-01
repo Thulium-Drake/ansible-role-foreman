@@ -1,16 +1,32 @@
 ---
-- name: 'Ensure package dependencies'
-  package:
-    name: 'python-pip'
-    state: 'present'
+- name: 'Check input'
+  assert:
+    that:
+      - foreman_server_type in foreman_supported_server_types
 
 - name: 'Ensure PiP dependencies'
   pip:
     name: 'apypie'
     state: 'present'
+  when: ansible_facts['distribution'] != 'RedHat'
+
+- name: 'Ensure PiP dependencies'
+  block:
+    - name: 'Install dependencies'
+      pip:
+        name:
+          - 'apypie'
+        state: 'present'
+        executable: '/usr/local/bin/ansible_foreman_pip'
+    - name: 'Symlink Apypie to system python'
+      file:
+        src: '/opt/rh/python27/root/usr/lib/python2.7/site-packages/apypie'
+        dest: '/usr/lib/python2.7/site-packages/apypie'
+        state: 'link'
+  when: ansible_facts['distribution'] == 'RedHat'
 
 - name: 'Ensure firewall ports'
-  firewalld:
+  ansible.posix.firewalld:
     port: "{{ port }}"
     permanent: true
     immediate: true
@@ -137,6 +153,39 @@
     enabled: true
     sync_date: '2020-01-01 00:00:00 UTC'
     state: 'present'
+
+- name: 'Ensure Red Hat Subscription Manifest'
+  block:
+    - name: 'Copy manifest to server'
+      copy:
+        src: "{{ foreman_rh_subsciption_manifest }}"
+        dest: '/root/{{ foreman_organization }}-manifest.zip'
+        mode: 0600
+
+    - name: 'Upload manifest to Satellite'
+      theforeman.foreman.subscription_manifest:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        state: 'present'
+        manifest_path: '/root/{{ foreman_organization }}-manifest.zip'
+  when: foreman_configure_redhat_repos
+
+- name: 'Ensure Red Hat repositories'
+  theforeman.foreman.repository_set:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    label: "{{ redhat_repo['label'] }}"
+    repositories: "{{ redhat_repo['repositories'] }}"
+  loop: "{{ foreman_redhat_repositories }}"
+  loop_control:
+    loop_var: 'redhat_repo'
+  when: foreman_configure_redhat_repos
 
 - name: 'Ensure product GPG keys'
   theforeman.foreman.content_credential:

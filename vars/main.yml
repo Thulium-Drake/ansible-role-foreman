@@ -1,4 +1,8 @@
 ---
+foreman_supported_server_types:
+  - 'foreman'
+  - 'satellite'
+
 foreman_deploy_dns_scenarios:
   - 'internal'
   - 'nsupdate'

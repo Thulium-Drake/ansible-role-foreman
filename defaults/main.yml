@@ -5,6 +5,7 @@ foreman_admin_password: 'secret'
 
 # Server information
 foreman_url: 'https://foreman.example.com'
+foreman_server_type: 'foreman' # or satellite
 foreman_validate_certs: false
 
 # Organization, Locations and Lifecycle path
@@ -12,6 +13,15 @@ foreman_organization: 'Example-Org'
 foreman_locations:
   - 'Example Location'
   - 'Cloud/Other Location' # Nested example
+
+# Red Hat subscription information
+foreman_configure_redhat_repos: false                         # Configure Red Hat subscriptions and repos
+foreman_rh_subsciption_manifest: 'files/path/to/manifest.zip' # Path of the manifest ZIP archive.
+foreman_redhat_repositories:
+  - label: 'rhel-7-server-rpms'
+    repositories:
+      - releasever: "7Server"
+        basearch: "x86_64"
 
 # Set the environments in the order you wish to have them
 foreman_lifecycle:

@@ -40,3 +40,4 @@
     src: "http://downloads.theforeman.org/discovery/releases/{{ foreman_discovery_image_release }}/fdi-image-latest.tar"
     dest: '/var/lib/tftpboot/boot'
     remote_src: true
+  when: foreman_server_type == 'foreman'
