@@ -196,9 +196,7 @@ foreman_discovery_image_release: 'latest'
 foreman_instance_deploy_interface: 'eth1'
 # Which Network is used by this instance
 foreman_instance_network: 'Development'
-##
-
-
+## end of instance settings
 
 # Enable to allow logging for tasks that can contain sensitive information
 foreman_debug: false

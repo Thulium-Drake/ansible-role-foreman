@@ -6,7 +6,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ key['name'] }}-{{ key_lifecycle['lifecycle'] }}"
-    description: 'Managed by Ansible, your changes will be lost'
+    #description: 'Managed by Ansible, your changes will be lost'
     lifecycle_environment: "{{ key_lifecycle['lifecycle'] }}"
     content_view: "{{ key['content_view'] }}"
     subscriptions: "{{ key['subscriptions'] | default(omit) }}"
@@ -31,7 +31,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     name: "{{ key['name'] }}-{{ key_lifecycle['lifecycle'] }}"
-    description: 'Managed by Ansible, your changes will be lost'
+    #description: 'Managed by Ansible, your changes will be lost'
     lifecycle_environment: "{{ key_lifecycle['lifecycle'] }}"
     content_view: "{{ key['content_view'] }}"
     subscriptions: "{{ key['subscriptions'] | default(omit) }}"
