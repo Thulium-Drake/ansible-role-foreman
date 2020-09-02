@@ -199,6 +199,7 @@
     content: "{{ lookup('url', product['gpg_key_url'], split_lines=False) }}"
     state: 'present'
   loop: "{{ foreman_products }}"
+  when: product['gpg_key'] is defined
   loop_control:
     loop_var: 'product'
 
@@ -211,7 +212,6 @@
     organization: "{{ foreman_organization }}"
     name: "{{ product['name'] }}"
     description: 'Managed by Ansible, your changes will be lost'
-    gpg_key: "{{ product['gpg_key'] }}"
     sync_plan: 'Daily repo sync'
     state: 'present'
   loop: "{{ foreman_products }}"
@@ -237,7 +237,7 @@
     upstream_username: "{{ repo[1]['upstream_username'] | default(omit) }}"
     upstream_password: "{{ repo[1]['upstream_password'] | default(omit) }}"
     product: "{{ repo[0]['name'] }}"
-    gpg_key: "{% if repo[1]['no_gpg_key'] | default(false) %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
+    gpg_key: "{% if repo[1]['no_gpg_key'] | default(False) %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
     state: 'present'
   register: 'repo_created'
   loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
