@@ -1,0 +1,46 @@
+---
+# Foreman/Katello versions are linked, check Katello docs for more information
+- name: 'Set versions'
+  set_facts:
+    foreman_version: 2.0
+    katello_version: 3.15
+    foreman_initial_admin_password: "{{ foreman_admin_password }}"
+
+- name: 'Install EPEL'
+  yum:
+    name: 'epel-release'
+    state: 'present'
+
+- name: 'Install supporting tools'
+  yum:
+    name:
+      - 'git'
+      - 'ansible'
+      - 'python-pip'
+    state: 'present'
+    update_cache: true
+
+- name: 'Ensure resources directory'
+  file:
+    path: '/opt/resources'
+    state: 'directory'
+
+- name: 'Set up Forklift'
+  git:
+    repo: 'https://github.com/theforeman/forklift.git'
+    dest: '/opt/resources/forklift'
+
+- name: 'Run common tasks'
+  include_tasks: 'install_foreman_common.yml'
+
+- name: 'Run Ansible on remote host (see /var/log/foreman_install_ansible.log for details)'
+  shell: |
+    export ANSIBLE_LOG_PATH=/var/log/foreman_install_ansible.log
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+    cd /opt/resources/forklift
+    ansible-playbook -i localhost, -c local \
+    /opt/resources/forklift/playbooks/katello.yml \
+    -e foreman_repositories_version={{ foreman_version }} \
+    -e katello_repositories_version={{ katello_version }} \
+    -e foreman_installer_admin_password={{ foreman_initial_admin_password }}

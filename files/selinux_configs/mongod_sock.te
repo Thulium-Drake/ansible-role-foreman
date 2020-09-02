@@ -1,0 +1,13 @@
+
+module mongod_sock 1.0;
+
+require {
+	type tmpfs_t;
+	type mongod_t;
+	class sock_file { create setattr };
+	class dir { add_name write };
+}
+
+#============= mongod_t ==============
+allow mongod_t tmpfs_t:dir { add_name write };
+allow mongod_t tmpfs_t:sock_file { create setattr };
