@@ -7,7 +7,7 @@
     state: 'present'
 
 - name: 'Ensure firewall ports'
-  firewalld:
+  ansible.posix.firewalld:
     port: "{{ port }}"
     permanent: true
     immediate: true
