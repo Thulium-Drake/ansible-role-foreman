@@ -11,7 +11,7 @@ This Snippet is based on pxelinux_discovery, the only change made it the removal
 LABEL discovery
   MENU LABEL Foreman Discovery Image
   KERNEL boot/fdi-image/vmlinuz0
-  APPEND initrd=boot/fdi-image/initrd0.img rootflags=loop root=live:/fdi.iso rootfstype=auto ro rd.live.image acpi=force rd.luks=0 rd.md=0 rd.dm=0 rd.lvm=0 rd.bootif=0 rd.neednet=0 nokaslr nomodeset proxy.type=foreman
+  APPEND initrd=boot/fdi-image/initrd0.img rootflags=loop root=live:/fdi.iso rootfstype=auto ro rd.live.image acpi=force rd.luks=0 rd.md=0 rd.dm=0 rd.lvm=0 rd.bootif=0 rd.neednet=0 nokaslr nomodeset proxy.type=foreman fdi.countdown=10
   IPAPPEND 2
 
 <%#
