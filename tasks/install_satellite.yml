@@ -1,0 +1,104 @@
+- name: 'Prepare system for Red Hat Satellite installtion'
+  block:
+    # NOTE: This task seems to not be fully idempotent, when running this playbook again
+    # you'll need to run 'subscription-manager clean' first.
+    # Afterwards, check the support.redhat.com portal for any orphaned system registrations.
+    - name: 'Ensure Red Hat Subscriptions'
+      community.general.redhat_subscription:
+        username: "{{ foreman_redhat_support_user }}"
+        password: "{{ foreman_redhat_support_password }}"
+        auto_attach: true
+        pool: '^(Red Hat Enterprise Server|Red Hat Satellite)$'
+        state: 'present'
+
+    - name: 'Ensure Red Hat Satellite Repositories'
+      community.general.rhsm_repository:
+        name:
+          - 'rhel-7-server-rpms'
+          - 'rhel-7-server-satellite-6.7-rpms'
+          - 'rhel-7-server-satellite-maintenance-6-rpms'
+          - 'rhel-server-rhscl-7-rpms'
+          - 'rhel-7-server-ansible-2.8-rpms'
+        purge: true
+        state: 'present'
+
+    - name: 'Install Satellite packages'
+      package:
+        name:
+          - 'satellite'
+          - 'python27-python-pip'
+        state: 'present'
+  when: not foreman_satellite_offline_install
+
+- name: 'Install Red Hat Satellite from ISO'
+  block:
+    - name: 'Mount Red Hat Satellite ISO'
+      ansible.posix.mount:
+        src: "{{ foreman_satellite_dvd_drive }}"
+        path: '/mnt/sat_iso'
+        fstype: 'iso9660'
+        state: 'mounted'
+
+    - name: 'Run installer script'
+      shell: |
+        cd /mnt/sat_iso
+        ./install_packages
+
+    - name: 'Install PiP'
+      yum:
+        name: 'python27-python-pip'
+
+    - name: 'Unmount Red Hat Satellite ISO'
+      ansible.posix.mount:
+        src: "{{ foreman_satellite_dvd_drive }}"
+        path: '/mnt/sat_iso'
+        fstype: 'iso9660'
+        state: 'absent'
+  when: foreman_satellite_offline_install
+
+- name: 'Place wrapper scripts for PiP'
+  copy:
+    dest: '/usr/local/bin/ansible_foreman_pip'
+    mode: 0755
+    content: |
+      #!/bin/bash
+      # This file is part of Ansible Foreman
+      . /opt/rh/python27/enable
+      exec pip "$@"
+
+- name: 'Place wrapper scripts for Python'
+  copy:
+    dest: '/usr/local/bin/ansible_foreman_python'
+    mode: 0755
+    content: |
+      #!/bin/bash
+      # This file is part of Ansible Foreman
+      . /opt/rh/python27/enable
+      exec python "$@"
+
+- name: 'Enable Satellite firewalld service'
+  ansible.posix.firewalld:
+    service: 'RH-Satellite-6'
+    state: 'enabled'
+    permanent: true
+    immediate: true
+
+- name: 'Run Satellite installer default scenario (see /var/log/foreman-installer/satellite.log for details)'
+  shell: |
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+    satellite-installer --scenario satellite \
+      --foreman-initial-admin-username {{ foreman_admin_user }} \
+      --foreman-initial-admin-password {{ foreman_admin_password }} \
+      --foreman-proxy-puppetca true \
+      --foreman-proxy-tftp true \
+      --enable-foreman-plugin-discovery
+
+- name: 'End of installation notice'
+  debug:
+    msg: |
+      NOTICE: You have installed Satellite in Offline mode, please note the following points:
+        1. This system CAN NOT be registered to the Satellite Server it hosts!
+        2. This system might still be unlicensed, please check https://access.redhat.com/solutions/3121571
+        3. You need to install apypie (from a pip package) manually _before_ running any configuration playbooks
+  when: foreman_satellite_offline_install

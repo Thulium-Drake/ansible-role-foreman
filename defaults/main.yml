@@ -3,10 +3,17 @@
 foreman_admin_user: 'admin'
 foreman_admin_password: 'secret'
 
+
 # Server information
 foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman' # or satellite
 foreman_validate_certs: false
+
+# Satellite installation information
+foreman_redhat_support_user: 'user@example.com'
+foreman_redhat_support_password: 'mysecretpassword'
+foreman_satellite_offline_install: false # When true, make sure to set the ISO location below
+foreman_satellite_dvd_drive: '/dev/sr0' # this role assumes you mount the ISO to a VM as a drive
 
 # Organization, Locations and Lifecycle path
 foreman_organization: 'Example-Org'
@@ -58,6 +65,10 @@ foreman_products: []
 
 foreman_composite_content_views: []
 # Below is an example of an Composite Content View
+#
+# The name of the COV must contain the OS name as reported by facter and the major version
+# if you wish to also configure them for deployment (eg. CentOS8, RedHat7)
+
 #  - name: 'COV Example'
 #    components:
 #      - content_view: 'CV Example'
@@ -67,7 +78,7 @@ foreman_composite_content_views: []
 # The key will always be associated with the Host Collection for it's Lifecycle
 #
 # The name of the key must contain the OS name as reported by facter and the major version
-# if you wish to also configure them for deployment
+# if you wish to also configure them for deployment (eg. CentOS8-Base, RedHat8-Base)
 #
 # The example key below will be added to the following host collections:
 #

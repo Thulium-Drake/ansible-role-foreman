@@ -45,6 +45,15 @@
     - '9090/tcp'
   loop_control:
     loop_var: 'port'
+  when: foreman_server_type == 'foreman'
+
+- name: 'Ensure Red Hat Satellite firewalld profile'
+  ansible.posix.firewalld:
+    service: 'RH-Satellite-6'
+    permanent: true
+    immediate: true
+    state: 'enabled'
+  when: foreman_server_type == 'satellite'
 
 - name: 'Ensure organization'
   theforeman.foreman.organization:
@@ -171,20 +180,32 @@
         organization: "{{ foreman_organization }}"
         state: 'present'
         manifest_path: '/root/{{ foreman_organization }}-manifest.zip'
-  when: foreman_configure_redhat_repos
 
-- name: 'Ensure Red Hat repositories'
-  theforeman.foreman.repository_set:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    label: "{{ redhat_repo['label'] }}"
-    repositories: "{{ redhat_repo['repositories'] }}"
-  loop: "{{ foreman_redhat_repositories }}"
-  loop_control:
-    loop_var: 'redhat_repo'
+    - name: 'Ensure Red Hat repositories'
+      theforeman.foreman.repository_set:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        label: "{{ redhat_repo['label'] }}"
+        repositories: "{{ redhat_repo['repositories'] }}"
+      loop: "{{ foreman_redhat_repositories }}"
+      loop_control:
+        loop_var: 'redhat_repo'
+      register: 'repo_enabled'
+
+    - name: 'Sync Red Hat Repositories, this may take long...'
+      theforeman.foreman.repository_sync:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        product: 'Red Hat Enterprise Linux Server'
+      when: repo_enabled['changed']
+      async: 10800
+      poll: 60
   when: foreman_configure_redhat_repos
 
 - name: 'Ensure product GPG keys'
@@ -259,9 +280,13 @@
   async: 10800
   poll: 60
 
-- name: 'Ensure content views and versions'
-  include_tasks: 'cv_add_base.yml'
+- name: 'Ensure content views and versions for Products'
+  include_tasks: 'cv_add_base_product.yml'
   loop: "{{ foreman_products }}"
+
+- name: 'Ensure content views and versions for other Content Views'
+  include_tasks: 'cv_add_base.yml'
+  loop: "{{ foreman_content_views }}"
 
 - name: 'Ensure composite content views'
   theforeman.foreman.content_view:
@@ -419,6 +444,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     description: "{{ os['name'] }} {{ os['major_version'] }}"
     major: "{{ os['major_version'] }}"
+    minor: "{{ os['minor_version'] | default(omit) }}"
     release: "{{ os['release'] | default(omit) }}"
     name: "{{ os['name'] }}"
     family: "{{ os['os_family'] }}"
@@ -472,6 +498,9 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: 'global_PXELinux'
     value: 'PXELinux global default custom'
+
+- name: 'start'
+  debug:
 
 - name: 'Ensure Host Groups, always changes as the current root_pass can not be compared'
   theforeman.foreman.hostgroup:

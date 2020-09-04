@@ -8,14 +8,20 @@
   set_fact:
     foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('name', 'equalto', foreman_instance_network) }}"
 
-- name: 'Check permissions on rndc key'
-  file:
-    path: "{{ foreman_deploy_dns_rndc_key }}"
-    owner: 'root'
-    group: 'foreman-proxy'
-    mode: 0640
-    setype: 'dnssec_t'
-    serole: 'object_r'
+- name: 'Set up prerequisites for nsupdate scenario'
+  block:
+    - name: 'Check permissions on rndc key'
+      file:
+        path: "{{ foreman_deploy_dns_rndc_key }}"
+        owner: 'root'
+        group: 'foreman-proxy'
+        mode: 0640
+        setype: 'dnssec_t'
+        serole: 'object_r'
+    - name: 'Ensure nsupdate is installed'
+      package:
+        name: 'bind-utils'
+        state: 'present'
   when: foreman_deploy_dns_scenario == 'nsupdate'
 
 - name: 'Configure Foreman instance for deployment'
@@ -35,9 +41,28 @@
     --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }}
   when: foreman_deploy_run_installer
 
-- name: 'Ensure Discovery Image present'
+- name: 'Configure additional components for Red Hat Satellite Server'
+  shell: |
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+    /usr/sbin/foreman-installer \
+    --foreman-proxy-httpboot=true \
+    --foreman-proxy-http=true \
+    --foreman-proxy-httpboot-listen-on=both \
+    --foreman-proxy-templates=true
+  when:
+    - foreman_deploy_run_installer
+    - foreman_server_type == 'satellite'
+
+- name: 'Ensure Discovery Image present (Foreman)'
   unarchive:
     src: "http://downloads.theforeman.org/discovery/releases/{{ foreman_discovery_image_release }}/fdi-image-latest.tar"
     dest: '/var/lib/tftpboot/boot'
     remote_src: true
   when: foreman_server_type == 'foreman'
+
+- name: 'Ensure Discovery Image present (Satellite)'
+  yum:
+    name: 'foreman-discovery-image'
+    state: 'present'
+  when: foreman_server_type == 'satellite'
