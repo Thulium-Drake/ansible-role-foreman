@@ -499,9 +499,6 @@
     name: 'global_PXELinux'
     value: 'PXELinux global default custom'
 
-- name: 'start'
-  debug:
-
 - name: 'Ensure Host Groups, always changes as the current root_pass can not be compared'
   theforeman.foreman.hostgroup:
     username: "{{ foreman_admin_user }}"
