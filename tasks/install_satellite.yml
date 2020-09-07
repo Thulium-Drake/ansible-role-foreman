@@ -1,14 +1,11 @@
 - name: 'Prepare system for Red Hat Satellite installtion'
   block:
-    # NOTE: This task seems to not be fully idempotent, when running this playbook again
-    # you'll need to run 'subscription-manager clean' first.
-    # Afterwards, check the support.redhat.com portal for any orphaned system registrations.
     - name: 'Ensure Red Hat Subscriptions'
       community.general.redhat_subscription:
         username: "{{ foreman_redhat_support_user }}"
         password: "{{ foreman_redhat_support_password }}"
         auto_attach: true
-        pool: '^(Red Hat Enterprise Server|Red Hat Satellite)$'
+        pool: 'Red Hat Satellite'
         state: 'present'
 
     - name: 'Ensure Red Hat Satellite Repositories'

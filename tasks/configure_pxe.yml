@@ -1,0 +1,51 @@
+---
+- name: 'Ensure pxelinux_discovery Snippet'
+  theforeman.foreman.provisioning_template:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'pxelinux_discovery_custom'
+    kind: 'snippet'
+    locations: "{{ ['Default Location'] + foreman_locations }}"
+    organizations:
+      - 'Default Organization'
+      - '{{ foreman_organization }}'
+    state: 'present'
+    template: "{{ lookup('file', 'pxelinux_discovery_custom.snippet') }}"
+
+- name: 'Ensure Global Default PXE Provisioning Template'
+  theforeman.foreman.provisioning_template:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'PXELinux global default custom'
+    kind: 'PXELinux'
+    locations: "{{ ['Default Location'] + foreman_locations }}"
+    organizations:
+      - 'Default Organization'
+      - '{{ foreman_organization }}'
+    state: 'present'
+    template: "{{ lookup('file', 'pxelinux_global_default.template') }}"
+
+- name: 'Ensure Global Default PXELinux Template Setting'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'global_PXELinux'
+    value: 'PXELinux global default custom'
+
+- name: 'Ensure Setting for booting unknown hosts'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'default_pxe_item_global'
+    value: 'discovery'
+
+- name: 'Build PXE Default'
+  command: hammer template build-pxe-default

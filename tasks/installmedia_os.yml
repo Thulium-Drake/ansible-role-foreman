@@ -1,0 +1,42 @@
+---
+- name: 'Ensure Installation Media'
+  theforeman.foreman.installation_medium:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ medium['name'] }} {{ medium['major_version'] }}"
+    locations: "{{ foreman_locations }}"
+    organizations:
+      - "{{ foreman_organization }}"
+    path: "{{ medium['path'] }}"
+    os_family: "{{ medium['os_family'] }}"
+    state: 'present'
+  no_log: "{{ not foreman_debug }}"
+  loop: "{{ foreman_operating_systems }}"
+  loop_control:
+    loop_var: 'medium'
+
+- name: 'Ensure Operating Systems'
+  theforeman.foreman.operatingsystem:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    description: "{{ os['name'] }} {{ os['major_version'] }}"
+    major: "{{ os['major_version'] }}"
+    minor: "{{ os['minor_version'] | default(omit) }}"
+    release: "{{ os['release'] | default(omit) }}"
+    name: "{{ os['name'] }}"
+    family: "{{ os['os_family'] }}"
+    password_hash: "{{ os['password_hash'] | default('SHA512') }}"
+    parameters: "{{ os['parameters'] | default(omit) }}"
+    provisioning_templates: "{{ os['provisioning_templates'] | default(omit) }}"
+    architectures: "{{ os['arch'] }}"
+    media:
+      - "{{ os['name'] }} {{ os['major_version'] }}"
+    ptables: "{{ os['partitions'] | default(omit) }}"
+  no_log: "{{ not foreman_debug }}"
+  loop: "{{ foreman_operating_systems }}"
+  loop_control:
+    loop_var: 'os'

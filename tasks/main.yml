@@ -55,99 +55,11 @@
     state: 'enabled'
   when: foreman_server_type == 'satellite'
 
-- name: 'Ensure organization'
-  theforeman.foreman.organization:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ foreman_organization }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    state: 'present'
+- name: 'Ensure Organizations, Locations and Lifecycles'
+  import_tasks: 'organization_lifecycle.yml'
 
-- name: 'Ensure Locations'
-  theforeman.foreman.location:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organizations:
-      - "{{ foreman_organization }}"
-    name: "{{ location }}"
-    state: 'present'
-  loop: "{{ foreman_locations }}"
-  loop_control:
-    loop_var: 'location'
-
-- name: 'Ensure Infrastructure Lifecycle environment'
-  theforeman.foreman.lifecycle_environment:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ infra_lifecycle }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    prior: "{{ foreman_infrastructure_lifecycle[index-1] }}"
-    state: 'present'
-  loop: "{{ foreman_infrastructure_lifecycle }}"
-  when: infra_lifecycle != 'Library'
-  loop_control:
-    index_var: 'index'
-    loop_var: 'infra_lifecycle'
-
-- name: 'Ensure Lifecycle environments'
-  theforeman.foreman.lifecycle_environment:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ lifecycle }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    prior: "{{ foreman_lifecycle[index-1] }}"
-    state: 'present'
-  loop: "{{ foreman_lifecycle }}"
-  when: lifecycle != 'Library'
-  loop_control:
-    index_var: 'index'
-    loop_var: 'lifecycle'
-
-- name: 'Ensure Lifecycle Host Collections'
-  theforeman.foreman.host_collection:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ host_collection }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    state: 'present'
-  loop: >-
-    {%- set results = [] -%}
-    {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
-    {%-   for os in foreman_host_collections_os -%}
-    {%-     set line = os + '-' + lifecycle|lower -%}
-    {%-     set _ = results.append(line) if lifecycle != 'Library' -%}
-    {%-   endfor -%}
-    {%- endfor -%}
-    {{ results }}
-  loop_control:
-    loop_var: 'host_collection'
-
-- name: 'Ensure OS Host Collections'
-  theforeman.foreman.host_collection:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ os_collection }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    state: 'present'
-  loop: "{{ foreman_host_collections_os }}"
-  loop_control:
-    loop_var: 'os_collection'
+- name: 'Ensure Host Collections'
+  import_tasks: 'host_collections.yml'
 
 - name: 'Ensure daily sync plan'
   theforeman.foreman.sync_plan:
@@ -163,225 +75,26 @@
     sync_date: '2020-01-01 00:00:00 UTC'
     state: 'present'
 
-- name: 'Ensure Red Hat Subscription Manifest'
-  block:
-    - name: 'Copy manifest to server'
-      copy:
-        src: "{{ foreman_rh_subsciption_manifest }}"
-        dest: '/root/{{ foreman_organization }}-manifest.zip'
-        mode: 0600
-
-    - name: 'Upload manifest to Satellite'
-      theforeman.foreman.subscription_manifest:
-        username: "{{ foreman_admin_user }}"
-        password: "{{ foreman_admin_password }}"
-        server_url: "{{ foreman_url }}"
-        validate_certs: "{{ foreman_validate_certs }}"
-        organization: "{{ foreman_organization }}"
-        state: 'present'
-        manifest_path: '/root/{{ foreman_organization }}-manifest.zip'
-
-    - name: 'Ensure Red Hat repositories'
-      theforeman.foreman.repository_set:
-        username: "{{ foreman_admin_user }}"
-        password: "{{ foreman_admin_password }}"
-        server_url: "{{ foreman_url }}"
-        validate_certs: "{{ foreman_validate_certs }}"
-        organization: "{{ foreman_organization }}"
-        label: "{{ redhat_repo['label'] }}"
-        repositories: "{{ redhat_repo['repositories'] }}"
-      loop: "{{ foreman_redhat_repositories }}"
-      loop_control:
-        loop_var: 'redhat_repo'
-      register: 'repo_enabled'
-
-    - name: 'Get Red Hat Product names'
-      theforeman.foreman.resource_info:
-        username: "{{ foreman_admin_user }}"
-        password: "{{ foreman_admin_password }}"
-        server_url: "{{ foreman_url }}"
-        validate_certs: "{{ foreman_validate_certs }}"
-        organization: "{{ foreman_organization }}"
-        resource: 'repository_sets'
-        search: "label={{ product['label'] }}"
-      loop: "{{ foreman_redhat_repositories }}"
-      loop_control:
-        loop_var: 'product'
-      register: 'red_hat_products'
-
-    - name: 'Ensure Sync plan for Red Hat Products'
-      theforeman.foreman.product:
-        username: "{{ foreman_admin_user }}"
-        password: "{{ foreman_admin_password }}"
-        server_url: "{{ foreman_url }}"
-        validate_certs: "{{ foreman_validate_certs }}"
-        organization: "{{ foreman_organization }}"
-        name: "{{ product_info['resources'][0]['product']['name'] }}"
-        sync_plan: 'Daily repo sync'
-        state: 'present'
-      loop: "{{ red_hat_products['results'] }}"
-      loop_control:
-        loop_var: 'product_info'
-
-    - name: 'Sync Red Hat Repositories, this may take long...'
-      # Yes, we sync all Red Hat repos when a change has been made to one of them
-      # This is because the repository_set module does not return the Product name.
-      theforeman.foreman.repository_sync:
-        username: "{{ foreman_admin_user }}"
-        password: "{{ foreman_admin_password }}"
-        server_url: "{{ foreman_url }}"
-        validate_certs: "{{ foreman_validate_certs }}"
-        organization: "{{ foreman_organization }}"
-        product: "{{ product_info['resources'][0]['product']['name'] }}"
-      when: repo_enabled['changed']
-      loop: "{{ red_hat_products['results'] }}"
-      loop_control:
-        loop_var: 'product_info'
-      async: 10800
-      poll: 60
+- name: 'Ensure Red Hat Products and Repositories'
+  include_tasks: 'products_redhat.yml'
   when: foreman_configure_redhat_repos
 
-- name: 'Ensure product GPG keys'
-  theforeman.foreman.content_credential:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ product['gpg_key'] }}"
-    content_type: 'gpg_key'
-    content: "{{ lookup('url', product['gpg_key_url'], split_lines=False) }}"
-    state: 'present'
-  loop: "{{ foreman_products }}"
-  when: product['gpg_key'] is defined
-  loop_control:
-    loop_var: 'product'
+- name: 'Ensure Products and Repositories'
+  import_tasks: 'products.yml'
 
-- name: 'Ensure products'
-  theforeman.foreman.product:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ product['name'] }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    sync_plan: 'Daily repo sync'
-    state: 'present'
-  loop: "{{ foreman_products }}"
-  loop_control:
-    loop_var: 'product'
-
-- name: 'Ensure product repositories'
-  theforeman.foreman.repository:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    download_policy: 'immediate'
-    http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
-    http_proxy: "{{ foreman_http_proxy | default(omit) }}"
-    name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
-    url: "{{ repo[1]['url'] }}"
-    content_type: "{{ repo[0]['type'] }}"
-    ssl_ca_cert: "{{ repo[1]['ssl_ca_cert'] | default(omit) }}"
-    ssl_client_cert: "{{ repo[1]['ssl_client_cert'] | default(omit) }}"
-    ssl_client_key: "{{ repo[1]['ssl_client_key'] | default(omit) }}"
-    upstream_username: "{{ repo[1]['upstream_username'] | default(omit) }}"
-    upstream_password: "{{ repo[1]['upstream_password'] | default(omit) }}"
-    product: "{{ repo[0]['name'] }}"
-    gpg_key: "{% if repo[1]['no_gpg_key'] | default(False) %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
-    state: 'present'
-  register: 'repo_created'
-  loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
-  loop_control:
-    loop_var: 'repo'
-
-- name: 'Sync repositories for changed Products, this may take long...'
-  theforeman.foreman.repository_sync:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    product: "{{ product['repo'][0]['name'] }}"
-  loop: "{{ repo_created['results'] }}"
-  when: product['changed']
-  loop_control:
-    loop_var: 'product'
-  async: 10800
-  poll: 60
-
-- name: 'Ensure content views and versions for Products'
+- name: 'Ensure Content Views (CVs) and versions for Products'
   include_tasks: 'cv_add_base_product.yml'
   loop: "{{ foreman_products }}"
 
-- name: 'Ensure content views and versions for other Content Views'
+- name: 'Ensure Content Views (CVs) and versions for other Content Views'
   include_tasks: 'cv_add_base.yml'
   loop: "{{ foreman_content_views }}"
 
-- name: 'Ensure composite content views'
-  theforeman.foreman.content_view:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ comp_content_view['name'] }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    composite: true
-    auto_publish: true
-    components: "{{ comp_content_view['components'] }}"
-  register: 'cov_created'
-  loop: "{{ foreman_composite_content_views }}"
-  loop_control:
-    loop_var: 'comp_content_view'
-
-- name: 'Promote content view version for newly created composite content views'
-  theforeman.foreman.content_view_version:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    content_view: "{{ comp_content_view['comp_content_view']['name'] }}"
-    lifecycle_environments: "{{ foreman_lifecycle + foreman_infrastructure_lifecycle }}"
-  when: comp_content_view['changed']
-  loop: "{{ cov_created['results'] }}"
-  loop_control:
-    loop_var: 'comp_content_view'
-
-- name: 'Ensure Activation key Host Collections'
-  theforeman.foreman.host_collection:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ collection['name'] | lower }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    state: 'present'
-  loop: "{{ foreman_activation_keys }}"
-  loop_control:
-    loop_var: 'collection'
-
-- name: 'Ensure Activation key extra Host Collections'
-  theforeman.foreman.host_collection:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    organization: "{{ foreman_organization }}"
-    name: "{{ collection[1] }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    state: 'present'
-  loop: "{{ foreman_activation_keys | subelements('host_collections', { 'skip_missing': true}) }}"
-  loop_control:
-    loop_var: 'collection'
+- name: 'Ensure Composite Content Views (COVs)'
+  import_tasks: 'comp_content_views.yml'
 
 - name: 'Ensure Activation keys'
-  include_tasks: 'activation_key_add.yml'
+  include_tasks: 'activation_keys.yml'
   loop: >-
     {%- set results = [] -%}
     {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
@@ -395,7 +108,7 @@
     loop_var: 'key_lifecycle'
 
 - name: 'Configure Foreman for deployment'
-  include_tasks: 'enable_deployment.yml'
+  import_tasks: 'configure_deployment.yml'
 
 - name: 'Configure Host Discovery'
   shell: |
@@ -403,193 +116,17 @@
     export LC_ALL="en_US.UTF-8"
     /usr/sbin/foreman-installer --enable-foreman-plugin-discovery
 
-- name: 'Ensure Foreman Domains'
-  theforeman.foreman.domain:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ zone['dns_zone'] }}"
-    description: "{{ zone['dns_zone'] }} - Managed by Ansible"
-    organizations:
-      - "{{ foreman_organization }}"
-    locations: "{{ zone['locations'] }}"
-    dns_proxy: "{{ zone['smart_proxy'] }}"
-    state: 'present'
-  loop: "{{ foreman_deploy_networks }}"
-  loop_control:
-    loop_var: 'zone'
+- name: 'Configure PXE'
+  import_tasks: 'configure_pxe.yml'
 
-- name: 'Ensure Foreman Subnets'
-  theforeman.foreman.subnet:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ network['name'] }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    organizations:
-      - "{{ foreman_organization }}"
-    locations: "{{ network['locations'] }}"
-    domains:
-      - "{{ network['dns_zone'] }}"
-    network: "{{ network['address'] | ipaddr('network') }}"
-    dns_primary: "{{ network['dns_primary'] | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }}"
-    dns_secondary: "{{ network['dns_secondary'] | default(omit) }}"
-    cidr: "{{ network['address'] | ipaddr('prefix') }}"
-    from_ip: "{{ network['range_start'] }}"
-    to_ip: "{{ network['range_end'] }}"
-    boot_mode: 'DHCP'
-    dns_proxy: "{{ network['smart_proxy'] }}"
-    dhcp_proxy: "{{ network['smart_proxy'] }}"
-    tftp_proxy: "{{ network['smart_proxy'] }}"
-    httpboot_proxy: "{{ network['smart_proxy'] }}"
-    template_proxy: "{{ network['smart_proxy'] }}"
-    discovery_proxy: "{% if network['smart_proxy'] == ansible_facts['fqdn'] %}{{ omit }}{% else %}{{ network['smart_proxy'] }}{% endif %}"
-    state: 'present'
-  loop: "{{ foreman_deploy_networks }}"
-  loop_control:
-    loop_var: 'network'
+- name: 'Ensure Domains and Subnets'
+  import_tasks: 'domains_subnets.yml'
 
-- name: 'Ensure Installation Media'
-  theforeman.foreman.installation_medium:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ medium['name'] }} {{ medium['major_version'] }}"
-    locations: "{{ foreman_locations }}"
-    organizations:
-      - "{{ foreman_organization }}"
-    path: "{{ medium['path'] }}"
-    os_family: "{{ medium['os_family'] }}"
-    state: 'present'
-  no_log: "{{ not foreman_debug }}"
-  loop: "{{ foreman_operating_systems }}"
-  loop_control:
-    loop_var: 'medium'
+- name: 'Ensure Installation Media and Operating Systems'
+  import_tasks: 'installmedia_os.yml'
 
-- name: 'Ensure Operating Systems'
-  theforeman.foreman.operatingsystem:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    description: "{{ os['name'] }} {{ os['major_version'] }}"
-    major: "{{ os['major_version'] }}"
-    minor: "{{ os['minor_version'] | default(omit) }}"
-    release: "{{ os['release'] | default(omit) }}"
-    name: "{{ os['name'] }}"
-    family: "{{ os['os_family'] }}"
-    password_hash: "{{ os['password_hash'] | default('SHA512') }}"
-    parameters: "{{ os['parameters'] | default(omit) }}"
-    provisioning_templates: "{{ os['provisioning_templates'] | default(omit) }}"
-    architectures: "{{ os['arch'] }}"
-    media:
-      - "{{ os['name'] }} {{ os['major_version'] }}"
-    ptables: "{{ os['partitions'] | default(omit) }}"
-  no_log: "{{ not foreman_debug }}"
-  loop: "{{ foreman_operating_systems }}"
-  loop_control:
-    loop_var: 'os'
-
-- name: 'Ensure pxelinux_discovery Snippet'
-  theforeman.foreman.provisioning_template:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: 'pxelinux_discovery_custom'
-    kind: 'snippet'
-    locations: "{{ ['Default Location'] + foreman_locations }}"
-    organizations:
-      - 'Default Organization'
-      - '{{ foreman_organization }}'
-    state: 'present'
-    template: "{{ lookup('file', 'pxelinux_discovery_custom.snippet') }}"
-
-- name: 'Ensure Global Default PXE Provisioning Template'
-  theforeman.foreman.provisioning_template:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: 'PXELinux global default custom'
-    kind: 'PXELinux'
-    locations: "{{ ['Default Location'] + foreman_locations }}"
-    organizations:
-      - 'Default Organization'
-      - '{{ foreman_organization }}'
-    state: 'present'
-    template: "{{ lookup('file', 'pxelinux_global_default.template') }}"
-
-- name: 'Ensure Global Default PXELinux Template Setting'
-  theforeman.foreman.setting:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: 'global_PXELinux'
-    value: 'PXELinux global default custom'
-
-- name: 'Ensure Host Groups, always changes as the current root_pass can not be compared'
-  theforeman.foreman.hostgroup:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ hostgroup['name'] }}-{{ hostgroup['lifecycle'] }}"
-    description: 'Managed by Ansible, your changes will be lost'
-    organization: "{{ foreman_organization }}"
-    locations: "{{ foreman_locations }}"
-    lifecycle_environment: "{{ hostgroup['lifecycle'] }}"
-    content_view: "COV {{ hostgroup['name'] }}"
-    content_source: "{{ hostgroup['smart_proxy'] }}"
-    domain: "{{ hostgroup['dns_zone'] }}"
-    subnet: "{{ hostgroup['network'] }}"
-    architecture: "{{ hostgroup['arch'][0] }}"
-    operatingsystem: "{{ hostgroup['os'] }}"
-    ptable: "{{ hostgroup['ptable'] }}"
-    medium: "{{ hostgroup['os'] }}"
-    parameters: "{{ hostgroup['parameters'] }}"
-    root_pass: "{{ hostgroup['root_pass'] }}"
-    pxe_loader: "{{ hostgroup['pxe_loader'] }}"
-  no_log: "{{ not foreman_debug }}"
-  loop: >- # This loop combines the following information: Activation Keys, Lifecycles, OS deployment variables and Deployment Networks
-    {%- set results = [] -%}
-    {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
-    {%-   for network in foreman_deploy_networks -%}
-    {%-     if network['name'] == lifecycle -%}
-    {%-       for key in foreman_activation_keys  -%}
-    {%-         for os in foreman_operating_systems -%}
-    {%-           if key.name.split('-')[0] == os['name'] + os['major_version'] | string -%}
-    {%-             set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] + '-' + lifecycle }] -%}
-    {%-             set line = {'name': key['name'], 'arch': os['arch'], 'network': network['name'],
-                                'root_pass': os['root_pass'] | default('changemeNOW!'),
-                                'dns_zone': network['dns_zone'], 'smart_proxy': network['smart_proxy'],
-                                'ptable': os['partitions'] | default('Kickstart default'),
-                                'lifecycle': lifecycle, 'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
-                                'os': os['name'] + ' ' + os['major_version'] | string,
-                                'parameters': parameters + os['parameters'] | default([]) }  -%}
-    {%-             set _ = results.append(line) if lifecycle != 'Library' -%}
-    {%-           endif -%}
-    {%-         endfor -%}
-    {%-       endfor -%}
-    {%-     endif -%}
-    {%-   endfor -%}
-    {%- endfor -%}
-    {{ results }}
-  loop_control:
-    loop_var: 'hostgroup'
-
-- name: 'Ensure Setting for booting unknown hosts'
-  theforeman.foreman.setting:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: 'default_pxe_item_global'
-    value: 'discovery'
+- name: 'Ensure Host Groups'
+  import_tasks: 'host_groups.yml'
 
 - name: 'Set Random Hostname generator to MAC based'
   theforeman.foreman.setting:
@@ -599,9 +136,6 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: 'name_generator_type'
     value: 'MAC-based'
-
-- name: 'Build PXE Default'
-  command: hammer template build-pxe-default
 
 - name: 'Fix MongoDB warnings by setting permissions'
   acl:

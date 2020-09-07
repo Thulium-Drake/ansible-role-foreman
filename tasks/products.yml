@@ -1,0 +1,72 @@
+---
+- name: 'Ensure product GPG keys'
+  theforeman.foreman.content_credential:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ product['gpg_key'] }}"
+    content_type: 'gpg_key'
+    content: "{{ lookup('url', product['gpg_key_url'], split_lines=False) }}"
+    state: 'present'
+  loop: "{{ foreman_products }}"
+  when: product['gpg_key'] is defined
+  loop_control:
+    loop_var: 'product'
+
+- name: 'Ensure products'
+  theforeman.foreman.product:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ product['name'] }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    sync_plan: 'Daily repo sync'
+    state: 'present'
+  loop: "{{ foreman_products }}"
+  loop_control:
+    loop_var: 'product'
+
+- name: 'Ensure product repositories'
+  theforeman.foreman.repository:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    download_policy: 'immediate'
+    http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
+    http_proxy: "{{ foreman_http_proxy | default(omit) }}"
+    name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
+    url: "{{ repo[1]['url'] }}"
+    content_type: "{{ repo[0]['type'] }}"
+    ssl_ca_cert: "{{ repo[1]['ssl_ca_cert'] | default(omit) }}"
+    ssl_client_cert: "{{ repo[1]['ssl_client_cert'] | default(omit) }}"
+    ssl_client_key: "{{ repo[1]['ssl_client_key'] | default(omit) }}"
+    upstream_username: "{{ repo[1]['upstream_username'] | default(omit) }}"
+    upstream_password: "{{ repo[1]['upstream_password'] | default(omit) }}"
+    product: "{{ repo[0]['name'] }}"
+    gpg_key: "{% if repo[1]['no_gpg_key'] | default(False) %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
+    state: 'present'
+  register: 'repo_created'
+  loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
+  loop_control:
+    loop_var: 'repo'
+
+- name: 'Sync repositories for changed Products, this may take long...'
+  theforeman.foreman.repository_sync:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    product: "{{ product['repo'][0]['name'] }}"
+  loop: "{{ repo_created['results'] }}"
+  when: product['changed']
+  loop_control:
+    loop_var: 'product'
+  async: 10800
+  poll: 60

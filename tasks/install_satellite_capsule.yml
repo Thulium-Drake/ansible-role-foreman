@@ -1,0 +1,75 @@
+---
+- name: 'Ensure Red Hat Subscriptions'
+  community.general.redhat_subscription:
+    username: "{{ foreman_redhat_support_user }}"
+    password: "{{ foreman_redhat_support_password }}"
+    auto_attach: true
+    pool: 'Red Hat Satellite Capsule'
+    state: 'present'
+
+- name: 'Install dependencies'
+  yum:
+    name:
+      - 'satellite-capsule'
+    state: 'present'
+
+- name: 'Enable Satellite firewalld service'
+  ansible.posix.firewalld:
+    service: 'RH-Satellite-6'
+    state: 'enabled'
+    permanent: true
+    immediate: true
+
+- name: 'Generate certificates on Satellite Server'
+  shell: |
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    /usr/sbin/foreman-proxy-certs-generate \
+      --no-colors \
+      --foreman-proxy-fqdn "{{ ansible_facts['fqdn'] }}" \
+      --certs-tar /root/{{ ansible_facts['fqdn'] }}.tar
+  delegate_to: "{{ groups['foreman'][0] }}"
+  register: 'foreman_certs_gen'
+
+- name: 'Copy certificate tar to Ansible Controller'
+  fetch:
+    src: "/root/{{ ansible_facts['fqdn'] }}.tar"
+    dest: '/tmp/'
+    flat: true
+  delegate_to: "{{ groups['foreman'][0] }}"
+
+- name: 'Copy certificate tar to Satellite Capsule'
+  copy:
+    src: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
+    dest: '/root'
+    mode: 0600
+
+- name: 'Remove certificate tar from Ansible Controller'
+  file:
+    path: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
+    state: 'absent'
+  delegate_to: 'localhost'
+
+- name: 'Compose foreman-installer command'
+  set_fact:
+    foreman_installer_cmd: "{{ ['export LANG=en_US.UTF-8', 'export LC_ALL=en_US.UTF-8'] + foreman_certs_gen['stdout_lines'][-11:] }}"
+
+- name: 'Run foreman-installer on Proxy'
+  shell: "{{ foreman_installer_cmd | join('\n') }}"
+
+- name: 'Configure Foreman for deployment'
+  include_tasks: 'configure_deployment.yml'
+
+- name: 'Configure Host Discovery'
+  shell: |
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery
+
+- name: 'After installation message'
+  pause:
+    prompt: |
+      Installation succesful!
+      As of this time there is no module available to configure Satellite Capsules in Ansible.
+      Please log in on {{ foreman_url }} , assign it manually and sync the proxy.
+      Also run a configuration run for Satellite again to update any Host Groups with the new proxy.

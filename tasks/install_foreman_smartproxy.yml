@@ -47,7 +47,7 @@
   shell: "{{ foreman_installer_cmd | join('\n') }}"
 
 - name: 'Configure Foreman for deployment'
-  include_tasks: 'enable_deployment.yml'
+  include_tasks: 'configure_deployment.yml'
 
 - name: 'Configure Host Discovery'
   shell: |
