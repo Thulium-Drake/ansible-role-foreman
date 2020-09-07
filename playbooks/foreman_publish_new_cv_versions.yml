@@ -1,19 +1,17 @@
 ---
 - name: 'Publish new Content View Versions'
-  hosts: 'localhost'
+  hosts: 'foreman'
   gather_facts: false
   vars_prompt:
-    - name: 'input_prods'
+    - name: 'input_cvs'
       prompt: |
-        Which Products or CVs, separated by commas, would you like to update?
+        Which CVs, separated by commas, would you like to update?
 
-        !! Please note that if you wish to update Red Hat Products, define the CV you wish to update. !!
+        all                     = all CVs will be updated, new COV(s) will be published
+        CV product1,CV product2 = selected CVs will be updated, a new COV will be published
+        none                    = no CVs will be updated, the COVs will be promoted to the selected Lifecycles
 
-        all               = all Products will be updated, a new COV will be published (does not work with Red Hat Products)
-        product1,product2 = selected Products will be updated, a new COV will be published
-        none              = no Products will be updated, the COVs will be promoted to the selected Lifecycles
-
-        Use 'none' for promoting existing versions to other Lifecycles, define Products if you want to make new versions
+        Use 'none' for promoting existing versions to other Lifecycles, define CVs if you want to make new versions
 
         NOTE: You MUST follow the Lifecycle Paths.
       default: 'all'
@@ -27,35 +25,50 @@
   tasks:
     - name: 'Process input'
       set_fact:
-        input_prod_list: "{{ input_prods.split(',') }}"
-      when: input_prods != 'all'
-
-    - name: 'Process input'
-      set_fact:
         input_prod_list: []
-      when: input_prods == 'none'
 
     - name: 'Process input'
       set_fact:
-        input_prod_list: "{{ foreman_products }}"
-      when: input_prods == 'all'
+        input_cv_list: "{{ input_cvs.split(',') }}"
+      when:
+        - input_cvs != 'all'
+        - input_cvs != 'none'
+
+    - name: 'Process input'
+      block:
+        - name: 'Get all CVs from Foreman'
+          theforeman.foreman.resource_info:
+            username: "{{ foreman_admin_user }}"
+            password: "{{ foreman_admin_password }}"
+            server_url: "{{ foreman_url }}"
+            validate_certs: "{{ foreman_validate_certs }}"
+            organization: "{{ foreman_organization }}"
+            resource: 'content_views'
+            search: 'name ~ CV *'
+          register: 'content_view_info'
+
+        - name: 'Process output'
+          set_fact:
+            input_cvs_list: "{{ input_cvs_list + [ item['name'] ] }}"
+          loop: "{{ content_view_info['resources'] }}"
+      when: input_cvs == 'all'
 
     - name: 'Process input'
       set_fact:
         input_env_list: "{{ input_envs.split(',') }}"
 
-    - name: 'Publish new CV versions for selected products'
+    - name: 'Publish new CV versions'
       theforeman.foreman.content_view_version:
         username: "{{ foreman_admin_user }}"
         password: "{{ foreman_admin_password }}"
         server_url: "{{ foreman_url }}"
         validate_certs: "{{ foreman_validate_certs }}"
         organization: "{{ foreman_organization }}"
-        content_view: "CV {{ product.name | default(product)}}"
-      loop: "{{ input_prod_list }}"
+        content_view: "{{ content_view }}"
+      loop: "{{ input_cvs_list }}"
       loop_control:
-        loop_var: 'product'
-      register: 'product_published'
+        loop_var: 'content_view'
+      register: 'content_view_published'
 
     - name: 'Wait for COV autopublish to settle'
       pause:
@@ -75,7 +88,7 @@
       loop: "{{ foreman_composite_content_views }}"
       loop_control:
         loop_var: 'comp_content_view'
-      when: product_published.changed
+      when: content_view_published.changed
 
     - name: 'Promote all COVs for selected Lifecycle environments'
       theforeman.foreman.content_view_version:
@@ -90,4 +103,4 @@
       loop: "{{ foreman_composite_content_views }}"
       loop_control:
         loop_var: 'comp_content_view'
-      when: not product_published.changed or product_published.changed is not defined
+      when: not content_view_published.changed or content_view_published.changed is not defined
