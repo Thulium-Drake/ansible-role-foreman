@@ -5,13 +5,15 @@
   vars_prompt:
     - name: 'input_prods'
       prompt: |
-        Which Products, separated by commas, would you like to update?
+        Which Products or CVs, separated by commas, would you like to update?
 
-        all               = all products will be updated, a new COV will be published
-        product1,product2 = selected products will be updated, a new COV will be published
-        none              = no products will be updated, the COVs will be promoted to the selected Lifecycles
+        !! Please note that if you wish to update Red Hat Products, define the CV you wish to update. !!
 
-        Use 'none' for promoting Lifecycles, define products if you want to make new versions
+        all               = all Products will be updated, a new COV will be published (does not work with Red Hat Products)
+        product1,product2 = selected Products will be updated, a new COV will be published
+        none              = no Products will be updated, the COVs will be promoted to the selected Lifecycles
+
+        Use 'none' for promoting existing versions to other Lifecycles, define Products if you want to make new versions
 
         NOTE: You MUST follow the Lifecycle Paths.
       default: 'all'

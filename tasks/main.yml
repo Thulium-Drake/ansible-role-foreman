@@ -195,15 +195,48 @@
         loop_var: 'redhat_repo'
       register: 'repo_enabled'
 
+    - name: 'Get Red Hat Product names'
+      theforeman.foreman.resource_info:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        resource: 'repository_sets'
+        search: "label={{ product['label'] }}"
+      loop: "{{ foreman_redhat_repositories }}"
+      loop_control:
+        loop_var: 'product'
+      register: 'red_hat_products'
+
+    - name: 'Ensure Sync plan for Red Hat Products'
+      theforeman.foreman.product:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        name: "{{ product_info['resources'][0]['product']['name'] }}"
+        sync_plan: 'Daily repo sync'
+        state: 'present'
+      loop: "{{ red_hat_products['results'] }}"
+      loop_control:
+        loop_var: 'product_info'
+
     - name: 'Sync Red Hat Repositories, this may take long...'
+      # Yes, we sync all Red Hat repos when a change has been made to one of them
+      # This is because the repository_set module does not return the Product name.
       theforeman.foreman.repository_sync:
         username: "{{ foreman_admin_user }}"
         password: "{{ foreman_admin_password }}"
         server_url: "{{ foreman_url }}"
         validate_certs: "{{ foreman_validate_certs }}"
         organization: "{{ foreman_organization }}"
-        product: 'Red Hat Enterprise Linux Server'
+        product: "{{ product_info['resources'][0]['product']['name'] }}"
       when: repo_enabled['changed']
+      loop: "{{ red_hat_products['results'] }}"
+      loop_control:
+        loop_var: 'product_info'
       async: 10800
       poll: 60
   when: foreman_configure_redhat_repos
