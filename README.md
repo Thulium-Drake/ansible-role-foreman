@@ -3,6 +3,9 @@ This role provides a means to provision a Foreman or Satellite server with an or
 
 This role requires Ansible Collection 'theforeman.foreman' in order to work!
 
+## Satellite Offline installation
+If you want to install Satellite via the Offline Installation ISO, make sure you have configured RHEL repo's from a Installation ISO as well.
+
 ## RHEL-based machines need extra setup!
 When running this role on a RedHat system, after running 'satellite_install.yml', you need to make a change to your Ansible Inventory. This is due to the fact RedHat uses SCL for pip (which we need to get apypie), and that needs to be sourced before running any python commands.
 

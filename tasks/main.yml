@@ -3,6 +3,7 @@
   assert:
     that:
       - foreman_server_type in foreman_supported_server_types
+      - foreman_download_policy in foreman_supported_download_policies
 
 - name: 'Ensure PiP dependencies'
   pip:

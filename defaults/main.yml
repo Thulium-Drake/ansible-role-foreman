@@ -24,6 +24,7 @@ foreman_locations:
 # Red Hat subscription information
 foreman_configure_redhat_repos: false                         # Configure Red Hat subscriptions and repos
 foreman_rh_subsciption_manifest: 'files/path/to/manifest.zip' # Path of the manifest ZIP archive.
+foreman_redhat_cdn_url: 'https://cdn.redhat.com'
 foreman_redhat_repositories:
   - label: 'rhel-7-server-rpms'
     repositories:

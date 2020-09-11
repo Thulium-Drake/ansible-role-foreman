@@ -3,6 +3,11 @@ foreman_supported_server_types:
   - 'foreman'
   - 'satellite'
 
+foreman_supported_download_policies:
+  - 'immediate'
+  - 'ondemand'
+  - 'background'
+
 foreman_deploy_dns_scenarios:
   - 'internal'
   - 'nsupdate'

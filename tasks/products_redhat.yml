@@ -14,6 +14,7 @@
     organization: "{{ foreman_organization }}"
     state: 'present'
     manifest_path: '/root/{{ foreman_organization }}-manifest.zip'
+    repository_url: "{{ foreman_redhat_cdn_url }}"
 
 - name: 'Ensure Default Red Hat Download Policy'
   theforeman.foreman.setting:
@@ -50,7 +51,14 @@
   loop: "{{ foreman_redhat_repositories }}"
   loop_control:
     loop_var: 'product'
-  register: 'red_hat_products'
+  register: 'redhat_products'
+
+- name: 'Set Red Hat Product list'
+  set_fact:
+    redhat_product_list: "{{ redhat_product_list | default([]) + [ product_info['resources'][0]['product']['name'] ]}}"
+  loop: "{{ redhat_products['results'] }}"
+  loop_control:
+    loop_var: 'product_info'
 
 - name: 'Ensure Sync plan for Red Hat Products'
   theforeman.foreman.product:
@@ -59,15 +67,15 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    name: "{{ product_info['resources'][0]['product']['name'] }}"
+    name: "{{ product }}"
     sync_plan: 'Daily repo sync'
     state: 'present'
-  loop: "{{ red_hat_products['results'] }}"
+  loop: "{{ redhat_product_list | unique }}"
   loop_control:
-    loop_var: 'product_info'
+    loop_var: 'product'
 
 - name: 'Sync Red Hat Repositories, this may take long...'
-  # Yes, we sync all Red Hat repos when a change has been made to one of them
+  # Yes, we sync all Red Hat Products when a change has been made to one of them
   # This is because the repository_set module does not return the Product name.
   theforeman.foreman.repository_sync:
     username: "{{ foreman_admin_user }}"
@@ -75,10 +83,10 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    product: "{{ product_info['resources'][0]['product']['name'] }}"
+    product: "{{ product }}"
   when: repo_enabled['changed']
-  loop: "{{ red_hat_products['results'] }}"
+  loop: "{{ redhat_product_list | unique }}"
   loop_control:
-    loop_var: 'product_info'
+    loop_var: 'product'
   async: 10800
   poll: 60
