@@ -41,7 +41,7 @@
     http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
     http_proxy: "{{ foreman_http_proxy | default(omit) }}"
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
-    url: "{{ repo[1]['url'] }}"
+    url: "{{ repo[1]['url'] | default(omit) }}"
     content_type: "{{ repo[0]['type'] }}"
     ssl_ca_cert: "{{ repo[1]['ssl_ca_cert'] | default(omit) }}"
     ssl_client_cert: "{{ repo[1]['ssl_client_cert'] | default(omit) }}"
