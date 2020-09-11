@@ -20,6 +20,12 @@
     permanent: true
     immediate: true
 
+- name: 'Enable Satellite Capsule Discovery port'
+  ansible.posix.firewalld:
+    port: '8443/tcp'
+    state: 'enabled'
+    permanent: true
+    immediate: true
 - name: 'Generate certificates on Satellite Server'
   shell: |
     export LANG=en_US.UTF-8
