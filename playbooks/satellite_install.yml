@@ -1,0 +1,16 @@
+---
+- name: 'Install Satellite server'
+  hosts: 'foreman'
+  tasks:
+    - name: 'Run Foreman role'
+      import_role:
+        name: 'foreman'
+        tasks_from: 'install_satellite.yml'
+
+- name: 'Install Satellite Capsule'
+  hosts: 'foreman_proxies'
+  tasks:
+    - name: 'Run Foreman role'
+      import_role:
+        name: 'foreman'
+        tasks_from: 'install_satellite_capsule.yml'
