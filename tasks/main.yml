@@ -137,6 +137,20 @@
     name: 'name_generator_type'
     value: 'MAC-based'
 
+- name: 'Set Default Download Policies'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ setting }}"
+    value: "{{ foreman_download_policy }}"
+  loop:
+    - 'default_download_policy'
+    - 'default_proxy_download_policy'
+  loop_control:
+    loop_var: 'setting'
+
 - name: 'Fix MongoDB warnings by setting permissions'
   acl:
     path: '/var/lib/mongodb'

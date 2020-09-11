@@ -79,3 +79,5 @@
       As of this time there is no module available to configure Satellite Capsules in Ansible.
       Please log in on {{ foreman_url }} , assign it manually and sync the proxy.
       Also run a configuration run for Satellite again to update any Host Groups with the new proxy.
+
+      Press enter to continue

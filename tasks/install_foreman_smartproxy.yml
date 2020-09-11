@@ -62,3 +62,5 @@
       As of this time there is no module available to configure Smart Proxies in Ansible.
       Please log in on {{ foreman_url }} , assign it manually and sync the proxy.
       Also run a configuration run for Foreman again to update any Host Groups with the new proxy.
+
+      Press Enter to continue

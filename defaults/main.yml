@@ -3,7 +3,6 @@
 foreman_admin_user: 'admin'
 foreman_admin_password: 'secret'
 
-
 # Server information
 foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman' # or satellite
@@ -17,6 +16,7 @@ foreman_satellite_dvd_drive: '/dev/sr0' # this role assumes you mount the ISO to
 
 # Organization, Locations and Lifecycle path
 foreman_organization: 'Example-Org'
+foreman_download_policy: 'immediate'
 foreman_locations:
   - 'Example Location'
   - 'Cloud/Other Location' # Nested example
@@ -39,7 +39,7 @@ foreman_lifecycle:
 
 # Set the environments for the Infrastructure environment
 foreman_infrastructure_lifecycle:
-  - 'Library'
+  - 'Library' # Library entry is mandatory and _must_ be first!
   - 'Infra'
 
 # Create a host collection for all lifecycle environments
@@ -83,7 +83,7 @@ foreman_composite_content_views: []
 # The example key below will be added to the following host collections:
 #
 # - centos7             # all machines with this version of the OS
-# - centos7-servers     # all Lifecycle versions of this key
+# - centos7-base        # all Lifecycle versions of this key
 # - centos7-production  # CentOS7-Base-Production
 # - centos7-qa          # CentOS7-Base-QA
 # - centos7-development # CentOS7-Base-Development

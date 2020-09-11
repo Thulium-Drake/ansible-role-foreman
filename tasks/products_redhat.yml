@@ -15,6 +15,15 @@
     state: 'present'
     manifest_path: '/root/{{ foreman_organization }}-manifest.zip'
 
+- name: 'Ensure Default Red Hat Download Policy'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'default_redhat_download_policy'
+    value: "{{ foreman_download_policy }}"
+
 - name: 'Ensure Red Hat repositories'
   theforeman.foreman.repository_set:
     username: "{{ foreman_admin_user }}"
