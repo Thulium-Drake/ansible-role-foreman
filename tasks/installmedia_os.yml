@@ -12,6 +12,7 @@
     path: "{{ medium['path'] }}"
     os_family: "{{ medium['os_family'] }}"
     state: 'present'
+  when: not medium['kickstart']
   no_log: "{{ not foreman_debug }}"
   loop: "{{ foreman_operating_systems }}"
   loop_control:
@@ -33,8 +34,7 @@
     parameters: "{{ os['parameters'] | default(omit) }}"
     provisioning_templates: "{{ os['provisioning_templates'] | default(omit) }}"
     architectures: "{{ os['arch'] }}"
-    media:
-      - "{{ os['name'] }} {{ os['major_version'] }}"
+    media: "{% if not os['kickstart'] %}[ {{ os['name'] }} {{ os['major_version'] }} ]{% else %}{{ omit }}{% endif %}"
     ptables: "{{ os['partitions'] | default(omit) }}"
   no_log: "{{ not foreman_debug }}"
   loop: "{{ foreman_operating_systems }}"

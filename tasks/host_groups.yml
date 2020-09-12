@@ -17,7 +17,8 @@
     architecture: "{{ hostgroup['arch'][0] }}"
     operatingsystem: "{{ hostgroup['os'] }}"
     ptable: "{{ hostgroup['ptable'] }}"
-    medium: "{{ hostgroup['os'] }}"
+    medium: "{% if not hostgroup['kickstart'] %}{{ hostgroup['os'] }}{% else %}{{ omit }}{% endif %}"
+    kickstart_repository: "{% if hostgroup['kickstart'] %}{{ hostgroup['kickstart_repo'] | replace('\"', '') }}{% else %}{{ omit }}{% endif %}"
     parameters: "{{ hostgroup['parameters'] }}"
     root_pass: "{{ hostgroup['root_pass'] }}"
     pxe_loader: "{{ hostgroup['pxe_loader'] }}"
@@ -37,6 +38,7 @@
                                 'ptable': os['partitions'] | default('Kickstart default'),
                                 'lifecycle': lifecycle, 'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
                                 'os': os['name'] + ' ' + os['major_version'] | string,
+                                'kickstart': os['kickstart'] | default(false), 'kickstart_repo': os['kickstart_repo'] | default('none'),
                                 'parameters': parameters + os['parameters'] | default([]) }  -%}
     {%-             set _ = results.append(line) if lifecycle != 'Library' -%}
     {%-           endif -%}

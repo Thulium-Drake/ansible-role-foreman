@@ -6,18 +6,6 @@ This role requires Ansible Collection 'theforeman.foreman' in order to work!
 ## Satellite Offline installation
 If you want to install Satellite via the Offline Installation ISO, make sure you have configured RHEL repo's from a Installation ISO as well.
 
-## RHEL-based machines need extra setup!
-When running this role on a RedHat system, after running 'satellite_install.yml', you need to make a change to your Ansible Inventory. This is due to the fact RedHat uses SCL for pip (which we need to get apypie), and that needs to be sourced before running any python commands.
-
-NOTE: Please note that changing the Python interpreter might/will break other
-ansible functionality!
-
-A workaround for that might be to use a 'virtual name' in the inventory:
-
-```
-foreman-api ansible_host=rhel.example.com ansible_python_interpreter=/usr/local/bin/ansible_foreman_python
-```
-
 ## Content Views (CV), Composite Content Views (COV) and publishing
 When this role is used to create new content views and composites, the following strategy is applied:
 
