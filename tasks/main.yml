@@ -85,11 +85,11 @@
 
 - name: 'Ensure Content Views (CVs) and versions for Products'
   include_tasks: 'cv_add_base_product.yml'
-  loop: "{{ foreman_products }}"
+  loop: "{{ foreman_products | default([]) }}"
 
 - name: 'Ensure Content Views (CVs) and versions for other Content Views'
   include_tasks: 'cv_add_base.yml'
-  loop: "{{ foreman_content_views }}"
+  loop: "{{ foreman_content_views | default([]) }}"
 
 - name: 'Ensure Composite Content Views (COVs)'
   import_tasks: 'comp_content_views.yml'
@@ -108,35 +108,38 @@
   loop_control:
     loop_var: 'key_lifecycle'
 
-- name: 'Configure Foreman for deployment'
-  import_tasks: 'configure_deployment.yml'
+- name: 'Configure Host deploment and discovery'
+  block:
+    - name: 'Configure Foreman for deployment'
+      import_tasks: 'configure_deployment.yml'
 
-- name: 'Configure Host Discovery'
-  shell: |
-    export LANG="en_US.UTF-8"
-    export LC_ALL="en_US.UTF-8"
-    /usr/sbin/foreman-installer --enable-foreman-plugin-discovery
+    - name: 'Configure Host Discovery'
+      shell: |
+        export LANG="en_US.UTF-8"
+        export LC_ALL="en_US.UTF-8"
+        /usr/sbin/foreman-installer --enable-foreman-plugin-discovery
 
-- name: 'Configure PXE'
-  import_tasks: 'configure_pxe.yml'
+    - name: 'Configure PXE'
+      import_tasks: 'configure_pxe.yml'
 
-- name: 'Ensure Domains and Subnets'
-  import_tasks: 'domains_subnets.yml'
+    - name: 'Ensure Domains and Subnets'
+      import_tasks: 'domains_subnets.yml'
 
-- name: 'Ensure Installation Media and Operating Systems'
-  import_tasks: 'installmedia_os.yml'
+    - name: 'Ensure Installation Media and Operating Systems'
+      import_tasks: 'installmedia_os.yml'
 
-- name: 'Ensure Host Groups'
-  import_tasks: 'host_groups.yml'
+    - name: 'Ensure Host Groups'
+      import_tasks: 'host_groups.yml'
 
-- name: 'Set Random Hostname generator to MAC based'
-  theforeman.foreman.setting:
-    username: "{{ foreman_admin_user }}"
-    password: "{{ foreman_admin_password }}"
-    server_url: "{{ foreman_url }}"
-    validate_certs: "{{ foreman_validate_certs }}"
-    name: 'name_generator_type'
-    value: 'MAC-based'
+    - name: 'Set Random Hostname generator to MAC based'
+      theforeman.foreman.setting:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        name: 'name_generator_type'
+        value: 'MAC-based'
+  when: foreman_configure_deployment
 
 - name: 'Set Default Download Policies'
   theforeman.foreman.setting:

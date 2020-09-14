@@ -56,6 +56,18 @@
   loop_control:
     loop_var: 'repo'
 
+- name: 'Set empty list'
+  set_fact:
+    product_list: []
+
+- name: 'Set Product list'
+  set_fact:
+    product_list: "{{ product_list + [ product['repo'][0]['name'] ] }}"
+  when: product['changed']
+  loop: "{{ repo_created['results'] }}"
+  loop_control:
+    loop_var: 'product'
+
 - name: 'Sync repositories for changed Products, this may take long...'
   theforeman.foreman.repository_sync:
     username: "{{ foreman_admin_user }}"
@@ -63,10 +75,11 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    product: "{{ product['repo'][0]['name'] }}"
-  loop: "{{ repo_created['results'] }}"
-  when: product['changed']
+    product: "{{ product }}"
+  loop: "{{ product_list | unique }}"
   loop_control:
     loop_var: 'product'
   async: 10800
   poll: 60
+  retries: 5
+  delay: 5

@@ -105,6 +105,8 @@ foreman_activation_keys: []
 ###
 # Deployment settings
 ###
+# Configure the required components etc. for Host Discovery and Deployment
+foreman_configure_deployment: true
 
 ## Global network settings
 # These networks are made available in the Foreman infrastructure

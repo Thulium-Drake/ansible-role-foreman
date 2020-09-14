@@ -1,3 +1,4 @@
+---
 - name: 'Create empty list'
   set_fact:
     cv_repo_list: []

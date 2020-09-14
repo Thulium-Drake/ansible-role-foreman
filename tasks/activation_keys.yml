@@ -1,3 +1,4 @@
+---
 - name: "Create Activation Keys for {{ key_lifecycle['os'] }} - {{ key_lifecycle['lifecycle'] }}"
   theforeman.foreman.activation_key:
     username: "{{ foreman_admin_user }}"

@@ -90,3 +90,5 @@
     loop_var: 'product'
   async: 10800
   poll: 60
+  retries: 5
+  delay: 5

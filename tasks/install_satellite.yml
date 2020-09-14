@@ -1,3 +1,4 @@
+---
 - name: 'Prepare system for Red Hat Satellite installtion'
   block:
     - name: 'Ensure Red Hat Subscriptions'

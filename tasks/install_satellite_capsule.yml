@@ -26,6 +26,7 @@
     state: 'enabled'
     permanent: true
     immediate: true
+
 - name: 'Generate certificates on Satellite Server'
   shell: |
     export LANG=en_US.UTF-8
@@ -63,14 +64,30 @@
 - name: 'Run foreman-installer on Proxy'
   shell: "{{ foreman_installer_cmd | join('\n') }}"
 
-- name: 'Configure Foreman for deployment'
-  include_tasks: 'configure_deployment.yml'
+- name: 'Configure Host Deployment and Discovery'
+  block:
+    - name: 'Configure Foreman for deployment'
+      include_tasks: 'configure_deployment.yml'
 
-- name: 'Configure Host Discovery'
-  shell: |
-    export LANG=en_US.UTF-8
-    export LC_ALL=en_US.UTF-8
-    /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery
+    - name: 'Configure Host Discovery'
+      shell: |
+        export LANG=en_US.UTF-8
+        export LC_ALL=en_US.UTF-8
+        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery
+  when: foreman_configure_deployment
+
+- name: 'Fix warnings by setting permissions'
+  acl:
+    path: "{{ path }}"
+    entity: 'foreman-proxy'
+    etype: 'user'
+    permissions: 'r'
+    state: 'present'
+  loop:
+    - '/var/lib/mongodb'
+    - '/var/lib/pulp/content'
+  loop_control:
+    loop_var: 'path'
 
 - name: 'After installation message'
   pause:

@@ -16,6 +16,7 @@
     - '443/tcp'
     - '8000/tcp'
     - '8140/tcp'
+    - '8443/tcp'
     - '9090/tcp'
   loop_control:
     loop_var: 'port'
@@ -28,7 +29,7 @@
 - name: 'Copy MongoDB SELinux files'
   copy:
     dest: "/etc/selinux/modules/{{ file }}"
-    src: "selinux_configs/modules/{{ file }}"
+    src: "selinux_configs/{{ file }}"
   loop:
     - 'mongod_sock.pp'
     - 'mongod_sock.te'
@@ -41,11 +42,3 @@
     - 'mongod_sock'
   loop_control:
     loop_var: 'module'
-
-- name: 'Fix MongoDB warnings by setting permissions'
-  acl:
-    path: '/var/lib/mongodb'
-    entity: 'foreman-proxy'
-    etype: 'user'
-    permissions: 'r'
-    state: 'present'
