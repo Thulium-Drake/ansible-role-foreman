@@ -3,6 +3,13 @@
 foreman_admin_user: 'admin'
 foreman_admin_password: 'secret'
 
+## Only when using FreeIPA (and the system is already a member of the IPA domain)
+# After configuring, run playbooks/foreman_ipa_authentication.yml
+foreman_ipa_admin_group: 'foreman_admins'          # name of the group in the IPA domain
+foreman_foreman_admin_group: 'ipa_foreman_admins'  # name of the group in the Foreman Server
+foreman_ipa_server: 'ipa.example.com'              # hostname of the IPA server to which the Foreman server is joined
+                                                   # Ansible needs to have access to this server
+
 # Server information
 foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman' # or satellite
@@ -198,8 +205,12 @@ foreman_operating_systems:
         value: 'sudo'
       - name: 'remote_execution_ssh_keys'
         value: "{{ lookup('file', 'ssh_keys/ansible.pub') }}"
-    path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS7/CentOS7-Base/'
-    # The URL above is the location of the CV 'CentOS7-Base' for the 'Example-Org' organization
+    # Source to use for the OS installer
+    kickstart_repo: 'CentOS7-Base' # Name of a repository which contains a kickstart tree, ususally this is the Base
+    kickstart: true # Enable this to disable creating Installation media (which are not required if using kickstart)
+    # Alternatively when no Kickstart repo is available
+    # The URL below is the location of the CV 'CentOS7-Base' for the 'Example-Org' organization
+    #path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS7/CentOS7-Base/'
 
 # Which version of the Foreman Discorvery Image to use
 foreman_discovery_image_release: 'latest'
