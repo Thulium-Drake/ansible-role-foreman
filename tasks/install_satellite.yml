@@ -90,7 +90,11 @@
       --foreman-initial-admin-password {{ foreman_admin_password }} \
       --foreman-proxy-puppetca true \
       --foreman-proxy-tftp true \
-      --enable-foreman-plugin-discovery
+      --enable-foreman-plugin-discovery \
+      --detailed-exitcodes
+  register: 'installer_output'
+  changed_when: installer_output['rc'] == 2
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
 
 - name: 'End of installation notice'
   debug:

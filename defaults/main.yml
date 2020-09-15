@@ -4,7 +4,7 @@ foreman_admin_user: 'admin'
 foreman_admin_password: 'secret'
 
 ## Only when using FreeIPA (and the system is already a member of the IPA domain)
-# After configuring, run playbooks/foreman_ipa_authentication.yml
+foreman_configure_ipa: false
 foreman_ipa_admin_group: 'foreman_admins'          # name of the group in the IPA domain
 foreman_foreman_admin_group: 'ipa_foreman_admins'  # name of the group in the Foreman Server
 foreman_ipa_server: 'ipa.example.com'              # hostname of the IPA server to which the Foreman server is joined

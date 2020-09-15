@@ -47,7 +47,11 @@
     --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
-    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }}
+    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} \
+    --detailed-exitcodes
+  register: 'installer_output'
+  changed_when: installer_output['rc'] == 2
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
   when: foreman_deploy_run_installer
 
 - name: 'Configure additional components for Red Hat Satellite Server'

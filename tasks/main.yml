@@ -162,3 +162,7 @@
     etype: 'user'
     permissions: 'r'
     state: 'present'
+
+- name: 'Configure IPA authentication'
+  include_tasks: 'configure_ipa_authentication.yml'
+  when: foreman_configure_ipa
