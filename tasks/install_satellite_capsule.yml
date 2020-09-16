@@ -73,12 +73,7 @@
       shell: |
         export LANG=en_US.UTF-8
         export LC_ALL=en_US.UTF-8
-        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery \
-        --detailed-exitcodes
-      register: 'installer_output'
-      changed_when: installer_output['rc'] == 2
-      failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
-  when: foreman_configure_deployment
+        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery
 
 - name: 'Fix warnings by setting permissions'
   acl:

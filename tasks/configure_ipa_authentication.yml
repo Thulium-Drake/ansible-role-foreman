@@ -12,10 +12,9 @@
   shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
-    foreman-installer --foreman-ipa-authentication=true \
-      --detailed-exitcodes
+    foreman-installer --foreman-ipa-authentication=true {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
   register: 'installer_output'
-  changed_when: installer_output['rc'] == 2
+  changed_when: installer_output['rc'] == 2 or (foreman_server_type == 'satellite' and installer_output['rc'] == 0)
   failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
   notify: 'restart foreman'
 

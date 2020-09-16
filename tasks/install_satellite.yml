@@ -85,16 +85,12 @@
   shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
-    satellite-installer --scenario satellite \
+    /usr/sbin/satellite-installer --scenario satellite \
       --foreman-initial-admin-username {{ foreman_admin_user }} \
       --foreman-initial-admin-password {{ foreman_admin_password }} \
       --foreman-proxy-puppetca true \
       --foreman-proxy-tftp true \
-      --enable-foreman-plugin-discovery \
-      --detailed-exitcodes
-  register: 'installer_output'
-  changed_when: installer_output['rc'] == 2
-  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
+      --enable-foreman-plugin-discovery
 
 - name: 'End of installation notice'
   debug:

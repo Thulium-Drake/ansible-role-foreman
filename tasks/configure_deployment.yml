@@ -47,10 +47,9 @@
     --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
-    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} \
-    --detailed-exitcodes
+    --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
   register: 'installer_output'
-  changed_when: installer_output['rc'] == 2
+  changed_when: installer_output['rc'] == 2 or (foreman_server_type == 'satellite' and installer_output['rc'] == 0)
   failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
   when: foreman_deploy_run_installer
 
