@@ -4,7 +4,7 @@ This role provides a means to provision a Foreman or Satellite server with an or
 This role requires Ansible Collection 'theforeman.foreman' in order to work!
 
 ## Satellite Offline installation
-If you want to install Satellite via the Offline Installation ISO, make sure you have configured RHEL repo's from a Installation ISO as well.
+If you want to install Satellite via the Offline Installation ISO, make sure you have configured RHEL repo's from a Installation ISO or mirror as well.
 
 ## Content Views (CV), Composite Content Views (COV) and publishing
 When this role is used to create new content views and composites, the following strategy is applied:
