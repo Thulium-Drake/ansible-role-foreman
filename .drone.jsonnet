@@ -8,6 +8,7 @@
         image: "registry.element-networks.nl/tools/molecule",
         commands: [
           "ansible-galaxy collection install theforeman.foreman",
+          "ansible-galaxy collection install ansible.posix",
           "molecule lint",
           "molecule syntax"
         ],
