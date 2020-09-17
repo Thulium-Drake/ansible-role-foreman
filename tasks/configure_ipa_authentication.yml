@@ -37,4 +37,4 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ foreman_ipa_admin_group }}"
     usergroup: "{{ foreman_foreman_admin_group }}"
-    auth_source_ldap: 'External'
+    auth_source: 'External'
