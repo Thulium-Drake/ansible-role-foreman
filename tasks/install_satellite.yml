@@ -87,7 +87,7 @@
     export LC_ALL="en_US.UTF-8"
     /usr/sbin/satellite-installer --scenario satellite \
       --foreman-initial-admin-username {{ foreman_admin_user }} \
-      --foreman-initial-admin-password {{ foreman_admin_password }} \
+      --foreman-initial-admin-password {{ foreman_admin_password | quote }} \
       --foreman-proxy-puppetca true \
       --foreman-proxy-tftp true \
       --enable-foreman-plugin-discovery
