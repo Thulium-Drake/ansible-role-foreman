@@ -37,7 +37,7 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    download_policy: "{{ foreman_download_policy }}"
+    download_policy: "{% if repo[0]['type'] == 'docker' %}{{ omit }}{% else %}{{ foreman_download_policy }}{% endif %}"
     http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
     http_proxy: "{{ foreman_http_proxy | default(omit) }}"
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
@@ -48,8 +48,10 @@
     ssl_client_key: "{{ repo[1]['ssl_client_key'] | default(omit) }}"
     upstream_username: "{{ repo[1]['upstream_username'] | default(omit) }}"
     upstream_password: "{{ repo[1]['upstream_password'] | default(omit) }}"
+    docker_upstream_name: "{{ repo[1]['docker_upstream_name'] | default(omit) }}"
+    docker_tags_whitelist: "{{ repo[1]['docker_tags_whitelist'] | default(omit) }}"
     product: "{{ repo[0]['name'] }}"
-    gpg_key: "{% if repo[1]['no_gpg_key'] | default(False) %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
+    gpg_key: "{% if repo[1]['no_gpg_key'] | default(False) or repo[0]['type'] == 'docker' %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
     state: 'present'
   register: 'repo_created'
   loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
