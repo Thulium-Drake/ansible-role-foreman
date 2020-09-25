@@ -25,11 +25,11 @@
   tasks:
     - name: 'Process input'
       set_fact:
-        input_prod_list: []
+        input_cvs_list: []
 
     - name: 'Process input'
       set_fact:
-        input_cv_list: "{{ input_cvs.split(',') }}"
+        input_cvs_list: "{{ input_cvs.split(',') }}"
       when:
         - input_cvs != 'all'
         - input_cvs != 'none'
@@ -73,7 +73,7 @@
     - name: 'Wait for COV autopublish to settle'
       pause:
         minutes: 5
-      when: input_prod_list | length > 0
+      when: input_cvs_list | length > 0
 
     - name: 'Publish new version for all COVs for selected Lifecycle environments'
       theforeman.foreman.content_view_version:
