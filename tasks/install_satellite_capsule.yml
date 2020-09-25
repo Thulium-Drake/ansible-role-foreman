@@ -33,27 +33,27 @@
     export LC_ALL=en_US.UTF-8
     /usr/sbin/foreman-proxy-certs-generate \
       --no-colors \
-      --foreman-proxy-fqdn "{{ ansible_facts['fqdn'] }}" \
-      --certs-tar /root/{{ ansible_facts['fqdn'] }}.tar
+      --foreman-proxy-fqdn "{{ ansible_facts['fqdn'] | lower }}" \
+      --certs-tar /root/{{ ansible_facts['fqdn'] | lower }}.tar
   delegate_to: "{{ groups['foreman'][0] }}"
   register: 'foreman_certs_gen'
 
 - name: 'Copy certificate tar to Ansible Controller'
   fetch:
-    src: "/root/{{ ansible_facts['fqdn'] }}.tar"
+    src: "/root/{{ ansible_facts['fqdn'] | lower }}.tar"
     dest: '/tmp/'
     flat: true
   delegate_to: "{{ groups['foreman'][0] }}"
 
 - name: 'Copy certificate tar to Satellite Capsule'
   copy:
-    src: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
+    src: "/tmp/{{ ansible_facts['fqdn'] | lower }}.tar"
     dest: '/root'
     mode: 0600
 
 - name: 'Remove certificate tar from Ansible Controller'
   file:
-    path: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
+    path: "/tmp/{{ ansible_facts['fqdn'] | lower }}.tar"
     state: 'absent'
   delegate_to: 'localhost'
 
