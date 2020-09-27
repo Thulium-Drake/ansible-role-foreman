@@ -14,6 +14,7 @@
   when: product['gpg_key'] is defined
   loop_control:
     loop_var: 'product'
+  no_log: "{{ not foreman_debug }}"
 
 - name: 'Ensure products'
   theforeman.foreman.product:
@@ -24,11 +25,12 @@
     organization: "{{ foreman_organization }}"
     name: "{{ product['name'] }}"
     description: 'Managed by Ansible, your changes will be lost'
-    sync_plan: 'Daily repo sync'
+    sync_plan: "{% if product['no_sync'] | default(false) %}{{ omit }}{% else %}Daily repo sync{% endif %}"
     state: 'present'
   loop: "{{ foreman_products }}"
   loop_control:
     loop_var: 'product'
+  no_log: "{{ not foreman_debug }}"
 
 - name: 'Ensure product repositories'
   theforeman.foreman.repository:
@@ -57,6 +59,7 @@
   loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
   loop_control:
     loop_var: 'repo'
+  no_log: "{{ not foreman_debug }}"
 
 - name: 'Set empty list'
   set_fact:
@@ -65,10 +68,13 @@
 - name: 'Set Product list'
   set_fact:
     product_list: "{{ product_list + [ product['repo'][0]['name'] ] }}"
-  when: product['changed']
+  when: >
+    product['changed'] and ((product['repo'][0]['no_sync'] is defined and not product['repo'][0]['no_sync']) or
+    product['repo'][0]['no_sync'] is not defined)
   loop: "{{ repo_created['results'] }}"
   loop_control:
     loop_var: 'product'
+  no_log: "{{ not foreman_debug }}"
 
 - name: 'Sync repositories for changed Products, this may take long...'
   theforeman.foreman.repository_sync:

@@ -45,6 +45,7 @@
     --foreman-proxy-dhcp-gateway {{ foreman_instance_network_settings[0]['network_gateway'] }} \
     --foreman-proxy-dhcp-nameservers {{ foreman_instance_network_settings[0]['dns_primary'] | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }} \
     --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_deploy_interface]['ipv4']['address'] }} \
+    --foreman-proxy-templates=true \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
     --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
@@ -60,8 +61,7 @@
     /usr/sbin/foreman-installer \
     --foreman-proxy-httpboot=true \
     --foreman-proxy-http=true \
-    --foreman-proxy-httpboot-listen-on=both \
-    --foreman-proxy-templates=true
+    --foreman-proxy-httpboot-listen-on=both
   when:
     - foreman_deploy_run_installer
     - foreman_server_type == 'satellite'

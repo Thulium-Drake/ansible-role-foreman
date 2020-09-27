@@ -70,6 +70,13 @@ foreman_products: []
 #        url: 'http://mirror.centos.org/centos/7/os/x86_64'
 #    gpg_key: 'RPM-GPG-KEY-CentOS7'
 #    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'
+#
+#  - name: 'Local'
+#    type: 'yum'
+#    no_sync: true
+#    repositories:
+#      - name: 'Thing'
+#        no_gpg_key: true
 
 foreman_composite_content_views: []
 # Below is an example of an Composite Content View
