@@ -26,6 +26,12 @@
         state: 'link'
   when: ansible_facts['distribution'] == 'RedHat'
 
+- name: 'Configure foreman-installer to tolerate longer timeouts for Passenger startup'
+  lineinfile:
+    path: '/etc/foreman-installer/custom-hiera.yaml'
+    line: 'foreman::passenger_start_timeout: 360'
+    regexp: '^foreman::passenger_start_timeout'
+
 - name: 'Ensure firewall ports'
   ansible.posix.firewalld:
     port: "{{ port }}"
