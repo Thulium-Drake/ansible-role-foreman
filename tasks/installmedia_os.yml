@@ -26,7 +26,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     description: "{{ os['name'] }} {{ os['major_version'] }}"
     major: "{{ os['major_version'] }}"
-    minor: "{{ os['minor_version'] | default(omit) }}"
+    minor: "{{ os['minor_version'] | default('') }}"
     release: "{{ os['release'] | default(omit) }}"
     name: "{{ os['name'] }}"
     family: "{{ os['os_family'] }}"
