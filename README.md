@@ -30,6 +30,13 @@ _x-foreman._tcp.dev.example.com 600 IN  SRV 0 5 443 foreman.dev.example.com
 _x-foreman._tcp.dev.example.com 600 IN  SRV 0 5 8443 fm-proxy.dev.example.com
 ```
 
-## Bugs and workarounds
-### Error creating OSes
+## Limitations, bugs and workarounds
+### Bug: Error creating OSes
 Remove all the OSes from Hosts -> Operating systems (you can't delete the one where the foreman server is in)
+
+### Limitation: Resources with passwords always change
+Because the Foreman modules can't see the current password set for password fields, these cannot be compared.
+
+Therefore these always changes (Operating systems, Upstream repo credentials etc.). This can cause extra actions
+depending on the resource changed. This hasn't proven problematic so far, but the play execution can take a
+little longer because of it.
