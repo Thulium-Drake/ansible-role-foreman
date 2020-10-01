@@ -1,3 +1,4 @@
+[![Build Status](https://drone.element-networks.nl/api/badges/Ansible/role-foreman/status.svg)](https://drone.element-networks.nl/Ansible/role-foreman)
 # Foreman configuration by Ansible
 This role provides a means to provision a Foreman or Satellite server with an organization and some content
 
