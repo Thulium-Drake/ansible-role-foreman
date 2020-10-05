@@ -31,6 +31,7 @@
   copy:
     dest: "/etc/selinux/modules/{{ file }}"
     src: "selinux_configs/{{ file }}"
+    mode: 0600
   loop:
     - 'mongod_sock.pp'
     - 'mongod_sock.te'
