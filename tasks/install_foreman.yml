@@ -2,8 +2,8 @@
 # Foreman/Katello versions are linked, check Katello docs for more information
 - name: 'Set versions'
   set_fact:
-    foreman_version: 2.1
-    katello_version: 3.16
+    foreman_version: 2.0
+    katello_version: 3.15
     foreman_initial_admin_password: "{{ foreman_admin_password }}"
 
 - name: 'Install EPEL'
