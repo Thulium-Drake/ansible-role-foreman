@@ -91,3 +91,4 @@
   poll: 60
   retries: 5
   delay: 5
+  ignore_errors: true # ignore errors, as a failed sync is not the end of the world
