@@ -5,10 +5,11 @@
       - foreman_server_type in foreman_supported_server_types
       - foreman_download_policy in foreman_supported_download_policies
 
-- name: 'Ensure package dependencies'
+- name: 'Ensure package dependencies on Ansible Controller'
   package:
     name:
       - 'python-netaddr'
+  delegate_to: 'localhost'
 
 - name: 'Ensure PiP dependencies'
   pip:
