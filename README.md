@@ -8,6 +8,8 @@ Other requirements on the Ansible controller:
 
 * python-netaddr (for subnet related tasks)
 
+Check out the [example inventory and playbooks](../playbooks) for some guidance!
+
 ## Satellite Offline installation
 If you want to install Satellite via the Offline Installation ISO, make sure you have configured RHEL repo's from a Installation ISO or mirror as well.
 
@@ -45,3 +47,8 @@ Because the Foreman modules can't see the current password set for password fiel
 Therefore these always changes (Operating systems, Upstream repo credentials etc.). This can cause extra actions
 depending on the resource changed. This hasn't proven problematic so far, but the play execution can take a
 little longer because of it.
+
+### Smart Proxy configuration has to be done manually
+There are no modules as of this time to configure Smart Proxies location/organization.
+
+Please configure these manually via Infrastructure -> Smart Proxies -> proxy.example.com -> Edit
