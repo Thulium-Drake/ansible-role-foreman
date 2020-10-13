@@ -5,6 +5,11 @@
       - foreman_server_type in foreman_supported_server_types
       - foreman_download_policy in foreman_supported_download_policies
 
+- name: 'Ensure package dependencies'
+  package:
+    name:
+      - 'python-netaddr'
+
 - name: 'Ensure PiP dependencies'
   pip:
     name: 'apypie'

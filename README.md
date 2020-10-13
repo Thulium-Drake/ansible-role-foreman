@@ -4,6 +4,10 @@ This role provides a means to provision a Foreman or Satellite server with an or
 
 This role requires Ansible Collection 'theforeman.foreman' in order to work!
 
+Other requirements on the Ansible controller:
+
+* python-netaddr (for subnet related tasks)
+
 ## Satellite Offline installation
 If you want to install Satellite via the Offline Installation ISO, make sure you have configured RHEL repo's from a Installation ISO or mirror as well.
 
