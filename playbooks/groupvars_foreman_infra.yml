@@ -1,0 +1,220 @@
+---
+# Place this file in your group_vars directory named foreman_infra.yml
+###
+# Foreman Global settings
+###
+foreman_version: '2.0'
+katello_version: '3.15'
+foreman_admin_user: 'admin'
+foreman_admin_password: 'banana' # <<<< ENCRYPTME
+foreman_url: 'https://foreman.infra.example.com'
+foreman_validate_certs: false
+foreman_configure_ipa: false # Enable when IPA server is available, don't forget to provide credentials
+foreman_organization: 'Example-Org'
+foreman_locations:
+  - 'DC1'
+  - 'DC2'
+
+foreman_host_collections_os:
+  - 'centos7'
+
+foreman_products:
+  - name: 'CentOS7'
+    type: 'yum'
+    repositories:
+      - name: 'Base'
+        url: 'http://mirror.centos.org/centos/7/os/x86_64'
+      - name: 'Updates'
+        url: 'http://mirror.centos.org/centos/7/updates/x86_64'
+      - name: 'Extras'
+        url: 'http://mirror.centos.org/centos/7/extras/x86_64'
+    gpg_key: 'RPM-GPG-KEY-CentOS7'
+    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'
+  - name: 'EPEL7'
+    type: 'yum'
+    repositories:
+      - name: 'Base'
+        url: 'https://epel.mirror.wearetriple.com/7/x86_64'
+    gpg_key: 'RPM-GPG-KEY-EPEL-7'
+    gpg_key_url: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7'
+  - name: 'Foreman-Tools-EL7'
+    type: 'yum'
+    repositories:
+      - name: 'Base'
+        url: "https://yum.theforeman.org/client/{{ foreman_version }}/el7/x86_64"
+    gpg_key: 'RPM-GPG-KEY-foreman-client'
+    gpg_key_url: 'https://theforeman.org/static/keys/06ABEFE26C1997E0C9E56508926EA0100579BAEE.pub'
+  - name: 'Foreman-Server-EL7'
+    type: 'yum'
+    repositories:
+      - name: 'Foreman-Base'
+        url: "https://yum.theforeman.org/releases/{{ foreman_version }}/el7/x86_64"
+      - name: 'Foreman-Plugins'
+        url: "https://yum.theforeman.org/plugins/{{ foreman_version }}/el7/x86_64"
+        no_gpg_key: true
+      - name: 'Katello-Base'
+        url: "https://fedorapeople.org/groups/katello/releases/yum/{{ katello_version }}/katello/el7/x86_64"
+      - name: 'Katello-Candlepin'
+        url: "https://fedorapeople.org/groups/katello/releases/yum/{{ katello_version }}/candlepin/el7/x86_64"
+      - name: 'Katello-Pulpcore'
+        url: "https://fedorapeople.org/groups/katello/releases/yum/{{ katello_version }}/pulpcore/el7/x86_64"
+    gpg_key: 'RPM-GPG-KEY-foreman'
+    gpg_key_url: 'https://theforeman.org/static/keys/06ABEFE26C1997E0C9E56508926EA0100579BAEE.pub'
+  - name: 'Foreman-Puppet6-EL7'
+    type: 'yum'
+    repositories:
+      - name: 'Puppet6'
+        url: 'http://yum.puppetlabs.com/puppet6/el/7/x86_64'
+    gpg_key: 'RPM-GPG-KEY-puppet6-release'
+    gpg_key_url: 'https://yum.puppet.com/RPM-GPG-KEY-puppet'
+  - name: 'CentOS7-SCL'
+    type: 'yum'
+    repositories:
+      - name: 'Base'
+        url: 'http://mirror.centos.org/centos/7/sclo/x86_64/rh/'
+    gpg_key: 'RPM-GPG-KEY-CentOS-SIG-SCLo'
+    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-SCLo'
+  - name: 'Foreman-Pulp-EL7'
+    type: 'yum'
+    repositories:
+      - name: 'Base'
+        url: 'https://repos.fedorapeople.org/repos/pulp/pulp/stable/2.21/7Server/x86_64'
+    gpg_key: 'GPG-RPM-KEY-pulp-2'
+    gpg_key_url: 'https://repos.fedorapeople.org/repos/pulp/pulp/GPG-RPM-KEY-pulp-2'
+  - name: 'Docker-EL7'
+    type: 'yum'
+    repositories:
+      - name: 'CE-Stable'
+        url: 'https://download.docker.com/linux/centos/7/x86_64/stable/'
+    gpg_key: 'GPG-RPM-KEY-docker-ce'
+    gpg_key_url: 'https://download.docker.com/linux/centos/gpg'
+
+foreman_composite_content_views:
+  - name: 'COV CentOS7-Base'
+    components:
+      - content_view: 'CV CentOS7'
+        latest: true
+      - content_view: 'CV Foreman-Tools-EL7'
+        latest: true
+  - name: 'COV CentOS7-ForemanProxy'
+    components:
+      - content_view: 'CV CentOS7'
+        latest: true
+      - content_view: 'CV EPEL7'
+        latest: true
+      - content_view: 'CV Foreman-Pulp-EL7'
+        latest: true
+      - content_view: 'CV Foreman-Puppet6-EL7'
+        latest: true
+      - content_view: 'CV Foreman-Tools-EL7'
+        latest: true
+      - content_view: 'CV Foreman-Server-EL7'
+        latest: true
+      - content_view: 'CV CentOS7-SCL'
+        latest: true
+
+foreman_activation_keys:
+  - name: 'CentOS7-Base'
+    os: 'centos7'
+    content_view: 'COV CentOS7-Base'
+    release_version: '7Server'
+    auto_attach: true
+    subscriptions:
+      - name: 'CentOS7'
+      - name: 'Foreman-Tools-EL7'
+  - name: 'CentOS7-ForemanProxy'
+    os: 'centos7'
+    content_view: 'COV CentOS7-ForemanProxy'
+    release_version: '7Server'
+    auto_attach: true
+    subscriptions:
+      - name: 'CentOS7'
+      - name: 'EPEL7'
+      - name: 'CentOS7-SCL'
+      - name: 'Foreman-Pulp-EL7'
+      - name: 'Foreman-Puppet6-EL7'
+      - name: 'Foreman-Server-EL7'
+      - name: 'Foreman-Tools-EL7'
+
+###
+# Foreman Deployment settings
+###
+foreman_deploy_dns_scenario: 'nsupdate'
+foreman_deploy_dns_rndc_key_value: 'some_rndc_key' #<<<< ENCRYPTME
+
+foreman_deploy_networks:
+  - name: 'Infra'
+    address: '192.168.255.0/24'
+    range_start: '192.168.255.150'
+    range_end: '192.168.255.200'
+    network_gateway: '192.168.255.1'
+    dns_zone: 'infra.example.com'
+    auth_nameserver: '192.168.255.150'
+    dns_primary: '192.168.255.1'
+    locations:
+      - 'DC1'
+    smart_proxy: 'foreman.infra.example.com'
+  - name: 'Development'
+    address: '192.168.254.0/24'
+    range_start: '192.168.254.150'
+    range_end: '192.168.254.200'
+    network_gateway: '192.168.254.1'
+    dns_zone: 'dev.example.com'
+    auth_nameserver: '192.168.255.150'
+    dns_primary: '192.168.254.1'
+    locations:
+      - 'DC1'
+    #smart_proxy: 'fm-proxy.dev.example.com' # uncomment after proxy is available for config
+    smart_proxy: 'foreman.infra.example.com' # remove after proxy is available for config
+  - name: 'QA'
+    address: '192.168.253.0/24'
+    range_start: '192.168.253.150'
+    range_end: '192.168.253.200'
+    network_gateway: '192.168.253.1'
+    dns_zone: 'qa.example.com'
+    auth_nameserver: '192.168.253.150'
+    dns_primary: '192.168.255.1'
+    locations:
+      - 'DC1'
+      - 'DC2'
+    #smart_proxy: 'fm-proxy.qa.example.com' # uncomment after proxy is available for config
+    smart_proxy: 'foreman.infra.example.com' # remove after proxy is available for config
+  - name: 'Production'
+    address: '192.168.252.0/24'
+    range_start: '192.168.252.150'
+    range_end: '192.168.252.200'
+    network_gateway: '192.168.252.1'
+    dns_zone: 'prod.example.com'
+    auth_nameserver: '192.168.252.150'
+    dns_primary: '192.168.255.1'
+    locations:
+      - 'DC1'
+      - 'DC2'
+    #smart_proxy: 'fm-proxy.prod.example.com' # uncomment after proxy is available for config
+    smart_proxy: 'foreman.infra.example.com' # remove after proxy is available for config
+
+foreman_deploy_root_password: 'supersecuresecretrootpassword'
+foreman_operating_systems:
+  - name: 'CentOS'
+    major_version: 7
+    arch:
+     - 'x86_64'
+    os_family: 'Redhat'
+    kickstart: true
+    kickstart_repo: 'CentOS7-Base'
+    root_pass: "{{ foreman_deploy_root_password }}"
+    parameters:
+      - name: 'autopart_options'
+        value: '--nohome'
+      - name: 'remote_execution_create_user'
+        value: 'true'
+        parameter_type: 'boolean'
+      - name: 'remote_execution_ssh_user'
+        value: 'ansible'
+      - name: 'remote_execution_effective_user_method'
+        value: 'sudo'
+      - name: 'remote_execution_ssh_keys'
+        value: "{{ lookup('file', 'files/pubkeys/ansible.pub') }}"
+      - name: 'enable-epel'
+        value: 'false'
+        parameter_type: 'boolean'

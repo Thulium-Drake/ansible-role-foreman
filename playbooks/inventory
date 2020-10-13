@@ -1,5 +1,11 @@
 [foreman] # This is where the foreman server is in
-foreman.example.com
+foreman.infra.example.com
 
 [foreman_proxies]
-fm-proxy.nl.example.com
+fm-proxy.dev.example.com
+fm-proxy.qa.example.com
+fm-proxy.production.example.com
+
+[foreman_infra:children] # This is where all the vars live
+foreman
+foreman_proxies
