@@ -16,7 +16,7 @@
     subnet: "{{ hostgroup['network'] }}"
     architecture: "{{ hostgroup['arch'][0] }}"
     operatingsystem: "{{ hostgroup['os'] }}"
-    ptable: "{{ hostgroup['ptable'] }}"
+    ptable: "{{ hostgroup['ptable'][0] }}"
     medium: "{% if not hostgroup['kickstart'] %}{{ hostgroup['os'] }}{% else %}{{ omit }}{% endif %}"
     kickstart_repository: "{% if hostgroup['kickstart'] %}{{ hostgroup['kickstart_repo'] | replace('\"', '') }}{% else %}{{ omit }}{% endif %}"
     parameters: "{{ hostgroup['parameters'] }}"

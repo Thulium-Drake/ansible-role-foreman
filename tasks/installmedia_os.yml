@@ -18,6 +18,25 @@
   loop_control:
     loop_var: 'medium'
 
+- name: 'Ensure Partition Tables'
+  theforeman.foreman.partition_table:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ ptable.name }}"
+    layout: "{{ ptable.layout }}"
+    os_family: "{{ ptable.os_family | default(omit) }}"
+    locations: "{{ foreman_locations + ['Default Location'] }}"
+    organizations:
+      - "{{ foreman_organization }}"
+    state: 'present'
+  when: foreman_partition_tables | length > 0
+  no_log: "{{ not foreman_debug }}"
+  loop: "{{ foreman_partition_tables }}"
+  loop_control:
+    loop_var: 'ptable'
+
 - name: 'Ensure Operating Systems'
   theforeman.foreman.operatingsystem:
     username: "{{ foreman_admin_user }}"
@@ -40,3 +59,22 @@
   loop: "{{ foreman_operating_systems }}"
   loop_control:
     loop_var: 'os'
+
+- name: 'Ensure "Kickstart default custom packages" snippet'
+  theforeman.foreman.provisioning_template:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'Kickstart default custom packages'
+    kind: 'snippet'
+    locations: "{{ ['Default Location'] + foreman_locations }}"
+    organizations:
+      - 'Default Organization'
+      - '{{ foreman_organization }}'
+    state: 'present'
+    template: |
+      <%#
+        description: Managed by Ansible, your changes will be lost!
+      %>
+      subscription-manager

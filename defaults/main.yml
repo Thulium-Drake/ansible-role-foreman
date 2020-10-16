@@ -137,7 +137,7 @@ foreman_deploy_networks:
     dns_zone: 'dev.example.com'
     locations:
       - 'DC1'
-    smart_proxy: 'foreman.example.com' # If not defined, will use the global foreman server
+    smart_proxy: 'foreman.infra.example.com' # If not defined, will use the global foreman server
   - name: 'QA'
     address: '192.168.2.0/24'
     range_start: '192.168.2.150'
@@ -193,6 +193,11 @@ foreman_dns_forwarders: '9.9.9.9'
 # If not set, will default to 'changemeNOW!'
 foreman_deploy_root_pass: 'SuperSecretPassword'
 
+# Custom Partition Tables that can be assigned to an OS
+# Note that all host groups descending from the OS will use
+# the same Partition Table!
+foreman_partition_tables: []
+
 # Operating systems to configure for deployment
 foreman_operating_systems:
   - name: 'CentOS'   # Name as supplied by Facter, this will be combined with the Major version to a friendly name
@@ -225,9 +230,9 @@ foreman_discovery_image_release: 'latest'
 
 ## Foreman instance network settings
 # Which network interface to configure DHCP/DNS for the current instance
-foreman_instance_deploy_interface: 'eth1'
+foreman_instance_deploy_interface: 'eth0'
 # Which Network is used by this instance
-foreman_instance_network: 'Development'
+foreman_instance_network: 'Infra'
 ## end of instance settings
 
 # Enable to allow logging for tasks that can contain sensitive information

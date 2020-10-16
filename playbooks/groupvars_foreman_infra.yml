@@ -81,13 +81,6 @@ foreman_products:
         url: 'https://repos.fedorapeople.org/repos/pulp/pulp/stable/2.21/7Server/x86_64'
     gpg_key: 'GPG-RPM-KEY-pulp-2'
     gpg_key_url: 'https://repos.fedorapeople.org/repos/pulp/pulp/GPG-RPM-KEY-pulp-2'
-  - name: 'Docker-EL7'
-    type: 'yum'
-    repositories:
-      - name: 'CE-Stable'
-        url: 'https://download.docker.com/linux/centos/7/x86_64/stable/'
-    gpg_key: 'GPG-RPM-KEY-docker-ce'
-    gpg_key_url: 'https://download.docker.com/linux/centos/gpg'
 
 foreman_composite_content_views:
   - name: 'COV CentOS7-Base'
@@ -139,8 +132,7 @@ foreman_activation_keys:
 ###
 # Foreman Deployment settings
 ###
-foreman_deploy_dns_scenario: 'nsupdate'
-foreman_deploy_dns_rndc_key_value: 'some_rndc_key' #<<<< ENCRYPTME
+foreman_deploy_dns_scenario: 'internal'
 
 foreman_deploy_networks:
   - name: 'Infra'
@@ -149,49 +141,9 @@ foreman_deploy_networks:
     range_end: '192.168.255.200'
     network_gateway: '192.168.255.1'
     dns_zone: 'infra.example.com'
-    auth_nameserver: '192.168.255.150'
-    dns_primary: '192.168.255.1'
     locations:
       - 'DC1'
     smart_proxy: 'foreman.infra.example.com'
-  - name: 'Development'
-    address: '192.168.254.0/24'
-    range_start: '192.168.254.150'
-    range_end: '192.168.254.200'
-    network_gateway: '192.168.254.1'
-    dns_zone: 'dev.example.com'
-    auth_nameserver: '192.168.255.150'
-    dns_primary: '192.168.254.1'
-    locations:
-      - 'DC1'
-    #smart_proxy: 'fm-proxy.dev.example.com' # uncomment after proxy is available for config
-    smart_proxy: 'foreman.infra.example.com' # remove after proxy is available for config
-  - name: 'QA'
-    address: '192.168.253.0/24'
-    range_start: '192.168.253.150'
-    range_end: '192.168.253.200'
-    network_gateway: '192.168.253.1'
-    dns_zone: 'qa.example.com'
-    auth_nameserver: '192.168.253.150'
-    dns_primary: '192.168.255.1'
-    locations:
-      - 'DC1'
-      - 'DC2'
-    #smart_proxy: 'fm-proxy.qa.example.com' # uncomment after proxy is available for config
-    smart_proxy: 'foreman.infra.example.com' # remove after proxy is available for config
-  - name: 'Production'
-    address: '192.168.252.0/24'
-    range_start: '192.168.252.150'
-    range_end: '192.168.252.200'
-    network_gateway: '192.168.252.1'
-    dns_zone: 'prod.example.com'
-    auth_nameserver: '192.168.252.150'
-    dns_primary: '192.168.255.1'
-    locations:
-      - 'DC1'
-      - 'DC2'
-    #smart_proxy: 'fm-proxy.prod.example.com' # uncomment after proxy is available for config
-    smart_proxy: 'foreman.infra.example.com' # remove after proxy is available for config
 
 foreman_deploy_root_password: 'supersecuresecretrootpassword'
 foreman_operating_systems:
