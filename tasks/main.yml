@@ -5,27 +5,6 @@
       - foreman_server_type in foreman_supported_server_types
       - foreman_download_policy in foreman_supported_download_policies
 
-- name: 'Ensure PiP dependencies'
-  pip:
-    name: 'apypie'
-    state: 'present'
-  when: ansible_facts['distribution'] != 'RedHat'
-
-- name: 'Ensure PiP dependencies'
-  block:
-    - name: 'Install dependencies'
-      pip:
-        name:
-          - 'apypie'
-        state: 'present'
-        executable: '/usr/local/bin/ansible_foreman_pip'
-    - name: 'Symlink Apypie to system python'
-      file:
-        src: '/opt/rh/python27/root/usr/lib/python2.7/site-packages/apypie'
-        dest: '/usr/lib/python2.7/site-packages/apypie'
-        state: 'link'
-  when: ansible_facts['distribution'] == 'RedHat'
-
 - name: 'Configure foreman-installer to tolerate longer timeouts for Passenger startup'
   lineinfile:
     path: '/etc/foreman-installer/custom-hiera.yaml'
@@ -64,6 +43,21 @@
 
 - name: 'Ensure Organizations, Locations and Lifecycles'
   import_tasks: 'organization_lifecycle.yml'
+
+- name: 'Update Foreman Server Smart Proxy Config'
+  theforeman.foreman.smart_proxy:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ ansible_facts['fqdn'] }}"
+    url: "https://{{ ansible_facts['fqdn'] }}:9090"
+    download_policy: "{{ foreman_download_policy }}"
+    organizations:
+      - 'Default Organization'
+      - "{{ foreman_organization }}"
+    locations: "{{ ['Default Location'] + foreman_locations }}"
+    state: 'present'
 
 - name: 'Ensure Host Collections'
   import_tasks: 'host_collections.yml'

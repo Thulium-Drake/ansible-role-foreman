@@ -46,28 +46,5 @@
 - name: 'Run foreman-installer on Proxy'
   shell: "{{ foreman_installer_cmd | join('\n') }}"
 
-- name: 'Configure Host Deployment and Discovery'
-  block:
-    - name: 'Configure Foreman for deployment'
-      include_tasks: 'configure_deployment.yml'
-
-    - name: 'Configure Host Discovery'
-      shell: |
-        export LANG=en_US.UTF-8
-        export LC_ALL=en_US.UTF-8
-        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery \
-          --detailed-exitcodes
-      register: 'installer_output'
-      changed_when: installer_output['rc'] == 2
-      failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
-  when: foreman_configure_deployment
-
-- name: 'After installation message'
-  pause:
-    prompt: |
-      Installation succesful!
-      As of this time there is no module available to configure Smart Proxies in Ansible.
-      Please log in on {{ foreman_url }} , assign it manually and sync the proxy.
-      Also run a configuration run for Foreman again to update any Host Groups with the new proxy.
-
-      Press Enter to continue
+- name: 'Configure Proxy'
+  import_tasks: 'configure_foreman_smartproxy.yml'

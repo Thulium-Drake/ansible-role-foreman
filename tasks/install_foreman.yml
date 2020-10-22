@@ -16,7 +16,6 @@
     name:
       - 'git'
       - 'ansible'
-      - 'python-pip'
     state: 'present'
     update_cache: true
 

@@ -1,0 +1,34 @@
+---
+- name: 'Configure Host Deployment and Discovery'
+  block:
+    - name: 'Configure Foreman for deployment'
+      include_tasks: 'configure_deployment.yml'
+
+    - name: 'Configure Host Discovery'
+      shell: |
+        export LANG=en_US.UTF-8
+        export LC_ALL=en_US.UTF-8
+        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery \
+          --detailed-exitcodes
+      register: 'installer_output'
+      changed_when: installer_output['rc'] == 2
+      failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
+  when: foreman_configure_deployment
+
+- name: 'Update Foreman Smart Proxy Config'
+  theforeman.foreman.smart_proxy:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ ansible_facts['fqdn'] }}"
+    url: "https://{{ ansible_facts['fqdn'] }}:9090"
+    download_policy: "{{ foreman_download_policy }}"
+    lifecycle_environments:
+      - "{{ foreman_smart_proxy_lifecycle }}"
+    organizations:
+      - 'Default Organization'
+      - "{{ foreman_organization }}"
+    locations: "{{ ['Default Location'] + foreman_locations }}"
+    state: 'present'
+  delegate_to: "{{ groups['foreman'][0] }}"
