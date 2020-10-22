@@ -1,0 +1,38 @@
+---
+# Configure Foreman and create a user that Ansible can use for inventory
+- name: 'Configure Foreman'
+  hosts: 'foreman'
+  tasks:
+    - name: 'Configure Foreman'
+      import_role:
+        name: 'foreman'
+    - name: 'Create user for Ansible'
+      theforeman.foreman.user:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        name: "{{ foreman_ansible_user }}"
+        user_password: "{{ foreman_ansible_password }}"
+        auth_source: 'Internal'
+        admin: false
+        firstname: 'Ansible'
+        lastname: 'Automation'
+        mail: 'root@localhost'
+        timezone: 'Amsterdam'
+        roles:
+          - 'Viewer'
+          - 'View hosts'
+        organizations:
+          - "{{ foreman_organization }}"
+        locations: "{{ foreman_locations + ['Default Location'] }}"
+        state: 'present'
+
+# Update any configuration changes on installed Smart Proxies
+- name: 'Configure Foreman Smart Proxies'
+  hosts: 'foreman_proxies'
+  tasks:
+    - name: 'Run Foreman role'
+      import_role:
+        name: 'foreman'
+        tasks_from: 'configure_foreman_smartproxy.yml'

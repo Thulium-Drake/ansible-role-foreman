@@ -2,7 +2,7 @@
 # Foreman configuration by Ansible
 This role provides a means to provision a Foreman or Satellite server with an organization and some content
 
-This role requires Ansible Collection 'theforeman.foreman' in order to work!
+This role requires Ansible Collection 'theforeman.foreman' 1.4.0 or higher in order to work!
 
 Other requirements on the Ansible controller:
 
@@ -110,8 +110,3 @@ foreman_operating_systems:
       - name: 'autopart_options'
         value: '--nohome'
 ```
-
-### Smart Proxy configuration has to be done manually
-There are no modules as of this time to configure Smart Proxies location/organization.
-
-Please configure these manually via Infrastructure -> Smart Proxies -> proxy.example.com -> Edit
