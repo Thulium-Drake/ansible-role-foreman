@@ -71,12 +71,24 @@ foreman_products: []
 #    gpg_key: 'RPM-GPG-KEY-CentOS7'
 #    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'
 #
+# Disable upstream sync for all repos in this product:
+#
 #  - name: 'Local'
 #    type: 'yum'
 #    no_sync: true
 #    repositories:
 #      - name: 'Thing'
 #        no_gpg_key: true
+#
+# Override the default download policy for all repos in this product:
+#
+#  - name: 'DownloadPolicy'
+#    type: 'yum'
+#    download_policy: 'on_demand'
+#    repositories:
+#      - name: 'Thing'
+#        no_gpg_key: true
+
 
 foreman_composite_content_views: []
 # Below is an example of an Composite Content View
