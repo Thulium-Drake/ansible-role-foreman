@@ -27,6 +27,7 @@
     - '80/tcp'
     - '443/tcp'
     - '8000/tcp'
+    - '5647/tcp'
     - '8140/tcp'
     - '9090/tcp'
   loop_control:
