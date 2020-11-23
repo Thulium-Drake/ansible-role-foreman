@@ -23,6 +23,7 @@
     - key['host_collections'] is not defined
   loop_control:
     loop_var: 'key'
+    label: "{{ key['name'] }}"
 
 - name: "Create Activation Keys for {{ key_lifecycle['os'] }} - {{ key_lifecycle['lifecycle'] }}"
   theforeman.foreman.activation_key:
@@ -49,3 +50,4 @@
     - key['host_collections'] is defined
   loop_control:
     loop_var: 'key'
+    label: "{{ key['name'] }}"

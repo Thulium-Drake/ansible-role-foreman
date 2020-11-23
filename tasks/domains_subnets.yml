@@ -15,6 +15,7 @@
   loop: "{{ foreman_deploy_networks }}"
   loop_control:
     loop_var: 'zone'
+    label: "{{ zone['dns_zone'] }}"
 
 - name: 'Ensure Foreman Subnets'
   theforeman.foreman.subnet:
@@ -46,3 +47,4 @@
   loop: "{{ foreman_deploy_networks }}"
   loop_control:
     loop_var: 'network'
+    label: "{{ network['name'] }}"

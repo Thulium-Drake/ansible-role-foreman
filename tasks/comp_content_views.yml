@@ -15,6 +15,7 @@
   loop: "{{ foreman_composite_content_views }}"
   loop_control:
     loop_var: 'comp_content_view'
+    label: "{{ comp_content_view['name'] }}"
 
 - name: 'Promote content view version for newly created composite content views'
   theforeman.foreman.content_view_version:
@@ -29,3 +30,4 @@
   loop: "{{ cov_created['results'] }}"
   loop_control:
     loop_var: 'comp_content_view'
+    label: "{{ comp_content_view['comp_content_view']['name'] }}"

@@ -50,3 +50,4 @@
     {{ results }}
   loop_control:
     loop_var: 'hostgroup'
+    label: "{{ hostgroup['name'] }}-{{ hostgroup['lifecycle'] }}"

@@ -8,11 +8,21 @@
     ipaadmin_password: "{{ ipaadmin_password }}"
   delegate_to: "{{ foreman_ipa_server }}"
 
+- name: 'Get Package Version'
+  package_facts:
+
+- name: 'Foreman 2.1 workaround: enable Passenger instead of Puma'
+  set_fact:
+    foreman_ipa_workaround: '--foreman-passenger true'
+  when:
+    - ansible_facts['packages']['foreman'][0]['version'] is version('2.1.0', '>=')
+    - ansible_facts['packages']['foreman'][0]['version'] is version('2.2.0', '<')
+
 - name: 'Configure Foreman for EXTERNAL authentication'
   shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
-    foreman-installer --foreman-ipa-authentication=true {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
+    foreman-installer --foreman-ipa-authentication=true {{ foreman_ipa_workaround | default('') }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
   register: 'installer_output'
   changed_when: installer_output['rc'] == 2 or (foreman_server_type == 'satellite' and installer_output['rc'] == 0)
   failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4

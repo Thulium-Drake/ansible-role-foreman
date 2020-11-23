@@ -9,6 +9,7 @@
   loop: "{{ item['repositories'] }}"
   loop_control:
     loop_var: 'repo'
+    label: "{{ item['name'] }}-{{ repo['name'] }}"
 
 - name: 'Ensure base content views'
   theforeman.foreman.content_view:
