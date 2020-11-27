@@ -64,21 +64,34 @@ Testing has shown that various settings can have an effect on whether a host can
 
 We have tested the following setups:
 
-Discovery:
-* KVM
-  * BIOS: works with default settings configured by this role
-  * UEFI: is a bit iffy, you might run into some issues trying to load the FDI from PXE as TFTP will timeout
-  * iPXE (BIOS + UEFI): requires configuration -> set ```foreman_deploy_ipxe: true```
+* Discovery:
+  * KVM
+    * BIOS: works with default settings configured by this role. Can also be used with iPXE.
+    * UEFI: is a bit iffy, you might run into some issues trying to load the FDI from PXE as TFTP will timeout. iPXE works fine.
 
-OS Deployment:
-* KVM
-  * BIOS: works with default settings configured by this role
-  * UEFI: use ```pxe_loader: 'Grub2 UEFI'``` with default settings by this role
-  * iPXE (BIOS + UEFI): requires configuration -> set ```foreman_deploy_ipxe: true``` and use ```pxe_loader: 'None'``` for your OSes
+  * HyperV:
+    * Gen1 (BIOS): works with the default settings configured. Can also be used with iPXE.
+    * Gen2 (UEFI): requires iPXE, you must disable SecureBoot.
 
-* HyperV:
-  * Gen1 (BIOS): works with the default settings configured by this role up to CentOS7, CentOS8 will not boot into installer.
-  * Gen2 (UEFI):
+* OS Deployment:
+  * KVM
+    * BIOS: works with default settings configured by this role. Can also be used with iPXE.
+    * UEFI: use ```pxe_loader: 'Grub2 UEFI'``` with default settings by this role. Can also be used with iPXE.
+
+  * HyperV:
+    * Gen1 (BIOS): works with the default settings configured by this role up to CentOS7, CentOS8 and up requires Gen2.
+    * Gen2 (UEFI): requires iPXE, you must disable SecureBoot.
+
+* Boot local
+  * KVM
+    * BIOS: works fine. Can also used with iPXE.
+    * UEFI: use ```pxe_loader: 'Grub2 UEFI'``` with default settings by this role. iPXE hangs in UEFI system menu: https://community.theforeman.org/t/ipxe-does-not-boot-local-hard-disk-on-uefi/21437
+
+  * HyperV:
+    * Gen1: works fine.
+    * Gen2: works fine, you must disable SecureBoot.
+
+To enable iPXE set ```foreman_deploy_ipxe: true``` and use ```pxe_loader: 'None'``` for your OSes
 
 ### Bug: Error creating OSes
 Remove all the OSes from Hosts -> Operating systems (you can't delete the one where the foreman server is in)
