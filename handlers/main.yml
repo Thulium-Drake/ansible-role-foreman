@@ -3,9 +3,4 @@
   shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
-    foreman-maintain service restart
-
-- name: 'restart dhcpd'
-  service:
-    name: 'dhcpd'
-    state: 'restarted'
+    /bin/foreman-maintain service restart
