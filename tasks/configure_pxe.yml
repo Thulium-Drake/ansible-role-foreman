@@ -102,7 +102,7 @@
     - name: 'Ensure DHCP settings for iPXE'
       copy:
         dest: '/etc/dhcp/dhcpd-ipxe.conf'
-        block: |
+        content: |
           if exists user-class and option user-class = "iPXE" {
             filename "http://{{ ansible_facts[foreman_instance_deploy_interface]['ipv4']['address'] }}:8000/unattended/iPXE?bootstrap=1";
           } elsif option architecture = 00:06 {
