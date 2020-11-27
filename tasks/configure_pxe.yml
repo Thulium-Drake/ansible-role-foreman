@@ -124,5 +124,8 @@
       register: 'set_dhcp_includes'
 
     - name: 'Run foreman-installer'
-      command: /sbin/foreman-installer
+      shell: |
+        export LANG="en_US.UTF-8"
+        export LC_ALL="en_US.UTF-8"
+        /sbin/foreman-installer
       when: set_dhcp_includes['changed']
