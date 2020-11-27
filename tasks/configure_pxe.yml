@@ -119,6 +119,9 @@
     - name: 'Configure DHCP server for iPXE'
       lineinfile:
         path: '/etc/foreman-installer/custom-hiera.yaml'
+        owner: 'root'
+        group: 'root'
+        mode: 0444
         line: 'dhcp::includes: "/etc/dhcp/dhcpd-ipxe.conf"'
         regexp: '^dhcp::includes'
       register: 'set_dhcp_includes'
