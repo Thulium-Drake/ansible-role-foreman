@@ -48,3 +48,8 @@
 
 - name: 'Configure Proxy'
   import_tasks: 'configure_foreman_smartproxy.yml'
+
+
+- name: 'Configure DHCPD for iPXE'
+  include_tasks: 'configure_dhcp_ipxe.yml'
+  when: foreman_deploy_ipxe

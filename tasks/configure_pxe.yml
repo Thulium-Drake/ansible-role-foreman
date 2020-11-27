@@ -1,42 +1,68 @@
 ---
-- name: 'Ensure pxelinux_discovery Snippet'
+- name: 'Ensure Provisioning Snippets'
   theforeman.foreman.provisioning_template:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: 'pxelinux_discovery_custom'
+    name: "{{ snippet }}"
     kind: 'snippet'
     locations: "{{ ['Default Location'] + foreman_locations }}"
     organizations:
       - 'Default Organization'
       - '{{ foreman_organization }}'
     state: 'present'
-    template: "{{ lookup('file', 'pxelinux_discovery_custom.snippet') }}"
+    template: "{{ lookup('file', snippet + '.snippet') }}"
+  loop:
+    - 'pxelinux_discovery_custom'
+    - 'pxegrub2_discovery_custom'
+  loop_control:
+    loop_var: 'snippet'
 
-- name: 'Ensure Global Default PXE Provisioning Template'
+- name: 'Ensure Global Default PXE Provisioning Templates'
   theforeman.foreman.provisioning_template:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: 'PXELinux global default custom'
-    kind: 'PXELinux'
+    name: "{{ template.name }}"
+    kind: "{{ template.kind }}"
     locations: "{{ ['Default Location'] + foreman_locations }}"
     organizations:
       - 'Default Organization'
       - '{{ foreman_organization }}'
     state: 'present'
-    template: "{{ lookup('file', 'pxelinux_global_default.template') }}"
+    template: "{{ lookup('file', template.file) }}"
+  loop:
+    - name: 'PXELinux global default custom'
+      kind: 'PXELinux'
+      file: 'pxelinux_global_default.template'
+    - name: 'PXEGrub2 global default custom'
+      kind: 'PXEGrub2'
+      file: 'pxegrub2_global_default.template'
+    - name: 'iPXE global default custom'
+      kind: 'iPXE'
+      file: 'ipxe_global_default_custom.template'
+  loop_control:
+    loop_var: 'template'
 
-- name: 'Ensure Global Default PXELinux Template Setting'
+- name: 'Ensure Global Default PXE Template Settings'
   theforeman.foreman.setting:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: 'global_PXELinux'
-    value: 'PXELinux global default custom'
+    name: "{{ setting.name }}"
+    value: "{{ setting.value }}"
+  loop:
+    - name: 'global_PXELinux'
+      value: 'PXELinux global default custom'
+    - name: 'global_PXEGrub2'
+      value: 'PXEGrub2 global default custom'
+    - name: 'global_iPXE'
+      value: 'iPXE global default custom'
+  loop_control:
+    loop_var: 'setting'
 
 - name: 'Ensure Setting for booting unknown hosts'
   theforeman.foreman.setting:
@@ -49,3 +75,26 @@
 
 - name: 'Build PXE Default'
   command: hammer template build-pxe-default
+
+- when: foreman_deploy_ipxe
+  block:
+    - name: 'Ensure iPXE dependencies'
+      package:
+        name: 'ipxe-bootimgs'
+        state: 'present'
+
+    - name: 'Ensure iPXE images in tftproot'
+      copy:
+        src: "/usr/share/ipxe/{{ image }}"
+        dest: "/var/lib/tftpboot/{{ image }}"
+        remote_src: true
+        owner: 'foreman-proxy'
+        group: 'root'
+        seuser: 'system_u'
+        serole: 'object_r'
+        setype: 'cobbler_var_lib_t'
+      loop:
+        - 'ipxe.efi'
+        - 'undionly.kpxe'
+      loop_control:
+        loop_var: 'image'

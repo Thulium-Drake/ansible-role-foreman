@@ -59,6 +59,27 @@ Then put all the Global settings for Foreman in the group_vars for foreman_infra
 to both the Server and the Proxies. You can then create host_vars for each Foreman system (Server or Proxies) that contain the instance specific settings.
 
 ## Limitations, bugs and workarounds
+### Information about Deployment, Discovery and UEFI vs. BIOS vs. iPXE
+Testing has shown that various settings can have an effect on whether a host can boot from the network.
+
+We have tested the following setups:
+
+Discovery:
+* KVM
+  * BIOS: works with default settings configured by this role
+  * UEFI: is a bit iffy, you might run into some issues trying to load the FDI from PXE as TFTP will timeout
+  * iPXE (BIOS + UEFI): requires configuration -> set ```foreman_deploy_ipxe: true```
+
+OS Deployment:
+* KVM
+  * BIOS: works with default settings configured by this role
+  * UEFI: use ```pxe_loader: 'Grub2 UEFI'``` with default settings by this role
+  * iPXE (BIOS + UEFI): requires configuration -> set ```foreman_deploy_ipxe: true``` and use ```pxe_loader: 'None'``` for your OSes
+
+* HyperV:
+  * Gen1 (BIOS): works with the default settings configured by this role up to CentOS7, CentOS8 will not boot into installer.
+  * Gen2 (UEFI):
+
 ### Bug: Error creating OSes
 Remove all the OSes from Hosts -> Operating systems (you can't delete the one where the foreman server is in)
 

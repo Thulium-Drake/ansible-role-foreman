@@ -134,6 +134,9 @@ foreman_activation_keys: []
 # Configure the required components etc. for Host Discovery and Deployment
 foreman_configure_deployment: true
 
+# Configure iPXE for deployment (will override other PXE methods)
+foreman_deploy_ipxe: false
+
 ## Global network settings
 # These networks are made available in the Foreman infrastructure
 # The names of the networks must be following the lifecycle path
