@@ -114,6 +114,9 @@
           } else {
             filename "undionly.kpxe";
           }
+        owner: 'root'
+        group: 'dhcpd'
+        mode: 0444
 
     - name: 'Configure DHCP server for iPXE'
       lineinfile:
