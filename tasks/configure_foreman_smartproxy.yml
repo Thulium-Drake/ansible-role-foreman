@@ -4,6 +4,10 @@
     - name: 'Configure Foreman for deployment'
       include_tasks: 'configure_deployment.yml'
 
+    - name: 'Configure Foreman for iPXE'
+      include_tasks: 'configure_ipxe.yml'
+      when: foreman_deploy_ipxe
+
     - name: 'Configure Host Discovery'
       shell: |
         export LANG=en_US.UTF-8
