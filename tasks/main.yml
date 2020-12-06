@@ -53,7 +53,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ ansible_facts['fqdn'] }}"
     url: "https://{{ ansible_facts['fqdn'] }}:9090"
-    download_policy: "{{ foreman_download_policy }}"
+    download_policy: "{{ foreman_smartproxy_download_policy }}"
     organizations:
       - 'Default Organization'
       - "{{ foreman_organization }}"
@@ -148,13 +148,17 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ setting }}"
+    name: 'default_download_policy'
     value: "{{ foreman_download_policy }}"
-  loop:
-    - 'default_download_policy'
-    - 'default_proxy_download_policy'
-  loop_control:
-    loop_var: 'setting'
+
+- name: 'Set Smartproxy Default Download Policies'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'default_proxy_download_policy'
+    value: "{{ foreman_smartproxy_download_policy }}"
 
 - name: 'Fix MongoDB warnings by setting permissions'
   acl:

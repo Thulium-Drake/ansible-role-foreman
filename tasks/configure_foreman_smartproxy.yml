@@ -27,7 +27,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ ansible_facts['fqdn'] }}"
     url: "https://{{ ansible_facts['fqdn'] }}:9090"
-    download_policy: "{{ foreman_download_policy }}"
+    download_policy: "{{ foreman_smartproxy_download_policy }}"
     lifecycle_environments:
       - "{{ foreman_smart_proxy_lifecycle }}"
     organizations:
