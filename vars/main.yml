@@ -6,11 +6,12 @@ foreman_supported_server_types:
 foreman_supported_download_policies:
   - 'immediate'
   - 'on_demand'
-  - 'inherit'
+  - 'background'
 
-foreman_supported_download_policies:
+foreman_supported_smartproxy_download_policies:
   - 'immediate'
   - 'on_demand'
+  - 'background'
 
 foreman_deploy_dns_scenarios:
   - 'internal'
