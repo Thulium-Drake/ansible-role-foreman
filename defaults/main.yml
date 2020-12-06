@@ -24,7 +24,7 @@ foreman_satellite_dvd_drive: '/dev/sr0' # this role assumes you mount the ISO to
 # Organization, Locations and Lifecycle path
 foreman_organization: 'Example-Org'
 foreman_download_policy: 'immediate'
-foreman_smartproxy_download_policy: 'inherit'
+foreman_smartproxy_download_policy: 'on_demand'
 foreman_locations:
   - 'Example Location'
   - 'Cloud/Other Location' # Nested example
