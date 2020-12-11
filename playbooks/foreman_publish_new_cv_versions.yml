@@ -85,6 +85,7 @@
         content_view: "{{ comp_content_view.name }}"
         lifecycle_environments: "{{ input_env_list }}"
         current_lifecycle_environment: 'Library'
+        force_yum_metadata_regeneration: true
       loop: "{{ foreman_composite_content_views }}"
       loop_control:
         loop_var: 'comp_content_view'
@@ -100,6 +101,7 @@
         content_view: "{{ comp_content_view.name }}"
         lifecycle_environments: "{{ input_env_list }}"
         current_lifecycle_environment: 'Library'
+        force_yum_metadata_regeneration: true
       loop: "{{ foreman_composite_content_views }}"
       loop_control:
         loop_var: 'comp_content_view'
