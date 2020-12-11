@@ -33,6 +33,8 @@
     organizations:
       - 'Default Organization'
       - "{{ foreman_organization }}"
-    locations: "{{ ['Default Location'] + foreman_locations }}"
+    locations:
+      - 'Default Location'
+      - "{{ foreman_smart_proxy_location }}"
     state: 'present'
   delegate_to: "{{ groups['foreman'][0] }}"
