@@ -8,9 +8,6 @@
     ipaadmin_password: "{{ ipaadmin_password }}"
   delegate_to: "{{ foreman_ipa_server }}"
 
-- name: 'Get Package Version'
-  package_facts:
-
 - name: 'Foreman 2.1 workaround: enable Passenger instead of Puma'
   set_fact:
     foreman_ipa_workaround: '--foreman-passenger true'

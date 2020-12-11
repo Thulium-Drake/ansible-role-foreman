@@ -1,15 +1,20 @@
 ---
+- name: 'Get Package Versions'
+  package_facts:
+
 - name: 'Check input'
   assert:
     that:
       - foreman_server_type in foreman_supported_server_types
       - foreman_download_policy in foreman_supported_download_policies
 
-- name: 'Configure foreman-installer to tolerate longer timeouts for Passenger startup'
+- name: 'Foreman 2.1 and earlier: Configure foreman-installer to tolerate longer timeouts for Passenger startup'
   lineinfile:
     path: '/etc/foreman-installer/custom-hiera.yaml'
     line: 'foreman::passenger_start_timeout: 360'
     regexp: '^foreman::passenger_start_timeout'
+  when:
+    - ansible_facts['packages']['foreman'][0]['version'] is version('2.2.0', '<')
 
 - name: 'Ensure firewall ports'
   ansible.posix.firewalld:
