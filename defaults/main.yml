@@ -90,7 +90,6 @@ foreman_products: []
 #      - name: 'Thing'
 #        no_gpg_key: true
 
-
 foreman_composite_content_views: []
 # Below is an example of an Composite Content View
 #
@@ -140,9 +139,10 @@ foreman_deploy_ipxe: false
 
 ## Global network settings
 # These networks are made available in the Foreman infrastructure
-# The names of the networks must be following the lifecycle path
+# The names of the networks must be following the lifecycle path (unless lifecycle is set)
 foreman_deploy_networks:
-  - name: 'Development'
+  - name: 'Development-ExtraNet'
+    lifecycle: 'Development' # if not defined, will default to the network name. Use only when foreman_activation_keys_per_network is true
     address: '192.168.1.0/24'
     range_start: '192.168.1.150'
     range_end: '192.168.1.200'
@@ -151,7 +151,7 @@ foreman_deploy_networks:
     dns_primary: '192.168.1.1' # if not defined, will use the IP of the foreman server
     dns_secondary: '192.168.1.1' # optional
     dns_zone: 'dev.example.com'
-    locations:
+    locations: # If not defined, uses foreman_locations
       - 'DC1'
     smart_proxy: 'foreman.infra.example.com' # If not defined, will use the global foreman server
   - name: 'QA'

@@ -11,10 +11,10 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: "{{ hostgroup['name'] }}-{{ hostgroup['lifecycle'] }}"
+    name: "{{ hostgroup['name'] }}-{{ hostgroup['network'] }}"
     description: 'Managed by Ansible, your changes will be lost'
     organization: "{{ foreman_organization }}"
-    locations: "{{ foreman_locations }}"
+    locations: "{{ hostgroup['locations'] }}"
     lifecycle_environment: "{{ hostgroup['lifecycle'] }}"
     content_view: "COV {{ hostgroup['name'] }}"
     content_source: "{{ hostgroup['smart_proxy'] }}"
@@ -29,28 +29,26 @@
     root_pass: "{{ hostgroup['root_pass'] }}"
     pxe_loader: "{{ hostgroup['pxe_loader'] }}"
   no_log: "{{ not foreman_debug }}"
-  loop: >- # This loop combines the following information: Activation Keys, Lifecycles, OS deployment variables and Deployment Networks
+  loop: >- # This loop combines the following information: Activation Keys, OS deployment variables and Deployment Networks
     {%- set results = [] -%}
-    {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
-    {%-   for network in foreman_deploy_networks -%}
-    {%-     if network['name'] == lifecycle -%}
-    {%-       for key in foreman_activation_keys  -%}
-    {%-         for os in foreman_operating_systems -%}
-    {%-           if key.name.split('-')[0] == os['name'] + os['major_version'] | string -%}
-    {%-             set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] + '-' + lifecycle }] -%}
-    {%-             set line = {'name': key['name'], 'arch': os['arch'], 'network': network['name'],
-                                'root_pass': os['root_pass'] | default('changemeNOW!'),
-                                'dns_zone': network['dns_zone'], 'smart_proxy': network['smart_proxy'],
-                                'ptable': os['partitions'] | default('Kickstart default'),
-                                'lifecycle': lifecycle, 'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
-                                'os': os['name'] + ' ' + os['major_version'] | string,
-                                'kickstart': os['kickstart'] | default(false), 'kickstart_repo': os['kickstart_repo'] | default('none'),
-                                'parameters': parameters + os['parameters'] | default([]) }  -%}
-    {%-             set _ = results.append(line) if lifecycle != 'Library' -%}
-    {%-           endif -%}
-    {%-         endfor -%}
-    {%-       endfor -%}
-    {%-     endif -%}
+    {%- for network in foreman_deploy_networks -%}
+    {%-   for key in foreman_activation_keys  -%}
+    {%-     for os in foreman_operating_systems -%}
+    {%-       if key.name.split('-')[0] == os['name'] + os['major_version'] | string -%}
+    {%-         set parameters = [{'name': 'kt_activation_keys', 'value': key['name'] + '-' + network['lifecycle'] | default(network['name']) }] -%}
+    {%-         set line = {'name': key['name'], 'arch': os['arch'], 'network': network['name'],
+                            'root_pass': os['root_pass'] | default('changemeNOW!'),
+                            'locations': network['locations'] | default(foreman_locations),
+                            'dns_zone': network['dns_zone'], 'smart_proxy': network['smart_proxy'],
+                            'ptable': os['partitions'] | default('Kickstart default'),
+                            'lifecycle': network['lifecycle'] | default(network['name']),
+                            'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
+                            'os': os['name'] + ' ' + os['major_version'] | string,
+                            'kickstart': os['kickstart'] | default(false), 'kickstart_repo': os['kickstart_repo'] | default('none'),
+                            'parameters': parameters + os['parameters'] | default([]) }  -%}
+    {%-         set _ = results.append(line) -%}
+    {%-       endif -%}
+    {%-     endfor -%}
     {%-   endfor -%}
     {%- endfor -%}
     {{ results }}

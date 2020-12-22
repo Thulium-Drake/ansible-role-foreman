@@ -9,7 +9,7 @@
     description: "{{ zone['dns_zone'] }} - Managed by Ansible"
     organizations:
       - "{{ foreman_organization }}"
-    locations: "{{ zone['locations'] }}"
+    locations: "{{ zone['locations'] | default(foreman_locations) }}"
     dns_proxy: "{{ zone['smart_proxy'] }}"
     state: 'present'
   loop: "{{ foreman_deploy_networks }}"
@@ -27,7 +27,7 @@
     description: 'Managed by Ansible, your changes will be lost'
     organizations:
       - "{{ foreman_organization }}"
-    locations: "{{ network['locations'] }}"
+    locations: "{{ network['locations'] | default(foreman_locations) }}"
     domains:
       - "{{ network['dns_zone'] }}"
     network: "{{ network['address'] | ipaddr('network') }}"

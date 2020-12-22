@@ -1,6 +1,7 @@
 ---
 - name: 'Get Package Versions'
   package_facts:
+  tags: 'always'
 
 - name: 'Check input'
   assert:
