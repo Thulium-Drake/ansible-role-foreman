@@ -11,12 +11,12 @@
     proxy_password: "{{ foreman_http_proxy_password | default(omit) }}"
     locations: "{{ foreman_locations }}"
     organizations:
-      - 'Default Location'
+      - 'Default Organization'
       - "{{ foreman_organization }}"
     state: 'present'
 
 - name: 'Configure Foreman Setting content_default_http_proxy'
-  theforeman.foreman.http_proxy:
+  theforeman.foreman.setting:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
@@ -25,7 +25,7 @@
     value: 'Foreman Default Proxy (Managed by Ansible)'
 
 - name: 'Configure Foreman Setting http_proxy'
-  theforeman.foreman.http_proxy:
+  theforeman.foreman.setting:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"

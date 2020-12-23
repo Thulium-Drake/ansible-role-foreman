@@ -30,7 +30,7 @@ foreman_locations:
   - 'Cloud/Other Location' # Nested example
 
 # HTTP proxy information
-foreman_http_proxy: false
+foreman_http_proxy_policy: 'none' # or global_default_http_proxy
 foreman_http_proxy_url: 'http://proxy.example.com:3128'
 #foreman_http_proxy_username: ''
 #foreman_http_proxy_password: ''
@@ -71,6 +71,7 @@ foreman_products: []
 # Below is an example of an Product and it's Repositories
 #  - name: 'CentOS7' # This name will be used for products as well as CVs (content views)
 #    type: 'yum'
+#    proxy: 'Special Proxy for Repo' # if not defined, will use setting in content_default_http_proxy
 #    repositories: # Also supports ssl_ca_cert, ssl_client_cert, ssl_client_key, upstream_password, upstream_username
 #                  # For details https://theforeman.github.io/foreman-ansible-modules/v1.0.1/modules/repository_module.html#repository-module
 #      - name: 'Base'

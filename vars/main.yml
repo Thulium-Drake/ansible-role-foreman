@@ -13,6 +13,10 @@ foreman_supported_smartproxy_download_policies:
   - 'on_demand'
   - 'background'
 
+foreman_supported_http_proxy_policies:
+  - 'none'
+  - 'global_default_http_proxy'
+
 foreman_deploy_dns_scenarios:
   - 'internal'
   - 'nsupdate'

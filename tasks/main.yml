@@ -8,6 +8,7 @@
     that:
       - foreman_server_type in foreman_supported_server_types
       - foreman_download_policy in foreman_supported_download_policies
+      - foreman_http_proxy_policy in foreman_supported_http_proxy_policies
 
 - name: 'Foreman 2.1 and earlier: Configure foreman-installer to tolerate longer timeouts for Passenger startup'
   lineinfile:
@@ -72,7 +73,7 @@
 
 - name: 'Configure HTTP proxy'
   import_tasks: 'http_proxy.yml'
-  when: foreman_http_proxy
+  when: foreman_http_proxy_policy != 'none'
 
 - name: 'Ensure daily sync plan'
   theforeman.foreman.sync_plan:

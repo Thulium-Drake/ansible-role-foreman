@@ -43,7 +43,7 @@
     organization: "{{ foreman_organization }}"
     download_policy: "{% if repo[0]['type'] == 'docker' or repo[0]['type'] == 'file' %}{{ omit }}{% else %}{{ repo[0]['download_policy'] | default(foreman_download_policy) }}{% endif %}"
     http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
-    http_proxy: "{{ foreman_http_proxy | default(omit) }}"
+    http_proxy: "{{ repo[0]['proxy'] | default(omit) }}"
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
     url: "{{ repo[1]['url'] | default(omit) }}"
     content_type: "{{ repo[0]['type'] }}"
