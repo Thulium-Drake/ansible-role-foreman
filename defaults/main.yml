@@ -29,6 +29,12 @@ foreman_locations:
   - 'Example Location'
   - 'Cloud/Other Location' # Nested example
 
+# HTTP proxy information
+foreman_http_proxy: false
+foreman_http_proxy_url: 'http://proxy.example.com:3128'
+#foreman_http_proxy_username: ''
+#foreman_http_proxy_password: ''
+
 # Red Hat subscription information
 foreman_configure_redhat_repos: false                         # Configure Red Hat subscriptions and repos
 foreman_rh_subsciption_manifest: 'files/path/to/manifest.zip' # Path of the manifest ZIP archive.

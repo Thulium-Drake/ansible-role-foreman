@@ -70,6 +70,10 @@
 - name: 'Ensure Host Collections'
   import_tasks: 'host_collections.yml'
 
+- name: 'Configure HTTP proxy'
+  import_tasks: 'http_proxy.yml'
+  when: foreman_http_proxy
+
 - name: 'Ensure daily sync plan'
   theforeman.foreman.sync_plan:
     username: "{{ foreman_admin_user }}"
