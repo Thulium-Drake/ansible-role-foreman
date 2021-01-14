@@ -26,7 +26,7 @@ foreman_dns_scenario_internal: |-
   --foreman-proxy-dns-interface {{ foreman_deploy_interface }} \
   --foreman-proxy-dns-zone {{ foreman_instance_network_settings[0]['dns_zone'] }} \
   --foreman-proxy-dns-forwarders {{ foreman_instance_network_settings[0]['dns_primary'] }} \
-  --foreman-proxy-dns-reverse {{ foreman_instance_network_settings['address'].split('.')[0:3] | reverse | join('.') }}.in-addr.arpa \
+  --foreman-proxy-dns-reverse {{ foreman_instance_network_settings[0]['address'].split('.')[0:3] | reverse | join('.') }}.in-addr.arpa \
 
 foreman_dns_scenario_nsupdate: |-
   --foreman-proxy-dns true \
