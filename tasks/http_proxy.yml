@@ -32,3 +32,12 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: 'http_proxy'
     value: "{{ foreman_http_proxy_url }}"
+
+- name: 'Configure Foreman Setting http_proxy_except_list'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'http_proxy_except_list'
+    value: "{{ foreman_http_proxy_exceptions }}"
