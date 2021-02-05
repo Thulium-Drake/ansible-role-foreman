@@ -31,7 +31,7 @@ foreman_locations:
 
 # HTTP proxy information
 foreman_http_proxy_policy: 'none' # or global_default_http_proxy
-foreman_http_proxy_url: 'http://proxy.example.com:3128'
+foreman_http_proxy_url: ''        # e.g. 'http://proxy.example.com:3128'
 #foreman_http_proxy_username: ''
 #foreman_http_proxy_password: ''
 foreman_http_proxy_exceptions:

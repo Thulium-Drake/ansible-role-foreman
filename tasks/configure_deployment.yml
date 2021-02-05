@@ -57,12 +57,27 @@
   failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
   when: foreman_deploy_run_installer
 
+- name: 'Set environment facts (placeholder)'
+  set_fact:
+    proxy_env:
+      empty_var: 'Just_a_placeholder'
+  when: foreman_http_proxy_policy == 'none'
+
+- name: 'Set environment facts (http_proxy)'
+  set_fact:
+    proxy_env:
+      http_proxy: "{{ foreman_http_proxy_url }}"
+      https_proxy: "{{ foreman_http_proxy_url }}"
+      no_proxy: "{{ foreman_http_proxy_exceptions | join(',') }}"
+  when: foreman_http_proxy_policy == 'global_default_http_proxy'
+
 - name: 'Ensure Discovery Image present (Foreman)'
   unarchive:
     src: "http://downloads.theforeman.org/discovery/releases/{{ foreman_discovery_image_release }}/fdi-image-latest.tar"
     dest: '/var/lib/tftpboot/boot'
     remote_src: true
   when: foreman_server_type == 'foreman'
+  environment: "{{ proxy_env }}"
 
 - name: 'Ensure Discovery Image present (Satellite)'
   yum:
