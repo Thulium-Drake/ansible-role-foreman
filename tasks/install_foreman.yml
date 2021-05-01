@@ -1,5 +1,10 @@
 ---
 # Foreman/Katello versions are linked, check Katello docs for more information
+- name: 'Set default input'
+  set_fact:
+    foreman_upgrade: false
+  when: foreman_upgrade is not defined
+
 - name: 'Set versions'
   set_fact:
     foreman_repositories_version: 2.4
@@ -11,11 +16,11 @@
   set_fact:
     foreman_installer_options:
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
-  when: foreman_action == 'install'
+  when: not foreman_upgrade
 
 - name: 'Run Katello upgrade check'
   command: foreman-rake katello:upgrade_check
-  when: foreman_action == 'upgrade'
+  when: foreman_upgrade
 
 - name: 'Install EPEL on EL7'
   yum:
@@ -49,7 +54,7 @@
     name: '*'
     state: 'latest'
     update_cache: true
-  when: foreman_action == 'upgrade'
+  when: foreman_upgrade
 
 - name: 'Run Foreman/Katello installer'
   include_role:
