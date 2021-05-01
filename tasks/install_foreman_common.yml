@@ -23,26 +23,3 @@
     - '9090/tcp'
   loop_control:
     loop_var: 'port'
-
-- name: 'Create SELinux module directory'
-  file:
-    path: '/etc/selinux/modules'
-    state: 'directory'
-
-- name: 'Copy MongoDB SELinux files'
-  copy:
-    dest: "/etc/selinux/modules/{{ file }}"
-    src: "selinux_configs/{{ file }}"
-    mode: 0600
-  loop:
-    - 'mongod_sock.pp'
-    - 'mongod_sock.te'
-  loop_control:
-    loop_var: 'file'
-
-- name: 'Load SELinux modules'
-  command: "/usr/sbin/semodule -i /etc/selinux/modules/{{ module }}.pp"
-  loop:
-    - 'mongod_sock'
-  loop_control:
-    loop_var: 'module'

@@ -1,6 +1,12 @@
 ---
 - name: 'Install Foreman server'
   hosts: 'foreman'
+  vars_prompt:
+    - name: 'foreman_action'
+      prompt: 'install or upgrade'
+      default: 'install'
+      private: false
+
   tasks:
     - name: 'Run Foreman role'
       import_role:

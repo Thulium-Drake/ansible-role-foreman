@@ -2,52 +2,59 @@
 # Foreman/Katello versions are linked, check Katello docs for more information
 - name: 'Set versions'
   set_fact:
-    foreman_version: 2.3
-    katello_version: 3.18
-    foreman_initial_admin_password: "{{ foreman_admin_password }}"
+    foreman_repositories_version: 2.4
+    foreman_repositories_katello_version: 4.0
+    foreman_installer_package: 'foreman-installer-katello'
+    foreman_installer_scenario: 'katello'
 
-- name: 'Install EPEL'
+- name: 'Set installer options'
+  set_fact:
+    foreman_installer_options:
+      - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
+  when: foreman_action == 'install'
+
+- name: 'Run Katello upgrade check'
+  command: foreman-rake katello:upgrade_check
+  when: foreman_action == 'upgrade'
+
+- name: 'Install EPEL on EL7'
   yum:
     name: 'epel-release'
     state: 'present'
-
-- name: 'Install supporting tools'
-  yum:
-    name:
-      - 'git'
-      - 'ansible'
-    state: 'present'
-    update_cache: true
-
-- name: 'Ensure resources directory'
-  file:
-    path: '/opt/resources'
-    state: 'directory'
-
-- name: 'Set up Forklift'
-  git:
-    repo: 'https://github.com/theforeman/forklift.git'
-    dest: '/opt/resources/forklift'
+  when: ansible_facts['distribution_major_version'] == '7'
 
 - name: 'Run common tasks'
   include_tasks: 'install_foreman_common.yml'
 
-- name: 'Run Ansible on remote host (see /var/log/foreman_install_ansible.log for details)'
-  shell: |
-    export ANSIBLE_LOG_PATH=/var/log/foreman_install_ansible.log
-    export LANG="en_US.UTF-8"
-    export LC_ALL="en_US.UTF-8"
-    cd /opt/resources/forklift
-    ansible-playbook -i localhost, -c local \
-    /opt/resources/forklift/playbooks/katello.yml \
-    -e foreman_repositories_version={{ foreman_version }} \
-    -e katello_repositories_version={{ katello_version }} \
-    -e foreman_installer_admin_password={{ foreman_initial_admin_password | quote }}
+- name: 'Setup Foreman & Katello repositories'
+  include_role:
+    name: 'theforeman.operations.foreman_repositories'
 
-- name: 'Fix MongoDB warnings by setting permissions'
-  acl:
-    path: '/var/lib/mongodb'
-    entity: 'foreman-proxy'
-    etype: 'user'
-    permissions: 'r'
-    state: 'present'
+- name: 'Setup Puppet repositories'
+  include_role:
+    name: 'theforeman.operations.puppet_repositories'
+
+- name: 'Upgrade postgres on EL8'
+  include_role:
+    name: 'theforeman.operations.postgresql_upgrade'
+  when: ansible_facts['distribution_major_version'] == '8'
+
+- name: 'Clear yum cache'
+  file:
+    path: '/var/cache/yum'
+    state: 'absent'
+
+- name: 'Upgrade all installed packages'
+  yum:
+    name: '*'
+    state: 'latest'
+    update_cache: true
+  when: foreman_action == 'upgrade'
+
+- name: 'Run Foreman/Katello installer'
+  include_role:
+    name: 'theforeman.operations.installer'
+
+- name: 'Remove Pulp 2'
+  shell: yes | foreman-maintain content remove-pulp2
+  when: foreman_repositories_version is version ('2.4', '>=')
