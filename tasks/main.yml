@@ -10,6 +10,15 @@
       - foreman_download_policy in foreman_supported_download_policies
       - foreman_http_proxy_policy in foreman_supported_http_proxy_policies
 
+- name: 'Disable automatic creation of new Operating Systems based on Puppet'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'ignore_facts_for_operatingsystem'
+    value: true
+
 - name: 'Foreman 2.1 and earlier: Configure foreman-installer to tolerate longer timeouts for Passenger startup'
   lineinfile:
     path: '/etc/foreman-installer/custom-hiera.yaml'
@@ -125,12 +134,6 @@
   block:
     - name: 'Configure Foreman for deployment'
       import_tasks: 'configure_deployment.yml'
-
-    - name: 'Configure Host Discovery'
-      shell: |
-        export LANG="en_US.UTF-8"
-        export LC_ALL="en_US.UTF-8"
-        /usr/sbin/foreman-installer --enable-foreman-plugin-discovery
 
     - name: 'Configure PXE'
       import_tasks: 'configure_pxe.yml'

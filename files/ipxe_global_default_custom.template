@@ -46,7 +46,7 @@ goto shell
 reboot
 
 :local
-exit
+exit 1
 
 :discovery
 dhcp

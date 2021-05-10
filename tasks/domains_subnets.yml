@@ -31,7 +31,7 @@
     domains:
       - "{{ network['dns_zone'] }}"
     network: "{{ network['address'] | ipaddr('network') }}"
-    dns_primary: "{{ network['dns_primary'] | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }}"
+    dns_primary: "{{ network['dns_primary'] | default(ansible_facts[foreman_instance_deploy_interface]['ipv4']['address']) }}"
     dns_secondary: "{{ network['dns_secondary'] | default(omit) }}"
     cidr: "{{ network['address'] | ipaddr('prefix') }}"
     from_ip: "{{ network['range_start'] }}"
