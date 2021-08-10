@@ -15,6 +15,9 @@ foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman' # or satellite
 foreman_validate_certs: false
 
+# Server features
+foreman_puppet_enabled: true # Foreman 3.0+ allows for exclusion of Puppet
+
 # Satellite installation information
 foreman_redhat_support_user: 'user@example.com'
 foreman_redhat_support_password: 'mysecretpassword'

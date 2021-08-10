@@ -7,8 +7,9 @@
 
 - name: 'Set versions'
   set_fact:
-    foreman_repositories_version: 2.4
-    foreman_repositories_katello_version: 4.0
+    foreman_repositories_version: 2.5
+    foreman_repositories_katello_version: 4.1
+    ansible_repository_enabled: true
     foreman_installer_package: 'foreman-installer-katello'
     foreman_installer_scenario: 'katello'
 
@@ -16,6 +17,7 @@
   set_fact:
     foreman_installer_options:
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
+      - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet') }}"
   when: not foreman_upgrade
 
 - name: 'Run Katello upgrade check'
@@ -59,7 +61,3 @@
 - name: 'Run Foreman/Katello installer'
   include_role:
     name: 'theforeman.operations.installer'
-
-- name: 'Remove Pulp 2'
-  shell: yes | foreman-maintain content remove-pulp2
-  when: foreman_repositories_version is version ('2.4', '>=')
