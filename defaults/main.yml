@@ -24,6 +24,10 @@ foreman_redhat_support_password: 'mysecretpassword'
 foreman_satellite_offline_install: false # When true, make sure to set the ISO location below
 foreman_satellite_dvd_drive: '/dev/sr0' # this role assumes you mount the ISO to a VM as a drive
 
+# Satellite-specific features
+foreman_simple_content_mode: false  # Set to true for Simple Content Mode, which eases subscription management
+                                    # See https://access.redhat.com/articles/simple-content-access
+
 # Organization, Locations and Lifecycle path
 foreman_organization: 'Example-Org'
 foreman_download_policy: 'immediate'
