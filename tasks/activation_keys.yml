@@ -10,7 +10,7 @@
     #description: 'Managed by Ansible, your changes will be lost'
     lifecycle_environment: "{{ key_lifecycle['lifecycle'] }}"
     content_view: "{{ key['content_view'] }}"
-    subscriptions: "{{ key['subscriptions'] | default(omit) }}"
+    subscriptions: "{{ ( foreman_simple_content_mode) | ternary(omit, key['subscriptions']) | default(omit) }}"
     content_overrides: "{{ key['content_overrides'] | default(omit) }}"
     host_collections: >-
       {{ key_lifecycle['host_collection'] +

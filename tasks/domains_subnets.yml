@@ -30,10 +30,10 @@
     locations: "{{ network['locations'] | default(foreman_locations) }}"
     domains:
       - "{{ network['dns_zone'] }}"
-    network: "{{ network['address'] | ipaddr('network') }}"
+    network: "{{ network['address'] | ansible.netcommon.ipaddr('network') }}"
     dns_primary: "{{ network['dns_primary'] | default(ansible_facts[foreman_deploy_interface]['ipv4']['address']) }}"
     dns_secondary: "{{ network['dns_secondary'] | default(omit) }}"
-    cidr: "{{ network['address'] | ipaddr('prefix') }}"
+    cidr: "{{ network['address'] | ansible.netcommon.ipaddr('prefix') }}"
     from_ip: "{{ network['range_start'] }}"
     to_ip: "{{ network['range_end'] }}"
     boot_mode: 'DHCP'

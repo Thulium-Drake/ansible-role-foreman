@@ -22,7 +22,7 @@
     subnet: "{{ hostgroup['network'] }}"
     architecture: "{{ hostgroup['arch'][0] }}"
     operatingsystem: "{{ hostgroup['os'] }}"
-    ptable: "{{ hostgroup['ptable'][0] }}"
+    ptable: "{{ hostgroup['ptable'] }}"
     medium: "{% if not hostgroup['kickstart'] %}{{ hostgroup['os'] }}{% else %}{{ omit }}{% endif %}"
     kickstart_repository: "{% if hostgroup['kickstart'] and not foreman_hostgroup_workaround | default(false) %}{{ hostgroup['kickstart_repo'] | replace('\"', '') }}{% else %}{{ omit }}{% endif %}"
     parameters: "{{ hostgroup['parameters'] }}"
