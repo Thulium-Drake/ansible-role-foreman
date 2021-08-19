@@ -45,8 +45,8 @@
                             'pxe_loader': os['pxe_loader'] | default('PXELinux BIOS'),
                             'os': os['name'] + ' ' + os['major_version'] | string,
                             'kickstart': os['kickstart'] | default(false), 'kickstart_repo': os['kickstart_repo'] | default('none'),
-                            'parameters': parameters + os['parameters'] | default([]),
-                            'activation_keys', key['name'] + '-' + network['lifecycle']  } -%}
+                            'parameters': os['parameters'] | default([]),
+                            'activation_keys': key['name'] + '-' + network['lifecycle']  } -%}
     {%-         set _ = results.append(line) -%}
     {%-       endif -%}
     {%-     endfor -%}
