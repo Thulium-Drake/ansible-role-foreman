@@ -33,6 +33,13 @@
       when: foreman_server_type == 'satellite'
   when: foreman_deploy_dns_scenario == 'nsupdate'
 
+- name: 'Ensure symlink for boot files'
+  file:
+    state: 'link'
+    src: '/boot/efi/EFI/rocky'
+    dest: '/boot/efi/EFI/redhat'
+  when: ansible_facts['distribution'] == 'Rocky'
+
 - name: 'Configure Foreman instance for deployment'
   shell: |
     export LANG="en_US.UTF-8"
