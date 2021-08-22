@@ -23,3 +23,8 @@
     - '9090/tcp'
   loop_control:
     loop_var: 'port'
+
+- name: 'Upgrade postgres on EL8'
+  include_role:
+    name: 'theforeman.operations.postgresql_upgrade'
+  when: ansible_facts['distribution_major_version'] == '8'

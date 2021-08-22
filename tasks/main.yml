@@ -167,16 +167,6 @@
     name: 'default_proxy_download_policy'
     value: "{{ foreman_smartproxy_download_policy }}"
 
-- name: 'Fix MongoDB warnings by setting permissions'
-  acl:
-    path: '/var/lib/mongodb'
-    entity: 'foreman-proxy'
-    etype: 'user'
-    permissions: 'r'
-    state: 'present'
-  when:
-    - ansible_facts['packages']['foreman'][0]['version'] is version('2.4.0', '<')
-
 - name: 'Configure IPA authentication'
   include_tasks: 'configure_ipa_authentication.yml'
   when: foreman_configure_ipa

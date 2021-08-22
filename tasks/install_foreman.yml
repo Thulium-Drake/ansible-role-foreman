@@ -41,11 +41,6 @@
   include_role:
     name: 'theforeman.operations.puppet_repositories'
 
-- name: 'Upgrade postgres on EL8'
-  include_role:
-    name: 'theforeman.operations.postgresql_upgrade'
-  when: ansible_facts['distribution_major_version'] == '8'
-
 - name: 'Clear yum cache'
   file:
     path: '/var/cache/yum'

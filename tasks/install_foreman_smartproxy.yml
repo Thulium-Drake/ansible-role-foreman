@@ -1,4 +1,11 @@
 ---
+- name: 'Enable Ruby 2.7 module on EL8'
+  dnf:
+    name: '@ruby:2.7'
+    state: 'present'
+  when:
+    - ansible_facts['distribution_major_version']|int >= 8
+
 - name: 'Install dependencies'
   yum:
     name:

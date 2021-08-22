@@ -83,7 +83,6 @@
     permissions: 'r'
     state: 'present'
   loop:
-    - '/var/lib/mongodb'
     - '/var/lib/pulp/content'
   loop_control:
     loop_var: 'path'
