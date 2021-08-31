@@ -58,7 +58,6 @@
     --foreman-proxy-httpboot-listen-on=both \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
-    --enable-foreman-plugin-discovery \
     --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
   register: 'installer_output'
   changed_when: installer_output['rc'] == 2 or (foreman_server_type == 'satellite' and installer_output['rc'] == 0)

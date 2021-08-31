@@ -6,6 +6,14 @@
   when:
     - ansible_facts['distribution_major_version']|int >= 8
 
+- name: 'Ensure sudo privileges'
+  copy:
+    content: |
+      # This file is managed by Ansible, YOUR CHANGES WILL BE LOST!
+      {{ ansible_user }} ALL = (ALL) NOPASSWD : ALL
+      Defaults:{{ ansible_user }} !requiretty
+    dest: '/etc/sudoers.d/foreman_sudo'
+
 - name: 'Install dependencies'
   yum:
     name:

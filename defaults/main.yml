@@ -87,6 +87,15 @@ foreman_products: []
 #        url: 'http://mirror.centos.org/centos/7/os/x86_64'
 #    gpg_key: 'RPM-GPG-KEY-CentOS7'
 #    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'
+#    # Other fields, more info, check theforeman.foreman.foreman_repositories:
+#    #ignored_content: 'srpms'
+#    #ssl_ca_cert: ''               # Repository SSL CA certificate
+#    #ssl_client_cert: ''           # Repository SSL client certificate
+#    #ssl_client_key: ''            # Repository SSL client certificate key
+#    #upstream_username: ''         # Username to access upstream repository
+#    #upstream_password: ''         # Password to access upstream repository
+#    #docker_upstream_name: ''      # Name of the upstream docker repo, only for docker type repos
+#    #docker_tags_whitelist: ''     # List of tags to sync for Container Image repository, only for docker type repos
 #
 # Disable upstream sync for all repos in this product:
 #
