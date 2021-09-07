@@ -47,7 +47,7 @@
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
     url: "{{ repo[1]['url'] | default(omit) }}"
     content_type: "{{ repo[0]['type'] }}"
-    ignoreable_content: "{{ repo[1]['ignored_content'] }}"
+    ignoreable_content: "{{ repo[1]['ignored_content'] | default(omit) }}"
     ssl_ca_cert: "{{ repo[1]['ssl_ca_cert'] | default(omit) }}"
     ssl_client_cert: "{{ repo[1]['ssl_client_cert'] | default(omit) }}"
     ssl_client_key: "{{ repo[1]['ssl_client_key'] | default(omit) }}"
