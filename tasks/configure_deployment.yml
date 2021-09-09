@@ -4,6 +4,9 @@
     that:
       - foreman_deploy_dns_scenario in foreman_deploy_dns_scenarios
 
+- name: 'Get Package Versions'
+  package_facts:
+
 - name: 'Retrieve Foreman instance network settings'
   set_fact:
     foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('smart_proxy', 'equalto', ansible_facts['fqdn']) }}"
@@ -56,6 +59,7 @@
     --foreman-proxy-httpboot=true \
     --foreman-proxy-http=true \
     --foreman-proxy-httpboot-listen-on=both \
+    {% if ansible_facts['packages']['foreman-proxy-content'] is defined %}--enable-foreman-proxy-plugin-discovery \{% else %}--enable-foreman-plugin-discovery \{% endif %}
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
     --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
