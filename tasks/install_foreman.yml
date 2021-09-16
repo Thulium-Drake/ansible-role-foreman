@@ -17,7 +17,7 @@
   set_fact:
     foreman_installer_options:
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
-      - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet') }}"
+      - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false') }}"
   when: not foreman_upgrade
 
 - name: 'Run Katello upgrade check'
@@ -40,6 +40,7 @@
 - name: 'Setup Puppet repositories'
   include_role:
     name: 'theforeman.operations.puppet_repositories'
+  when: foreman_puppet_enabled
 
 - name: 'Clear yum cache'
   file:

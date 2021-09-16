@@ -72,6 +72,11 @@
   set_fact:
     foreman_installer_cmd: "{{ ['export LANG=en_US.UTF-8', 'export LC_ALL=en_US.UTF-8'] + foreman_certs_gen['stdout_lines'][-11:] }}"
 
+- name: 'Compose foreman-installer command'
+  set_fact:
+    foreman_installer_cmd: "{{ foreman_installer_cmd + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false'] }}"
+  when: not foreman_puppet_enabled
+
 - name: 'Run foreman-installer on Proxy'
   shell: "{{ foreman_installer_cmd | join('\n') }}"
 

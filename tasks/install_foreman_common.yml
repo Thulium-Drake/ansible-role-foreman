@@ -1,28 +1,30 @@
 ---
 - name: 'Set firewall ports'
   ansible.posix.firewalld:
-    port: "{{ port }}"
+    port: "{{ port['name'] }}"
     permanent: true
     immediate: true
     state: 'enabled'
   loop:
-    - '7/tcp'
-    - '7/udp'
-    - '53/tcp'
-    - '53/udp'
-    - '67/udp'
-    - '69/udp'
-    - '80/tcp'
-    - '443/tcp'
-    - '5000/tcp'
-    - '5646/tcp'
-    - '5647/tcp'
-    - '8000/tcp'
-    - "{{ foreman_puppet_enabled | ternary('8140/tcp', None) }}"
-    - '8443/tcp'
-    - '9090/tcp'
+    - name: '7/tcp'
+    - name: '7/udp'
+    - name: '53/tcp'
+    - name: '53/udp'
+    - name: '67/udp'
+    - name: '69/udp'
+    - name: '80/tcp'
+    - name: '443/tcp'
+    - name: '5000/tcp'
+    - name: '5646/tcp'
+    - name: '5647/tcp'
+    - name: '8000/tcp'
+    - name: '8140/tcp'
+      enable: "{{ foreman_puppet_enabled }}"
+    - name: '8443/tcp'
+    - name: '9090/tcp'
   loop_control:
     loop_var: 'port'
+  when: port['enable'] | default(true)
 
 - name: 'Upgrade postgres on EL8'
   include_role:
