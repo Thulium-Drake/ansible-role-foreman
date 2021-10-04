@@ -4,7 +4,7 @@ dependency:
   options:
     requirements-file: requirements.yml
 driver:
-  name: podman
+  name: ${DRIVER_NAME:-docker}
 lint: |
   set -e
   yamllint -c molecule/default/yamllint.yml .
