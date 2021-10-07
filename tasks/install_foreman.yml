@@ -40,7 +40,6 @@
 - name: 'Setup Puppet repositories'
   include_role:
     name: 'theforeman.operations.puppet_repositories'
-  when: foreman_puppet_enabled
 
 - name: 'Clear yum cache'
   file:
