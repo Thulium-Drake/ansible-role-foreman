@@ -17,6 +17,7 @@ foreman_validate_certs: false
 
 # Server features
 foreman_puppet_enabled: false
+foreman_katello_agent_enabled: false
 
 # Satellite installation information
 foreman_redhat_support_user: 'user@example.com'
