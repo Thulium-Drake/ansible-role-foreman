@@ -70,15 +70,19 @@
 
 - name: 'Compose foreman-installer command'
   set_fact:
-    foreman_installer_cmd: "{{ ['export LANG=en_US.UTF-8', 'export LC_ALL=en_US.UTF-8'] + foreman_certs_gen['stdout_lines'][-11:] }}"
+    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] }}"
+  when: foreman_puppet_enabled
 
 - name: 'Compose foreman-installer command'
   set_fact:
-    foreman_installer_cmd: "{{ foreman_installer_cmd + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false'] }}"
+    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false'] }}"
   when: not foreman_puppet_enabled
 
 - name: 'Run foreman-installer on Proxy'
-  shell: "{{ foreman_installer_cmd | join('\n') }}"
+  shell: |
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    echo {{ foreman_installer_cmd | join(' ') }} | sed 's/\\//' | bash
 
 - name: 'Configure Proxy'
   import_tasks: 'configure_foreman_smartproxy.yml'
