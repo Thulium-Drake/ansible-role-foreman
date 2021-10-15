@@ -46,6 +46,7 @@
     http_proxy: "{{ repo[0]['proxy'] | default(omit) }}"
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
     url: "{{ repo[1]['url'] | default(omit) }}"
+    mirror_on_sync: "{{ repo[1]['mirror_on_sync'] | default(omit) }}"
     content_type: "{{ repo[0]['type'] }}"
     ignoreable_content: "{{ repo[1]['ignored_content'] | default(omit) }}"
     ssl_ca_cert: "{{ repo[1]['ssl_ca_cert'] | default(omit) }}"
