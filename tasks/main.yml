@@ -82,7 +82,7 @@
   import_tasks: 'http_proxy.yml'
   when: foreman_http_proxy_policy != 'none'
 
-- name: 'Set Random Hostname generator to MAC based'
+- name: 'Set sync timeout for downloading content'
   theforeman.foreman.setting:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
