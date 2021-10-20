@@ -18,6 +18,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: 'ignore_facts_for_operatingsystem'
     value: true
+  when: foreman_puppet_enabled
 
 - name: 'Ensure firewall ports'
   ansible.posix.firewalld:

@@ -17,6 +17,7 @@
   set_fact:
     foreman_installer_options:
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
+      - "--foreman-initial-organization {{ foreman_organization }}"
       - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false') }}"
       - "{{ foreman_katello_agent_enabled | ternary('--foreman-proxy-content-enable-katello-agent=true', '--foreman-proxy-content-enable-katello-agent=false') }}"
   when: not foreman_upgrade
