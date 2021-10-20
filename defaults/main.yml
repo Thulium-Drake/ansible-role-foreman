@@ -37,6 +37,8 @@ foreman_locations:
   - 'Example Location'
   - 'Cloud/Other Location' # Nested example
 
+foreman_sync_timeout: 300  # Total timeout in seconds for connections when syncing
+
 # HTTP proxy information
 foreman_http_proxy_policy: 'none' # or global_default_http_proxy
 foreman_http_proxy_url: ''        # e.g. 'http://proxy.example.com:3128'

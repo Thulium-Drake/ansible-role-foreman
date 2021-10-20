@@ -82,6 +82,15 @@
   import_tasks: 'http_proxy.yml'
   when: foreman_http_proxy_policy != 'none'
 
+- name: 'Set Random Hostname generator to MAC based'
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: 'sync_connect_timeout'
+    value: "{{ foreman_sync_timeout }}"
+
 - name: 'Ensure daily sync plan'
   theforeman.foreman.sync_plan:
     username: "{{ foreman_admin_user }}"
