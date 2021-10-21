@@ -37,7 +37,11 @@ foreman_locations:
   - 'Example Location'
   - 'Cloud/Other Location' # Nested example
 
-foreman_sync_timeout: 300  # Total timeout in seconds for connections when syncing
+foreman_sync_timeout: 300         # Total timeout in seconds for connections when syncing
+foreman_skip_content_sync: false  # Enable to skip content sync task
+                                  # This is mainly meant for config runs after the initial sync, as the repository
+                                  # attribute 'download_concurrency' breaks idempotency
+                                  # https://github.com/theforeman/foreman-ansible-modules/pull/1303
 
 # HTTP proxy information
 foreman_http_proxy_policy: 'none' # or global_default_http_proxy

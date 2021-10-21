@@ -42,6 +42,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     download_policy: "{% if repo[0]['type'] == 'docker' or repo[0]['type'] == 'file' %}{{ omit }}{% else %}{{ repo[0]['download_policy'] | default(foreman_download_policy) }}{% endif %}"
+    download_concurrency: "{{ repo[0]['download_concurrency'] | default(omit) }}"
     http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
     http_proxy: "{{ repo[0]['proxy'] | default(omit) }}"
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
@@ -99,3 +100,4 @@
   retries: 5
   delay: 5
   ignore_errors: true # ignore errors, as a failed sync is not the end of the world
+  when: not foreman_skip_content_sync
