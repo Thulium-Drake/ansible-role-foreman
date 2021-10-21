@@ -70,7 +70,6 @@
     url: "https://{{ ansible_facts['fqdn'] }}:9090"
     download_policy: "{{ foreman_smartproxy_download_policy }}"
     organizations:
-      - 'Default Organization'
       - "{{ foreman_organization }}"
     locations: "{{ ['Default Location'] + foreman_locations }}"
     state: 'present'

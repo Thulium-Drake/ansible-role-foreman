@@ -72,7 +72,6 @@
     kind: 'snippet'
     locations: "{{ ['Default Location'] + foreman_locations }}"
     organizations:
-      - 'Default Organization'
       - '{{ foreman_organization }}'
     state: 'present'
     template: |

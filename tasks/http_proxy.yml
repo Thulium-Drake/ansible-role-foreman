@@ -11,7 +11,6 @@
     proxy_password: "{{ foreman_http_proxy_password | default(omit) }}"
     locations: "{{ foreman_locations }}"
     organizations:
-      - 'Default Organization'
       - "{{ foreman_organization }}"
     state: 'present'
 
