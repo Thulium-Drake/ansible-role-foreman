@@ -7,8 +7,8 @@
 
 - name: 'Set versions'
   set_fact:
-    foreman_repositories_version: 3.0
-    foreman_repositories_katello_version: 4.2
+    foreman_repositories_version: 2.5
+    foreman_repositories_katello_version: 4.1
     ansible_repository_enabled: true
     foreman_installer_package: 'foreman-installer-katello'
     foreman_installer_scenario: 'katello'
