@@ -58,7 +58,8 @@
     --foreman-proxy-templates=true \
     --foreman-proxy-httpboot=true \
     --foreman-proxy-http=true \
-    --foreman-proxy-httpboot-listen-on=both \
+    --foreman-proxy-httpboot-listen-on both \
+    --foreman-proxy-templates-listen-on both \
     {% if ansible_facts['packages']['foreman-proxy-content'] is defined %}--enable-foreman-proxy-plugin-discovery \{% else %}--enable-foreman-plugin-discovery \{% endif %}
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
