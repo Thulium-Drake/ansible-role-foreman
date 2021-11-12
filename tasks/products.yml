@@ -41,7 +41,7 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    download_policy: "{% if repo[0]['type'] == 'docker' or repo[0]['type'] == 'file' %}{{ omit }}{% else %}{{ repo[0]['download_policy'] | default(foreman_download_policy) }}{% endif %}"
+    download_policy: "{% if repo[0]['type'] == 'docker' or repo[0]['type'] == 'file' %}{{ omit }}{% else %}{{ repo[0]['download_policy'] | default(foreman_download_policy) }}{% endif %}"  # noqa yaml
     download_concurrency: "{{ repo[0]['download_concurrency'] | default(omit) }}"
     http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
     http_proxy: "{{ repo[0]['proxy'] | default(omit) }}"
@@ -83,7 +83,7 @@
     label: "{{ product['repo'][0]['name'] }}"
   no_log: "{{ not foreman_debug }}"
 
-- name: 'Sync repositories for changed Products, this may take long...'
+- name: 'Sync repositories for changed Products, this may take long...'  # noqa ignore-errors
   theforeman.foreman.repository_sync:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -99,5 +99,5 @@
   poll: 60
   retries: 5
   delay: 5
-  ignore_errors: true # ignore errors, as a failed sync is not the end of the world
-  when: not foreman_skip_content_sync | bool
+  ignore_errors: true  # ignore errors, as a failed sync is not the end of the world
+  when: not foreman_skip_content_sync

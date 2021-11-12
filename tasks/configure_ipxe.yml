@@ -11,6 +11,7 @@
     remote_src: true
     owner: 'foreman-proxy'
     group: 'root'
+    mode: 0644
     seuser: 'system_u'
     serole: 'object_r'
     setype: 'cobbler_var_lib_t'
@@ -49,7 +50,7 @@
     regexp: '^dhcp::includes'
   register: 'set_dhcp_includes'
 
-- name: 'Run foreman-installer'
+- name: 'Run foreman-installer'  # noqa no-handler
   shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"

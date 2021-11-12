@@ -13,6 +13,7 @@
       {{ ansible_user }} ALL = (ALL) NOPASSWD : ALL
       Defaults:{{ ansible_user }} !requiretty
     dest: '/etc/sudoers.d/foreman_sudo'
+    mode: 0640
 
 - name: 'Get Pulp repo'
   theforeman.foreman.resource_info:
@@ -26,7 +27,11 @@
   register: 'foreman_pulp_repo'
 
 - name: 'Add module_hotfix property to Pulp repo'
-  command: subscription-manager repo-override --repo "{{ foreman_organization }}_{{ foreman_pulp_repo['resources'][0]['product']['name'] }}_{{ foreman_pulp_repo['resources'][0]['name'] }}" --add module_hotfixes:1
+  command: >-
+    subscription-manager repo-override --repo \
+    "{{ foreman_organization }}_{{ foreman_pulp_repo['resources'][0]['product']['name'] }}_{{ foreman_pulp_repo['resources'][0]['name'] }}" \
+    --add module_hotfixes:1
+  changed_when: true
 
 - name: 'Install dependencies'
   yum:
@@ -48,6 +53,7 @@
       --certs-tar /root/{{ ansible_facts['fqdn'] }}.tar
   delegate_to: "{{ groups['foreman'][0] }}"
   register: 'foreman_certs_gen'
+  changed_when: true
 
 - name: 'Copy certificate tar to Ansible Controller'
   fetch:
@@ -70,19 +76,22 @@
 
 - name: 'Compose foreman-installer command'
   set_fact:
-    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] }}"
+    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--detailed-exitcodes'] }}"
   when: foreman_puppet_enabled
 
 - name: 'Compose foreman-installer command'
   set_fact:
-    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false'] }}"
+    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false --detailed-exitcodes'] }}"  # noqa yaml
   when: not foreman_puppet_enabled
 
 - name: 'Run foreman-installer on Proxy'
   shell: |
+    set -o pipefail
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     echo {{ foreman_installer_cmd | join(' ') }} | sed 's/\\//' | bash
+  register: 'smart_proxy_install'
+  changed_when: smart_proxy_install['rc'] == 0 or smart_proxy_install['rc'] == 2
 
 - name: 'Configure Proxy'
   import_tasks: 'configure_foreman_smartproxy.yml'

@@ -73,6 +73,7 @@
 
 - name: 'Build PXE Default'
   command: hammer template build-pxe-default
+  changed_when: true
 
 - name: 'Configure iPXE'
   include_tasks: 'configure_ipxe.yml'

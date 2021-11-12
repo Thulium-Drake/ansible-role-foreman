@@ -23,7 +23,7 @@
     root_pass: "{{ hostgroup['root_pass'] }}"
     pxe_loader: "{{ hostgroup['pxe_loader'] }}"
   no_log: "{{ not foreman_debug }}"
-  loop: >- # This loop combines the following information: Activation Keys, OS deployment variables and Deployment Networks
+  loop: >-  # This loop combines the following information: Activation Keys, OS deployment variables and Deployment Networks
     {%- set results = [] -%}
     {%- for network in foreman_deploy_networks -%}
     {%-   for key in foreman_activation_keys  -%}

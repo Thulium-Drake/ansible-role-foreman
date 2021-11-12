@@ -55,7 +55,7 @@
 
 - name: 'Set Red Hat Product list'
   set_fact:
-    redhat_product_list: "{{ redhat_product_list | default([]) + [ product_info['resources'][0]['product']['name'] ]}}"
+    redhat_product_list: "{{ redhat_product_list | default([]) + [ product_info['resources'][0]['product']['name'] ] }}"
   loop: "{{ redhat_products['results'] }}"
   loop_control:
     loop_var: 'product_info'
@@ -74,7 +74,7 @@
   loop_control:
     loop_var: 'product'
 
-- name: 'Sync Red Hat Repositories, this may take long...'
+- name: 'Sync Red Hat Repositories, this may take long...'  # noqa no-handler ignore-errors
   # Yes, we sync all Red Hat Products when a change has been made to one of them
   # This is because the repository_set module does not return the Product name.
   theforeman.foreman.repository_sync:
@@ -84,7 +84,9 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     product: "{{ product }}"
-  when: repo_enabled['changed']
+  when:
+    - repo_enabled['changed']
+    - not foreman_skip_content_sync
   loop: "{{ redhat_product_list | unique }}"
   loop_control:
     loop_var: 'product'
@@ -92,4 +94,4 @@
   poll: 60
   retries: 5
   delay: 5
-  ignore_errors: true # ignore errors, as a failed sync is not the end of the world
+  ignore_errors: true  # ignore errors, as a failed sync is not the end of the world
