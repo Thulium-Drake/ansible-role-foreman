@@ -100,4 +100,4 @@
   retries: 5
   delay: 5
   ignore_errors: true  # ignore errors, as a failed sync is not the end of the world
-  when: not foreman_skip_content_sync
+  when: foreman_run_content_sync
