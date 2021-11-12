@@ -2,7 +2,7 @@
 - name: 'Install Foreman server'
   hosts: 'foreman'
   vars:
-    foreman_upgrade: false # Set to true to upgrade current Foreman server
+    foreman_upgrade: false  # Set to true to upgrade current Foreman server
   tasks:
     - name: 'Run Foreman role'
       import_role:

@@ -12,7 +12,7 @@ foreman_ipa_server: 'ipa.example.com'              # hostname of the IPA server 
 
 # Server information
 foreman_url: 'https://foreman.example.com'
-foreman_server_type: 'foreman' # or satellite
+foreman_server_type: 'foreman'  # or satellite
 foreman_validate_certs: false
 
 # Server features
@@ -22,8 +22,8 @@ foreman_katello_agent_enabled: false
 # Satellite installation information
 foreman_redhat_support_user: 'user@example.com'
 foreman_redhat_support_password: 'mysecretpassword'
-foreman_satellite_offline_install: false # When true, make sure to set the ISO location below
-foreman_satellite_dvd_drive: '/dev/sr0' # this role assumes you mount the ISO to a VM as a drive
+foreman_satellite_offline_install: false  # When true, make sure to set the ISO location below
+foreman_satellite_dvd_drive: '/dev/sr0'   # this role assumes you mount the ISO to a VM as a drive
 
 # Satellite-specific features
 foreman_simple_content_mode: false  # Set to true for Simple Content Mode, which eases subscription management
@@ -35,7 +35,7 @@ foreman_download_policy: 'immediate'
 foreman_smartproxy_download_policy: 'on_demand'
 foreman_locations:
   - 'Example Location'
-  - 'Cloud/Other Location' # Nested example
+  - 'Cloud/Other Location'  # Nested example
 
 foreman_sync_timeout: 300         # Total timeout in seconds for connections when syncing
 foreman_skip_content_sync: false  # Enable to skip content sync task
@@ -44,16 +44,16 @@ foreman_skip_content_sync: false  # Enable to skip content sync task
                                   # https://github.com/theforeman/foreman-ansible-modules/pull/1303
 
 # HTTP proxy information
-foreman_http_proxy_policy: 'none' # or global_default_http_proxy
-foreman_http_proxy_url: ''        # e.g. 'http://proxy.example.com:3128'
-#foreman_http_proxy_username: ''
-#foreman_http_proxy_password: ''
+foreman_http_proxy_policy: 'none'  # or global_default_http_proxy
+foreman_http_proxy_url: ''         # e.g. 'http://proxy.example.com:3128'
+# foreman_http_proxy_username: ''
+# foreman_http_proxy_password: ''
 foreman_http_proxy_exceptions:
   - '*.example.com'
 
 # Red Hat subscription information
-foreman_configure_redhat_repos: false                         # Configure Red Hat subscriptions and repos
-foreman_rh_subsciption_manifest: 'files/path/to/manifest.zip' # Path of the manifest ZIP archive.
+foreman_configure_redhat_repos: false                          # Configure Red Hat subscriptions and repos
+foreman_rh_subsciption_manifest: 'files/path/to/manifest.zip'  # Path of the manifest ZIP archive.
 foreman_redhat_cdn_url: 'https://cdn.redhat.com'
 foreman_redhat_repositories:
   - label: 'rhel-7-server-rpms'
@@ -63,14 +63,14 @@ foreman_redhat_repositories:
 
 # Set the environments in the order you wish to have them
 foreman_lifecycle:
-  - 'Library' # Library entry is mandatory and _must_ be first!
+  - 'Library'  # Library entry is mandatory and _must_ be first!
   - 'Development'
   - 'QA'
   - 'Production'
 
 # Set the environments for the Infrastructure environment
 foreman_infrastructure_lifecycle:
-  - 'Library' # Library entry is mandatory and _must_ be first!
+  - 'Library'  # Library entry is mandatory and _must_ be first!
   - 'Infra'
 
 # Create a host collection for all lifecycle environments
@@ -174,26 +174,26 @@ foreman_deploy_ipxe: false
 # The names of the networks must be following the lifecycle path (unless lifecycle is set)
 foreman_deploy_networks:
   - name: 'Development-ExtraNet'
-    lifecycle: 'Development' # if not defined, will default to the network name. Use only when foreman_activation_keys_per_network is true
+    lifecycle: 'Development'  # if not defined, will default to the network name. Use only when foreman_activation_keys_per_network is true
     address: '192.168.1.0/24'
     range_start: '192.168.1.150'
     range_end: '192.168.1.200'
     network_gateway: '192.168.1.1'
     auth_nameserver: '192.168.1.1'
-    dns_primary: '192.168.1.1' # if not defined, will use the IP of the foreman server
-    dns_secondary: '192.168.1.1' # optional
+    dns_primary: '192.168.1.1'    # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.1.1'  # optional
     dns_zone: 'dev.example.com'
-    locations: # If not defined, uses foreman_locations
+    locations:  # If not defined, uses foreman_locations
       - 'DC1'
-    smart_proxy: 'foreman.infra.example.com' # If not defined, will use the global foreman server
+    smart_proxy: 'foreman.infra.example.com'  # If not defined, will use the global foreman server
   - name: 'QA'
     address: '192.168.2.0/24'
     range_start: '192.168.2.150'
     range_end: '192.168.2.200'
     network_gateway: '192.168.2.1'
     auth_nameserver: '192.168.2.1'
-    dns_primary: '192.168.2.1' # if not defined, will use the IP of the foreman server
-    dns_secondary: '192.168.2.1' # optional
+    dns_primary: '192.168.2.1'    # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.2.1'  # optional
     dns_zone: 'qa.example.com'
     locations:
       - 'DC1'
@@ -205,13 +205,13 @@ foreman_deploy_networks:
     range_end: '192.168.3.200'
     network_gateway: '192.168.3.1'
     auth_nameserver: '192.168.3.1'
-    dns_primary: '192.168.3.1' # if not defined, will use the IP of the foreman server
-    dns_secondary: '192.168.3.1' # optional
+    dns_primary: '192.168.3.1'    # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.3.1'  # optional
     dns_zone: 'prod.example.com'
     locations:
       - 'DC1'
       - 'DC2'
-    smart_proxy: 'foreman-proxy.prod.example.com' # If not defined, will use the global foreman server
+    smart_proxy: 'foreman-proxy.prod.example.com'  # If not defined, will use the global foreman server
 ##
 
 # Run Foreman Installer to configure deployment components
@@ -221,7 +221,7 @@ foreman_deploy_networks:
 foreman_deploy_run_installer: true
 
 # Select a DNS deployment scenario
-foreman_deploy_dns_scenario: 'internal' # internal or nsupdate
+foreman_deploy_dns_scenario: 'internal'  # internal or nsupdate
 
 ### DNS scenario: nsupdate
 # Upstream server
@@ -251,7 +251,7 @@ foreman_operating_systems:
   - name: 'CentOS'   # Name as supplied by Facter, this will be combined with the Major version to a friendly name
     major_version: 7
     arch:
-     - 'x86_64'
+      - 'x86_64'
     os_family: 'Redhat'
     partitions: 'Kickstart default'
     root_pass: 'SuperSecretPassword'
@@ -266,11 +266,11 @@ foreman_operating_systems:
       - name: 'remote_execution_ssh_keys'
         value: "{{ lookup('file', 'ssh_keys/ansible.pub') }}"
     # Source to use for the OS installer
-    kickstart_repo: 'CentOS7-Base' # Name of a repository which contains a kickstart tree, ususally this is the Base
-    kickstart: true # Enable this to disable creating Installation media (which are not required if using kickstart)
+    kickstart_repo: 'CentOS7-Base'  # Name of a repository which contains a kickstart tree, ususally this is the Base
+    kickstart: true  # Enable this to disable creating Installation media (which are not required if using kickstart)
     # Alternatively when no Kickstart repo is available
     # The URL below is the location of the CV 'CentOS7-Base' for the 'Example-Org' organization
-    #path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS7/CentOS7-Base/'
+    # path: 'http://foreman.example.com/pulp/repos/Example-Org/Library/custom/CentOS7/CentOS7-Base/'
 
 # Which version of the Foreman Discorvery Image to use
 foreman_discovery_image_release: 'latest'

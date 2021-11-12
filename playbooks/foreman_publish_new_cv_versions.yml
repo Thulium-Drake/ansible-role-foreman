@@ -75,7 +75,7 @@
         minutes: 5
       when: input_cvs_list | length > 0
 
-    - name: 'Publish new version for all COVs for selected Lifecycle environments'
+    - name: 'Publish new version for all COVs for selected Lifecycle environments'  # noqa no-handler
       theforeman.foreman.content_view_version:
         username: "{{ foreman_admin_user }}"
         password: "{{ foreman_admin_password }}"
@@ -91,7 +91,7 @@
         loop_var: 'comp_content_view'
       when: content_view_published.changed
 
-    - name: 'Promote all COVs for selected Lifecycle environments'
+    - name: 'Promote all COVs for selected Lifecycle environments'  # noqa no-handler
       theforeman.foreman.content_view_version:
         username: "{{ foreman_admin_user }}"
         password: "{{ foreman_admin_password }}"

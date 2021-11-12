@@ -6,6 +6,7 @@
     - name: 'Configure Foreman'
       import_role:
         name: 'foreman'
+
     - name: 'Create user for Ansible'
       theforeman.foreman.user:
         username: "{{ foreman_admin_user }}"
