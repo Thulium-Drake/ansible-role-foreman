@@ -56,6 +56,7 @@
     /usr/sbin/satellite-installer --scenario satellite \
       --foreman-initial-admin-username {{ foreman_admin_user }} \
       --foreman-initial-admin-password {{ foreman_admin_password | quote }} \
+      --foreman-initial-organization {{ foreman_organization }} \
       --foreman-proxy-puppetca true \
       --foreman-proxy-tftp true \
       --enable-foreman-plugin-discovery
