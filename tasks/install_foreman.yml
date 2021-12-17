@@ -9,7 +9,6 @@
   set_fact:
     foreman_repositories_version: 3.0
     foreman_repositories_katello_version: 4.2
-    ansible_repository_enabled: true
     foreman_installer_package: 'foreman-installer-katello'
     foreman_installer_scenario: 'katello'
 
@@ -38,6 +37,10 @@
 - name: 'Setup Foreman & Katello repositories'
   include_role:
     name: 'theforeman.operations.foreman_repositories'
+
+- name: 'Setup Ansible repositories'
+  include_role:
+    name: 'theforeman.operations.ansible_repositories'
 
 - name: 'Setup Puppet repositories'
   include_role:
