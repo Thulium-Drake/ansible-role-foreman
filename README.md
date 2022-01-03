@@ -61,6 +61,16 @@ Then put all the Global settings for Foreman in the group_vars for foreman_infra
 to both the Server and the Proxies. You can then create host_vars for each Foreman system (Server or Proxies) that contain the instance specific settings.
 
 ## Limitations, bugs and workarounds
+Sometimes the installer is unable to succesfully complete the configuration of the Foreman services. The Ansible tasks have been configured (unless you're running a version of Foreman/Satellite that does not support --detailed-exitcodes) to trigger on that.
+
+When an issue occurs, you can follow the following steps to localize the issue:
+
+* Run ```foreman-installer``` manually, no arguments are required. This will give a general direction where to look
+* Check the logs in /var/log/foreman-installer
+* Restart the Foreman services, this will sometimes 'reset' things after which Foreman will succesfully wrap up the installer.
+
+For specific things, see below
+
 ### Information about Deployment, Discovery and UEFI vs. BIOS vs. iPXE
 Testing has shown that various settings can have an effect on whether a host can boot from the network.
 
@@ -146,3 +156,4 @@ foreman_operating_systems:
       - name: 'autopart_options'
         value: '--nohome'
 ```
+
