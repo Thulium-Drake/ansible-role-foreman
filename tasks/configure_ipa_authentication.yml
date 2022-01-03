@@ -15,7 +15,7 @@
     foreman-installer --foreman-ipa-authentication=true {{ foreman_ipa_workaround | default('') }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}  # noqa yaml
   register: 'installer_output'
   changed_when: installer_output['rc'] == 2 or (foreman_server_type == 'satellite' and installer_output['rc'] == 0)
-  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
   notify: 'restart foreman'
 
 - name: 'Restart services'

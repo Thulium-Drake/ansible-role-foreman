@@ -16,7 +16,7 @@
           --detailed-exitcodes
       register: 'installer_output'
       changed_when: installer_output['rc'] == 2
-      failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
+      failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
   when: foreman_configure_deployment
 
 - name: 'Update Foreman Smart Proxy Config'

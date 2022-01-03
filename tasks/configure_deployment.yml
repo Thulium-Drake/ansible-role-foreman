@@ -66,7 +66,7 @@
     --foreman-proxy-tftp-servername {{ ansible_facts['fqdn'] }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}
   register: 'installer_output'
   changed_when: installer_output['rc'] == 2 or (foreman_server_type == 'satellite' and installer_output['rc'] == 0)
-  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
   when: foreman_deploy_run_installer
 
 - name: 'Set environment facts (placeholder)'
