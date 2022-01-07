@@ -72,9 +72,9 @@
     value: 'discovery'
 
 - name: 'Build PXE Default'
-  command: hammer template build-pxe-default
+  ansible.builtin.command: hammer template build-pxe-default
   changed_when: true
 
 - name: 'Configure iPXE'
-  include_tasks: 'configure_ipxe.yml'
+  ansible.builtin.include_tasks: 'configure_ipxe.yml'
   when: foreman_deploy_ipxe

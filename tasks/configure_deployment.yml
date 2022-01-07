@@ -1,20 +1,20 @@
 ---
 - name: 'Check input'
-  assert:
+  ansible.builtin.assert:
     that:
       - foreman_deploy_dns_scenario in foreman_deploy_dns_scenarios
 
 - name: 'Get Package Versions'
-  package_facts:
+  ansible.builtin.package_facts:
 
 - name: 'Retrieve Foreman instance network settings'
-  set_fact:
+  ansible.builtin.set_fact:
     foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('smart_proxy', 'equalto', ansible_facts['fqdn']) }}"
 
 - name: 'Set up prerequisites for nsupdate scenario'
   block:
     - name: 'Check permissions on rndc key'
-      file:
+      ansible.builtin.file:
         path: "{{ foreman_deploy_dns_rndc_key }}"
         owner: 'root'
         group: 'foreman-proxy'
@@ -23,13 +23,13 @@
         serole: 'object_r'
 
     - name: 'Ensure nsupdate is installed (Foreman)'
-      package:
+      ansible.builtin.package:
         name: 'bind-utils'
         state: 'present'
       when: foreman_server_type == 'foreman'
 
     - name: 'Ensure nsupdate is installed (Satellite)'
-      yum:
+      ansible.builtin.yum:
         name: 'bind-utils'
         state: 'present'
         disable_plugin: 'foreman-protector'
@@ -37,14 +37,14 @@
   when: foreman_deploy_dns_scenario == 'nsupdate'
 
 - name: 'Ensure symlink for boot files'
-  file:
+  ansible.builtin.file:
     state: 'link'
     src: '/boot/efi/EFI/rocky'
     dest: '/boot/efi/EFI/redhat'
   when: ansible_facts['distribution'] == 'Rocky'
 
 - name: 'Configure Foreman instance for deployment'
-  shell: |
+  ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
     /usr/sbin/foreman-installer \
@@ -70,13 +70,13 @@
   when: foreman_deploy_run_installer
 
 - name: 'Set environment facts (placeholder)'
-  set_fact:
+  ansible.builtin.set_fact:
     proxy_env:
       empty_var: 'Just_a_placeholder'
   when: foreman_http_proxy_policy == 'none'
 
 - name: 'Set environment facts (http_proxy)'
-  set_fact:
+  ansible.builtin.set_fact:
     proxy_env:
       http_proxy: "{{ foreman_http_proxy_url }}"
       https_proxy: "{{ foreman_http_proxy_url }}"
@@ -84,7 +84,7 @@
   when: foreman_http_proxy_policy == 'global_default_http_proxy'
 
 - name: 'Ensure Discovery Image present (Foreman)'
-  unarchive:
+  ansible.builtin.unarchive:
     src: "http://downloads.theforeman.org/discovery/releases/{{ foreman_discovery_image_release }}/fdi-image-latest.tar"
     dest: '/var/lib/tftpboot/boot'
     remote_src: true
@@ -92,7 +92,7 @@
   environment: "{{ proxy_env }}"
 
 - name: 'Ensure Discovery Image present (Satellite)'
-  yum:
+  ansible.builtin.yum:
     name: 'foreman-discovery-image'
     state: 'present'
     disable_plugin: 'foreman-protector'

@@ -9,7 +9,7 @@
   delegate_to: "{{ foreman_ipa_server }}"
 
 - name: 'Configure Foreman for EXTERNAL authentication'
-  shell: |
+  ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
     foreman-installer --foreman-ipa-authentication=true {{ foreman_ipa_workaround | default('') }} {% if foreman_server_type != 'satellite' %} --detailed-exitcodes {% endif %}  # noqa yaml
@@ -19,7 +19,7 @@
   notify: 'restart foreman'
 
 - name: 'Restart services'
-  meta: 'flush_handlers'
+  ansible.builtin.meta: 'flush_handlers'
 
 - name: 'Ensure Foreman Admin Group'
   theforeman.foreman.usergroup:

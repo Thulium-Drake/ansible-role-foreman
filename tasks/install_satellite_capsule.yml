@@ -8,7 +8,7 @@
     state: 'present'
 
 - name: 'Install dependencies'
-  yum:
+  ansible.builtin.yum:
     name:
       - 'satellite-capsule'
     state: 'present'
@@ -28,7 +28,7 @@
     immediate: true
 
 - name: 'Generate certificates on Satellite Server'
-  shell: |
+  ansible.builtin.shell: |
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     /usr/sbin/foreman-proxy-certs-generate \
@@ -40,31 +40,31 @@
   changed_when: true
 
 - name: 'Copy certificate tar to Ansible Controller'
-  fetch:
+  ansible.builtin.fetch:
     src: "/root/{{ ansible_facts['fqdn'] | lower }}.tar"
     dest: '/tmp/'
     flat: true
   delegate_to: "{{ groups['foreman'][0] }}"
 
 - name: 'Copy certificate tar to Satellite Capsule'
-  copy:
+  ansible.builtin.copy:
     src: "/tmp/{{ ansible_facts['fqdn'] | lower }}.tar"
     dest: '/root'
     mode: 0600
 
 - name: 'Remove certificate tar from Ansible Controller'
-  file:
+  ansible.builtin.file:
     path: "/tmp/{{ ansible_facts['fqdn'] | lower }}.tar"
     state: 'absent'
   delegate_to: 'localhost'
 
 - name: 'Compose foreman-installer command'
-  set_fact:
+  ansible.builtin.set_fact:
     # NOTE: when satellite supports --detailed-exitcodes add comment on next line into the fact
     foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] }}"  # + ['--detailed-exitcodes'] }}"
 
 - name: 'Run foreman-installer on Proxy'
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
@@ -77,16 +77,16 @@
 - name: 'Configure Host Deployment and Discovery'
   block:
     - name: 'Configure Foreman for deployment'
-      include_tasks: 'configure_deployment.yml'
+      ansible.builtin.include_tasks: 'configure_deployment.yml'
 
     - name: 'Configure Host Discovery'
-      shell: |
+      ansible.builtin.shell: |
         export LANG=en_US.UTF-8
         export LC_ALL=en_US.UTF-8
         /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery
 
 - name: 'Fix warnings by setting permissions'
-  acl:
+  ansible.posix.acl:
     path: "{{ path }}"
     entity: 'foreman-proxy'
     etype: 'user'
@@ -98,7 +98,7 @@
     loop_var: 'path'
 
 - name: 'After installation message'
-  pause:
+  ansible.builtin.pause:
     prompt: |
       Installation succesful!
       As of this time there is no module available to configure Satellite Capsules in Ansible.

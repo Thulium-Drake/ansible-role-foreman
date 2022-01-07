@@ -2,14 +2,14 @@
 - name: 'Configure Host Deployment and Discovery'
   block:
     - name: 'Configure Foreman for deployment'
-      include_tasks: 'configure_deployment.yml'
+      ansible.builtin.include_tasks: 'configure_deployment.yml'
 
     - name: 'Configure Foreman for iPXE'
-      include_tasks: 'configure_ipxe.yml'
+      ansible.builtin.include_tasks: 'configure_ipxe.yml'
       when: foreman_deploy_ipxe
 
     - name: 'Configure Host Discovery'
-      shell: |
+      ansible.builtin.shell: |
         export LANG=en_US.UTF-8
         export LC_ALL=en_US.UTF-8
         /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery \

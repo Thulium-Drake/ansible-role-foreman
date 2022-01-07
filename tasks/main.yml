@@ -1,10 +1,10 @@
 ---
 - name: 'Get Package Versions'
-  package_facts:
+  ansible.builtin.package_facts:
   tags: 'always'
 
 - name: 'Check input'
-  assert:
+  ansible.builtin.assert:
     that:
       - foreman_server_type in foreman_supported_server_types
       - foreman_download_policy in foreman_supported_download_policies
@@ -58,7 +58,7 @@
   when: foreman_server_type == 'satellite'
 
 - name: 'Ensure Organizations, Locations and Lifecycles'
-  import_tasks: 'organization_lifecycle.yml'
+  ansible.builtin.import_tasks: 'organization_lifecycle.yml'
 
 - name: 'Update Foreman Server Smart Proxy Config'
   theforeman.foreman.smart_proxy:
@@ -75,10 +75,10 @@
     state: 'present'
 
 - name: 'Ensure Host Collections'
-  import_tasks: 'host_collections.yml'
+  ansible.builtin.import_tasks: 'host_collections.yml'
 
 - name: 'Configure HTTP proxy'
-  import_tasks: 'http_proxy.yml'
+  ansible.builtin.import_tasks: 'http_proxy.yml'
   when: foreman_http_proxy_policy != 'none'
 
 - name: 'Set sync timeout for downloading content'
@@ -105,25 +105,25 @@
     state: 'present'
 
 - name: 'Ensure Red Hat Products and Repositories'
-  include_tasks: 'products_redhat.yml'
+  ansible.builtin.include_tasks: 'products_redhat.yml'
   when: foreman_configure_redhat_repos
 
 - name: 'Ensure Products and Repositories'
-  import_tasks: 'products.yml'
+  ansible.builtin.import_tasks: 'products.yml'
 
 - name: 'Ensure Content Views (CVs) and versions for Products'
-  include_tasks: 'cv_add_base_product.yml'
+  ansible.builtin.include_tasks: 'cv_add_base_product.yml'
   loop: "{{ foreman_products | default([]) }}"
 
 - name: 'Ensure Content Views (CVs) and versions for other Content Views'
-  include_tasks: 'cv_add_base.yml'
+  ansible.builtin.include_tasks: 'cv_add_base.yml'
   loop: "{{ foreman_content_views | default([]) }}"
 
 - name: 'Ensure Composite Content Views (COVs)'
-  import_tasks: 'comp_content_views.yml'
+  ansible.builtin.import_tasks: 'comp_content_views.yml'
 
 - name: 'Ensure Activation keys'
-  include_tasks: 'activation_keys.yml'
+  ansible.builtin.include_tasks: 'activation_keys.yml'
   loop: >-
     {%- set results = [] -%}
     {%- for lifecycle in foreman_lifecycle + foreman_infrastructure_lifecycle -%}
@@ -139,19 +139,19 @@
 - name: 'Configure Host deploment and discovery'
   block:
     - name: 'Configure Foreman for deployment'
-      import_tasks: 'configure_deployment.yml'
+      ansible.builtin.import_tasks: 'configure_deployment.yml'
 
     - name: 'Configure PXE'
-      import_tasks: 'configure_pxe.yml'
+      ansible.builtin.import_tasks: 'configure_pxe.yml'
 
     - name: 'Ensure Domains and Subnets'
-      import_tasks: 'domains_subnets.yml'
+      ansible.builtin.import_tasks: 'domains_subnets.yml'
 
     - name: 'Ensure Installation Media and Operating Systems'
-      import_tasks: 'installmedia_os.yml'
+      ansible.builtin.import_tasks: 'installmedia_os.yml'
 
     - name: 'Ensure Host Groups'
-      import_tasks: 'host_groups.yml'
+      ansible.builtin.import_tasks: 'host_groups.yml'
 
     - name: 'Set Random Hostname generator to MAC based'
       theforeman.foreman.setting:
@@ -182,5 +182,5 @@
     value: "{{ foreman_smartproxy_download_policy }}"
 
 - name: 'Configure IPA authentication'
-  include_tasks: 'configure_ipa_authentication.yml'
+  ansible.builtin.include_tasks: 'configure_ipa_authentication.yml'
   when: foreman_configure_ipa

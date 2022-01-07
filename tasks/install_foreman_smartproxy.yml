@@ -1,13 +1,13 @@
 ---
 - name: 'Enable Ruby 2.7 module on EL8'
-  dnf:
+  ansible.builtin.dnf:
     name: '@ruby:2.7'
     state: 'present'
   when:
     - ansible_facts['distribution_major_version']|int >= 8
 
 - name: 'Ensure sudo privileges'
-  copy:
+  ansible.builtin.copy:
     content: |
       # This file is managed by Ansible, YOUR CHANGES WILL BE LOST!
       {{ ansible_user }} ALL = (ALL) NOPASSWD : ALL
@@ -27,24 +27,24 @@
   register: 'foreman_pulp_repo'
 
 - name: 'Add module_hotfix property to Pulp repo'
-  command: >-
+  ansible.builtin.command: >-
     subscription-manager repo-override --repo \
     "{{ foreman_organization }}_{{ foreman_pulp_repo['resources'][0]['product']['name'] }}_{{ foreman_pulp_repo['resources'][0]['name'] }}" \
     --add module_hotfixes:1
   changed_when: true
 
 - name: 'Install dependencies'
-  yum:
+  ansible.builtin.yum:
     name:
       - 'foreman-proxy-content'
       - 'puppet-agent-oauth'
     state: 'present'
 
 - name: 'Run common tasks'
-  include_tasks: 'install_foreman_common.yml'
+  ansible.builtin.include_tasks: 'install_foreman_common.yml'
 
 - name: 'Generate certificates on Foreman Server'
-  shell: |
+  ansible.builtin.shell: |
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     /usr/sbin/foreman-proxy-certs-generate \
@@ -56,36 +56,36 @@
   changed_when: true
 
 - name: 'Copy certificate tar to Ansible Controller'
-  fetch:
+  ansible.builtin.fetch:
     src: "/root/{{ ansible_facts['fqdn'] }}.tar"
     dest: '/tmp/'
     flat: true
   delegate_to: "{{ groups['foreman'][0] }}"
 
 - name: 'Copy certificate tar to Foreman Proxy'
-  copy:
+  ansible.builtin.copy:
     src: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
     dest: '/root'
     mode: 0600
 
 - name: 'Remove certificate tar from Ansible Controller'
-  file:
+  ansible.builtin.file:
     path: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
     state: 'absent'
   delegate_to: 'localhost'
 
 - name: 'Compose foreman-installer command'
-  set_fact:
+  ansible.builtin.set_fact:
     foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--detailed-exitcodes'] }}"
   when: foreman_puppet_enabled
 
 - name: 'Compose foreman-installer command'
-  set_fact:
+  ansible.builtin.set_fact:
     foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false --detailed-exitcodes'] }}"  # noqa yaml
   when: not foreman_puppet_enabled
 
 - name: 'Run foreman-installer on Proxy'
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
@@ -94,4 +94,4 @@
   changed_when: smart_proxy_install['rc'] == 0 or smart_proxy_install['rc'] == 2
 
 - name: 'Configure Proxy'
-  import_tasks: 'configure_foreman_smartproxy.yml'
+  ansible.builtin.import_tasks: 'configure_foreman_smartproxy.yml'

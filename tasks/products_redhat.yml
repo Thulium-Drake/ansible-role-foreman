@@ -1,6 +1,6 @@
 ---
 - name: 'Copy manifest to server'
-  copy:
+  ansible.builtin.copy:
     src: "{{ foreman_rh_subsciption_manifest }}"
     dest: '/root/{{ foreman_organization }}-manifest.zip'
     mode: 0600
@@ -54,7 +54,7 @@
   register: 'redhat_products'
 
 - name: 'Set Red Hat Product list'
-  set_fact:
+  ansible.builtin.set_fact:
     redhat_product_list: "{{ redhat_product_list | default([]) + [ product_info['resources'][0]['product']['name'] ] }}"
   loop: "{{ redhat_products['results'] }}"
   loop_control:

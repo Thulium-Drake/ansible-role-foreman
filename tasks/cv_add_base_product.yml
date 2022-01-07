@@ -1,10 +1,10 @@
 ---
 - name: 'Create empty list'
-  set_fact:
+  ansible.builtin.set_fact:
     cv_repo_list: []
 
 - name: 'Make repo list for content views'
-  set_fact:
+  ansible.builtin.set_fact:
     cv_repo_list: "{{ cv_repo_list + [{'product': item['name'], 'name': item['name'] + '-' + repo['name'] } ] }}"
   loop: "{{ item['repositories'] }}"
   loop_control:

@@ -61,18 +61,18 @@
     gpg_key: "{% if repo[1]['no_gpg_key'] | default(False) or repo[0]['type'] == 'docker' %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
     state: 'present'
   register: 'repo_created'
-  loop: "{{ foreman_products | subelements('repositories', { 'skip_missing': true}) }}"
+  loop: "{{ foreman_products | ansible.builtin.subelements('repositories', { 'skip_missing': true}) }}"
   loop_control:
     loop_var: 'repo'
     label: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
   no_log: "{{ not foreman_debug }}"
 
 - name: 'Set empty list'
-  set_fact:
+  ansible.builtin.set_fact:
     product_list: []
 
 - name: 'Set Product list'
-  set_fact:
+  ansible.builtin.set_fact:
     product_list: "{{ product_list + [ product['repo'][0]['name'] ] }}"
   when: >
     product['changed'] and ((product['repo'][0]['no_sync'] is defined and not product['repo'][0]['no_sync']) or

@@ -1,11 +1,11 @@
 ---
 - name: 'Ensure iPXE dependencies'
-  package:
+  ansible.builtin.package:
     name: 'ipxe-bootimgs'
     state: 'present'
 
 - name: 'Ensure iPXE images in tftproot'
-  copy:
+  ansible.builtin.copy:
     src: "/usr/share/ipxe/{{ image }}"
     dest: "/var/lib/tftpboot/{{ image }}"
     remote_src: true
@@ -22,7 +22,7 @@
     loop_var: 'image'
 
 - name: 'Ensure DHCP settings for iPXE'
-  copy:
+  ansible.builtin.copy:
     dest: '/etc/dhcp/dhcpd-ipxe.conf'
     content: |
       if exists user-class and option user-class = "iPXE" {
@@ -41,7 +41,7 @@
     mode: 0444
 
 - name: 'Configure DHCP server for iPXE'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '/etc/foreman-installer/custom-hiera.yaml'
     owner: 'root'
     group: 'root'
@@ -51,7 +51,7 @@
   register: 'set_dhcp_includes'
 
 - name: 'Run foreman-installer'  # noqa no-handler
-  shell: |
+  ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
     /sbin/foreman-installer

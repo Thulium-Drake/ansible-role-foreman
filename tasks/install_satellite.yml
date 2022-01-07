@@ -21,7 +21,7 @@
         state: 'present'
 
     - name: 'Install Satellite packages'
-      package:
+      ansible.builtin.package:
         name:
           - 'satellite'
         state: 'present'
@@ -37,7 +37,7 @@
         state: 'mounted'
 
     - name: 'Run installer script'
-      shell: |
+      ansible.builtin.shell: |
         cd /mnt/sat_iso
         ./install_packages
   when: foreman_satellite_offline_install
@@ -50,7 +50,7 @@
     immediate: true
 
 - name: 'Run Satellite installer default scenario (see /var/log/foreman-installer/satellite.log for details)'
-  shell: |
+  ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
     /usr/sbin/satellite-installer --scenario satellite \
@@ -62,7 +62,7 @@
       --enable-foreman-plugin-discovery
 
 - name: 'End of installation notice'
-  debug:
+  ansible.builtin.debug:
     msg: |
       NOTICE: You have installed Satellite in Offline mode, please note the following points:
         1. This system CAN NOT be registered to the Satellite Server it hosts!

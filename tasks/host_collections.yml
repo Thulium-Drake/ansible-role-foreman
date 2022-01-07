@@ -59,6 +59,6 @@
     name: "{{ collection[1] }}"
     description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
-  loop: "{{ foreman_activation_keys | subelements('host_collections', { 'skip_missing': true}) }}"
+  loop: "{{ foreman_activation_keys | ansible.builtin.subelements('host_collections', { 'skip_missing': true}) }}"
   loop_control:
     loop_var: 'collection'
