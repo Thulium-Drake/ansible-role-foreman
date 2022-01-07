@@ -8,6 +8,8 @@ This role requires the following Ansible Collections in order to work:
 * 'ansible.netcommon' 2.4.0 or higher
 * 'ansible.posix' 1.3.0 or higher
 
+Tested with Ansible 2.11 and higher
+
 This role supports Foreman 3.0 / Katello 4.2 and up
 
 Other requirements on the Ansible controller:
