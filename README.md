@@ -2,9 +2,13 @@
 # Foreman configuration by Ansible
 This role provides a means to provision a Foreman or Satellite server with an organization and some content
 
-This role requires Ansible Collection 'theforeman.foreman' 2.2.0 or higher in order to work!
+This role requires the following Ansible Collections in order to work:
 
-This role supports Foreman 2.5 / Katello 4.1 and up
+* 'theforeman.foreman' 2.2.0 or higher
+* 'ansible.netcommon' 2.4.0 or higher
+* 'ansible.posix' 1.3.0 or higher
+
+This role supports Foreman 3.0 / Katello 4.2 and up
 
 Other requirements on the Ansible controller:
 
