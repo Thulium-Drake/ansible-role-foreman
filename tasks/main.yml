@@ -10,7 +10,7 @@
       - foreman_download_policy in foreman_supported_download_policies
       - foreman_http_proxy_policy in foreman_supported_http_proxy_policies
 
-- name: 'Disable automatic creation of new Operating Systems based on Puppet'
+- name: 'Disable automatic creation of new Operating Systems based on facts'
   theforeman.foreman.setting:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -18,7 +18,6 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: 'ignore_facts_for_operatingsystem'
     value: true
-  when: foreman_puppet_enabled
 
 - name: 'Ensure firewall ports'
   ansible.posix.firewalld:
