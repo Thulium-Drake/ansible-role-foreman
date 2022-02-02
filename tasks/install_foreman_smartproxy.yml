@@ -92,6 +92,7 @@
     echo {{ foreman_installer_cmd | join(' ') }} | sed 's/\\//' | bash
   register: 'smart_proxy_install'
   changed_when: smart_proxy_install['rc'] == 0 or smart_proxy_install['rc'] == 2
+  failed_when: smart_proxy_install['rc'] >= 3
 
 - name: 'Configure Proxy'
   ansible.builtin.import_tasks: 'configure_foreman_smartproxy.yml'
