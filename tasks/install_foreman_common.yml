@@ -25,8 +25,3 @@
   loop_control:
     loop_var: 'port'
   when: port['enable'] | default(true)
-
-- name: 'Upgrade postgres on EL8'
-  ansible.builtin.include_role:
-    name: 'theforeman.operations.postgresql_upgrade'
-  when: ansible_facts['distribution_major_version'] == '8'
