@@ -86,7 +86,7 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: 'sync_connect_timeout'
+    name: "{{ (foreman_server_type == 'foreman') | ternary('sync_connect_timeout', 'sync_connect_timeout_v2') }}"
     value: "{{ foreman_sync_timeout }}"
 
 - name: 'Ensure daily sync plan'
