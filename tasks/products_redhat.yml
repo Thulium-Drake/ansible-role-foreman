@@ -33,7 +33,8 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     label: "{{ redhat_repo['label'] }}"
-    repositories: "{{ redhat_repo['repositories'] }}"
+    repositories: "{{ redhat_repo['repositories'] | default(omit) }}"
+    all_repositories: "{{ (redhat_repo['repositories'] is defined ) | ternary(false, true) }}"
   loop: "{{ foreman_redhat_repositories }}"
   loop_control:
     loop_var: 'redhat_repo'
