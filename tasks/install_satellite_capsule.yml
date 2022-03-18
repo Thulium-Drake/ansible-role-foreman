@@ -1,4 +1,8 @@
 ---
+- name: 'Set server_type'
+  ansible.builtin.set_fact:
+    foreman_server_type: 'satellite_capsule'
+
 - name: 'Ensure Red Hat Subscriptions'
   community.general.redhat_subscription:
     username: "{{ foreman_redhat_support_user }}"

@@ -26,7 +26,7 @@
     dest: '/etc/dhcp/dhcpd-ipxe.conf'
     content: |
       if exists user-class and option user-class = "iPXE" {
-        filename "http://{{ ansible_facts[foreman_instance_deploy_interface]['ipv4']['address'] }}:8000/unattended/iPXE?bootstrap=1";
+        filename "http://{{ ansible_facts[foreman_instance_deploy_interface]['ipv4']['address'] }}{{ (foreman_server_type == 'satellite') | ternary('', ':8000') }}/unattended/iPXE?bootstrap=1";
       } elsif option architecture = 00:06 {
         filename "{{ (ansible_facts['distribution_major_version'] == '7') | ternary('ipxe.efi', 'ipxe-x86_64.efi') }}";
       } elsif option architecture = 00:07 {

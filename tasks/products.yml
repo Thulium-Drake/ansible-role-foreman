@@ -26,7 +26,7 @@
     organization: "{{ foreman_organization }}"
     name: "{{ product['name'] }}"
     description: 'Managed by Ansible, your changes will be lost'
-    sync_plan: "{% if product['no_sync'] | default(false) %}{{ omit }}{% else %}Daily repo sync{% endif %}"
+    sync_plan: "{{ (product['no_sync'] | default(false)) |ternary(omit, 'Daily repo sync') }}"
     state: 'present'
   loop: "{{ foreman_products }}"
   loop_control:
@@ -41,7 +41,7 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    download_policy: "{% if repo[0]['type'] == 'docker' or repo[0]['type'] == 'file' %}{{ omit }}{% else %}{{ repo[0]['download_policy'] | default(foreman_download_policy) }}{% endif %}"  # noqa yaml
+    download_policy: "{{ (repo[0]['type'] == 'docker' or repo[0]['type'] == 'file') | ternary(omit, repo[0]['download_policy']) | default(foreman_download_policy) }}"  # noqa yaml
     download_concurrency: "{{ repo[0]['download_concurrency'] | default(omit) }}"
     http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
     http_proxy: "{{ repo[0]['proxy'] | default(omit) }}"
@@ -58,7 +58,7 @@
     docker_upstream_name: "{{ repo[1]['docker_upstream_name'] | default(omit) }}"
     docker_tags_whitelist: "{{ repo[1]['docker_tags_whitelist'] | default(omit) }}"
     product: "{{ repo[0]['name'] }}"
-    gpg_key: "{% if repo[1]['no_gpg_key'] | default(False) or repo[0]['type'] == 'docker' %}{{ omit }}{% else %}{{ repo[0]['gpg_key'] }}{% endif %}"
+    gpg_key: "{{ (repo[1]['no_gpg_key'] | default(False) or repo[0]['type'] == 'docker') | ternary(omit, repo[0]['gpg_key']) }}"
     state: 'present'
   register: 'repo_created'
   loop: "{{ foreman_products | ansible.builtin.subelements('repositories', { 'skip_missing': true}) }}"

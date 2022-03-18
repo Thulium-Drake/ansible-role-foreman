@@ -54,7 +54,7 @@
     parameters: "{{ os['parameters'] | default(omit) }}"
     provisioning_templates: "{{ os['provisioning_templates'] | default(omit) }}"
     architectures: "{{ os['arch'] }}"
-    media: "{% if not os['kickstart'] %}[ {{ os['name'] }} {{ os['major_version'] }} ]{% else %}{{ omit }}{% endif %}"
+    media: "{{ (os['kickstart']) | ternary(omit, os['name'] + ' ' + os['major_version'] | string) }}"
     ptables: "{{ os['partitions'] | default(omit) }}"
   no_log: "{{ not foreman_debug }}"
   loop: "{{ foreman_operating_systems }}"

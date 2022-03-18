@@ -30,10 +30,10 @@
     locations: "{{ network['locations'] | default(foreman_locations) }}"
     domains:
       - "{{ network['dns_zone'] }}"
-    network: "{{ network['address'] | ansible.netcommon.ipaddr('network') }}"
+    network: "{{ network['address'] | ansible.utils.ipaddr('network') }}"
     dns_primary: "{{ network['dns_primary'] | default(ansible_facts[foreman_instance_deploy_interface]['ipv4']['address']) }}"
     dns_secondary: "{{ network['dns_secondary'] | default(omit) }}"
-    cidr: "{{ network['address'] | ansible.netcommon.ipaddr('prefix') }}"
+    cidr: "{{ network['address'] | ansible.utils.ipaddr('prefix') }}"
     from_ip: "{{ network['range_start'] }}"
     to_ip: "{{ network['range_end'] }}"
     boot_mode: 'DHCP'
@@ -42,7 +42,7 @@
     tftp_proxy: "{{ network['smart_proxy'] }}"
     httpboot_proxy: "{{ network['smart_proxy'] }}"
     template_proxy: "{{ network['smart_proxy'] }}"
-    discovery_proxy: "{% if network['smart_proxy'] == ansible_facts['fqdn'] %}{{ omit }}{% else %}{{ network['smart_proxy'] }}{% endif %}"
+    discovery_proxy: "{{ (network['smart_proxy'] == ansible_facts['fqdn']) | ternary(omit, network['smart_proxy']) }}"
     state: 'present'
   loop: "{{ foreman_deploy_networks }}"
   loop_control:

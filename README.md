@@ -5,7 +5,7 @@ This role provides a means to provision a Foreman or Satellite server with an or
 This role requires the following Ansible Collections in order to work:
 
 * 'theforeman.foreman' 2.2.0 or higher
-* 'ansible.netcommon' 2.4.0 or higher
+* 'ansible.utils' 2.3.0 or higher
 * 'ansible.posix' 1.3.0 or higher
 
 Tested with Ansible 2.11 and higher
@@ -103,7 +103,7 @@ We have tested the following setups:
 * Boot local
   * KVM
     * BIOS: works fine. Can also used with iPXE.
-    * UEFI: use ```pxe_loader: 'Grub2 UEFI'``` with default settings by this role. iPXE hangs in UEFI system menu: https://community.theforeman.org/t/ipxe-does-not-boot-local-hard-disk-on-uefi/21437
+    * UEFI: use ```pxe_loader: 'Grub2 UEFI'``` with default settings by this role. iPXE may hang in UEFI system menu: https://community.theforeman.org/t/ipxe-does-not-boot-local-hard-disk-on-uefi/21437
 
   * HyperV:
     * Gen1: works fine.
