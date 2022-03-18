@@ -87,7 +87,7 @@
     product: "{{ product }}"
   when:
     - repo_enabled['changed']
-    - foreman_run_content_sync
+    - foreman_run_content_sync|bool
   loop: "{{ redhat_product_list | unique }}"
   loop_control:
     loop_var: 'product'
