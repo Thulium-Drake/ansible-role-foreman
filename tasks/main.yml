@@ -10,6 +10,17 @@
       - foreman_download_policy in foreman_supported_download_policies
       - foreman_http_proxy_policy in foreman_supported_http_proxy_policies
 
+- name: 'Disable foreman-protector plugin'
+  ansible.builtin.copy:
+    content: |
+      # This file is managed by Ansible, YOUR CHANGES WILL BE LOST!
+      [main]
+      enabled = 0
+    mode: 0640
+    owner: 'root'
+    group: 'root'
+  when: foreman_disable_foreman_protector_plugin
+
 - name: 'Disable automatic creation of new Operating Systems based on facts'
   theforeman.foreman.setting:
     username: "{{ foreman_admin_user }}"

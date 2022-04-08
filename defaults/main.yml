@@ -15,6 +15,11 @@ foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman'  # or satellite
 foreman_validate_certs: false
 
+# Yum configuration
+foreman_disable_foreman_protector_plugin: true     # Some versions of Foreman by default disable installing
+                                                   # packages outside of the foreman-installer. This can
+                                                   # hinder executing playbooks and is by default disabled
+
 # Server features
 foreman_puppet_enabled: false
 foreman_katello_agent_enabled: false
