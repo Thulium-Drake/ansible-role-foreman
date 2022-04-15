@@ -59,7 +59,8 @@
       --foreman-initial-organization {{ foreman_organization }} \
       --foreman-proxy-puppetca true \
       --foreman-proxy-tftp true \
-      --enable-foreman-plugin-discovery
+      --enable-foreman-plugin-discovery \
+      --no-lock-package-versions
 
 - name: 'End of installation notice'
   ansible.builtin.debug:

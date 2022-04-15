@@ -87,7 +87,7 @@
       ansible.builtin.shell: |
         export LANG=en_US.UTF-8
         export LC_ALL=en_US.UTF-8
-        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery
+        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery --no-lock-package-versions
 
 - name: 'Fix warnings by setting permissions'
   ansible.posix.acl:

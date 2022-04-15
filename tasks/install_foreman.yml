@@ -19,6 +19,7 @@
       - "--foreman-initial-organization {{ foreman_organization }}"
       - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false') }}"  # noqa yaml
       - "{{ foreman_katello_agent_enabled | ternary('--foreman-proxy-content-enable-katello-agent=true', '--foreman-proxy-content-enable-katello-agent=false') }}"  # noqa yaml
+      - '--no-lock-package-versions'
   when: not foreman_upgrade
 
 - name: 'Run Katello upgrade check'
