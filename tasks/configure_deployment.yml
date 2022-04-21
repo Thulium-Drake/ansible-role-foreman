@@ -22,18 +22,10 @@
         setype: 'dnssec_t'
         serole: 'object_r'
 
-    - name: 'Ensure nsupdate is installed (Foreman)'
+    - name: 'Ensure nsupdate is installed'
       ansible.builtin.package:
         name: 'bind-utils'
         state: 'present'
-      when: foreman_server_type == 'foreman'
-
-    - name: 'Ensure nsupdate is installed (Satellite)'
-      ansible.builtin.yum:
-        name: 'bind-utils'
-        state: 'present'
-        disable_plugin: 'foreman-protector'
-      when: ('satellite' in foreman_server_type)
   when: foreman_deploy_dns_scenario == 'nsupdate'
 
 - name: 'Configure Foreman instance for deployment'
