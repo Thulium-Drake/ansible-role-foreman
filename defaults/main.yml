@@ -216,7 +216,7 @@ foreman_deploy_networks:
     locations:
       - 'DC1'
       - 'DC2'
-    smart_proxy: 'foreman-proxy.prod.example.com'  # If not defined, will use the global foreman server
+    smart_proxy: 'foreman-proxy.prod.example.com'
 ##
 
 # Run Foreman Installer to configure deployment components
@@ -258,7 +258,8 @@ foreman_operating_systems:
     arch:
       - 'x86_64'
     os_family: 'Redhat'
-    partitions: 'Kickstart default'
+    partitions:
+      - 'Kickstart default'
     root_pass: 'SuperSecretPassword'
     parameters:
       - name: 'remote_execution_create_user'
