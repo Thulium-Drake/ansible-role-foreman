@@ -7,8 +7,8 @@
 
 - name: 'Set versions'
   ansible.builtin.set_fact:
-    foreman_repositories_version: 3.1
-    foreman_repositories_katello_version: 4.3
+    foreman_repositories_version: "{{ foreman_foreman_version }}"
+    foreman_repositories_katello_version: "{{ foreman_katello_version }}"
     foreman_installer_package: 'foreman-installer-katello'
     foreman_installer_scenario: 'katello'
 

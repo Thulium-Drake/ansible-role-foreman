@@ -15,6 +15,11 @@ foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman'  # or satellite
 foreman_validate_certs: false
 
+# Foreman/Katello version
+# NOTE: Check the documentation on which Katello version requires which Foreman version and vice versa!!!
+foreman_foreman_version: 3.1
+foreman_katello_version: 4.3
+
 # Yum configuration
 foreman_disable_foreman_protector_plugin: true     # Some versions of Foreman by default disable installing
                                                    # packages outside of the foreman-installer. This can
