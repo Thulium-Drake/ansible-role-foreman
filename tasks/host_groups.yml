@@ -19,6 +19,7 @@
     operatingsystem: "{{ hostgroup['os'] }}"
     ptable: "{{ hostgroup['ptable'][0] }}"
     medium: "{% if not hostgroup['kickstart'] %}{{ hostgroup['os'] }}{% else %}{{ omit }}{% endif %}"
+    kickstart_repository: "{% if hostgroup['kickstart'] %}{{ hostgroup['kickstart_repo'] }}{% else %}{{ omit }}{% endif %}"
     parameters: "{{ hostgroup['parameters'] }}"
     root_pass: "{{ hostgroup['root_pass'] }}"
     pxe_loader: "{{ hostgroup['pxe_loader'] }}"
