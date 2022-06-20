@@ -179,6 +179,9 @@ foreman_configure_deployment: true
 # Configure iPXE for deployment (will override other PXE methods)
 foreman_deploy_ipxe: false
 
+# Automatically install discovered hosts according to defined Discovery Rules
+foreman_autoinstall_discovered_hosts: false
+
 ## Global network settings
 # These networks are made available in the Foreman infrastructure
 # The names of the networks must be following the lifecycle path (unless lifecycle is set)
