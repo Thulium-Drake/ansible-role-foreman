@@ -1,7 +1,7 @@
 ---
 - name: 'Copy manifest to server'
   ansible.builtin.copy:
-    src: "{{ foreman_rh_subsciption_manifest }}"
+    src: "{{ foreman_rh_subscription_manifest }}"
     dest: '/root/{{ foreman_organization }}-manifest.zip'
     mode: 0600
 
