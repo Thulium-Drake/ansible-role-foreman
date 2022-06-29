@@ -150,19 +150,19 @@
 - name: 'Configure Host deploment and discovery'
   block:
     - name: 'Configure Foreman for deployment'
-      ansible.builtin.import_tasks: 'configure_deployment.yml'
+      ansible.builtin.include_tasks: 'configure_deployment.yml'
 
     - name: 'Configure PXE'
-      ansible.builtin.import_tasks: 'configure_pxe.yml'
+      ansible.builtin.include_tasks: 'configure_pxe.yml'
 
     - name: 'Ensure Domains and Subnets'
-      ansible.builtin.import_tasks: 'domains_subnets.yml'
+      ansible.builtin.include_tasks: 'domains_subnets.yml'
 
     - name: 'Ensure Installation Media and Operating Systems'
-      ansible.builtin.import_tasks: 'installmedia_os.yml'
+      ansible.builtin.include_tasks: 'installmedia_os.yml'
 
     - name: 'Ensure Host Groups'
-      ansible.builtin.import_tasks: 'host_groups.yml'
+      ansible.builtin.include_tasks: 'host_groups.yml'
 
     - name: 'Set Random Hostname generator to MAC based'
       theforeman.foreman.setting:
