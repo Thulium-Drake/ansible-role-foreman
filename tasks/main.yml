@@ -89,7 +89,7 @@
   ansible.builtin.import_tasks: 'host_collections.yml'
 
 - name: 'Configure HTTP proxy'
-  ansible.builtin.import_tasks: 'http_proxy.yml'
+  ansible.builtin.include_tasks: 'http_proxy.yml'
   when: foreman_http_proxy_policy != 'none'
 
 - name: 'Set sync timeout for downloading content'
