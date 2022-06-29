@@ -98,7 +98,7 @@
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
-    name: 'sync_connect_timeout_v2'
+    name: "{{ (ansible_facts['packages']['foreman'][0]['version'] is version('2.5', 'le')) | ternary('sync_conn  ect_timeout', 'sync_connect_timeout_v2') }}"
     value: "{{ foreman_sync_timeout }}"
 
 - name: 'Ensure daily sync plan'
