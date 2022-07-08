@@ -54,5 +54,8 @@
   ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
-    /sbin/foreman-installer
+    /sbin/foreman-installer --detailed-exitcodes
   when: set_dhcp_includes['changed']
+  register: 'installer_output'
+  changed_when: installer_output['rc'] == 2
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6

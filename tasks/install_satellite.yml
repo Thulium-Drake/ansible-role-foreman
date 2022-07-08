@@ -53,6 +53,9 @@
           - 'satellite'
         state: 'present'
 
+    - name: 'Collect package versions'
+      ansible.builtin.package_facts:
+
 - name: 'Install Red Hat Satellite from ISO'
   when: foreman_satellite_offline_install
   block:
@@ -75,19 +78,28 @@
     permanent: true
     immediate: true
 
+- name: 'Set installer options'
+  ansible.builtin.set_fact:
+    foreman_installer_options:
+      - '--scenario satellite'
+      - "--foreman-initial-admin-username {{ foreman_admin_user }}"
+      - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
+      - "--foreman-initial-organization {{ foreman_organization }}"
+      - "--foreman-initial-location {{ foreman_locations[0] }}"
+      - "{{ (ansible_facts['packages']['foreman'][0]['version'] is version('3.0', 'le')) | ternary('--foreman-proxy-puppetca true', '') }}"
+      - '--foreman-proxy-tftp true'
+      - '--enable-foreman-plugin-discovery'
+      - '--no-lock-package-versions'
+      - '--detailed-exitcodes'
+
 - name: 'Run Satellite installer default scenario (see /var/log/foreman-installer/satellite.log for details)'
   ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
-    /usr/sbin/satellite-installer --scenario satellite \
-      --foreman-initial-admin-username {{ foreman_admin_user }} \
-      --foreman-initial-admin-password {{ foreman_admin_password | quote }} \
-      --foreman-initial-organization {{ foreman_organization }} \
-      --foreman-initial-location {{ foreman_locations[0] }} \
-      --foreman-proxy-puppetca true \
-      --foreman-proxy-tftp true \
-      --enable-foreman-plugin-discovery \
-      --no-lock-package-versions
+    /usr/sbin/satellite-installer {{ foreman_installer_options | join(' ') }}
+  register: 'installer_output'
+  changed_when: installer_output['rc'] == 2
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
 
 - name: 'End of installation notice'
   ansible.builtin.debug:

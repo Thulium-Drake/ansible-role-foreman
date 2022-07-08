@@ -69,8 +69,7 @@
 
 - name: 'Compose foreman-installer command'
   ansible.builtin.set_fact:
-    # NOTE: when satellite supports --detailed-exitcodes add comment on next line into the fact
-    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] }}"  # + ['--detailed-exitcodes'] }}"
+    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--detailed-exitcodes'] }}"
 
 - name: 'Run foreman-installer on Proxy'
   ansible.builtin.shell: |
@@ -78,10 +77,9 @@
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     echo {{ foreman_installer_cmd | join(' ') }} | sed 's/\\//' | bash
-  changed_when: true
-  # NOTE:when satellite supports --detailed-exitcodes this task can be made idempotent
-  # register: 'capsule_install'
-  # changed_when: capsule_install['rc'] == 0 or capsule_install['rc'] == 2
+  register: 'installer_output'
+  changed_when: installer_output['rc'] == 2
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
 
 - name: 'Configure Host Deployment and Discovery'
   block:
@@ -92,7 +90,13 @@
       ansible.builtin.shell: |
         export LANG=en_US.UTF-8
         export LC_ALL=en_US.UTF-8
-        /usr/sbin/foreman-installer --enable-foreman-proxy-plugin-discovery --no-lock-package-versions
+        /usr/sbin/foreman-installer \
+        --enable-foreman-proxy-plugin-discovery \
+        --no-lock-package-versions \
+        --detailed-exitcodes
+      register: 'installer_output'
+      changed_when: installer_output['rc'] == 2
+      failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
 
 - name: 'Fix warnings by setting permissions'
   ansible.posix.acl:
