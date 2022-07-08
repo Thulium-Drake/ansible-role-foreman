@@ -12,10 +12,15 @@
     state: 'present'
 
 - name: 'Install dependencies'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - 'satellite-capsule'
     state: 'present'
+
+- name: 'Ensure Satellite Capsule module'
+  ansible.builtin.command: dnf module enable -y satellite-capsule:el8
+  register: module_enable
+  changed_when: "'Nothing to do' not in module_enable['stdout']"
 
 - name: 'Enable Satellite firewalld service'
   ansible.posix.firewalld:

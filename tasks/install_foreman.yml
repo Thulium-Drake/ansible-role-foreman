@@ -17,6 +17,7 @@
     foreman_installer_options:
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
       - "--foreman-initial-organization {{ foreman_organization }}"
+      - "--foreman-initial-location {{ foreman_locations[0] }}"
       - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false') }}"  # noqa yaml
       - "{{ foreman_katello_agent_enabled | ternary('--foreman-proxy-content-enable-katello-agent=true', '--foreman-proxy-content-enable-katello-agent=false') }}"  # noqa yaml
       - '--no-lock-package-versions'
