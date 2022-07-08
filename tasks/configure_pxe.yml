@@ -7,7 +7,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ snippet }}"
     kind: 'snippet'
-    locations: "{{ ['Default Location'] + foreman_locations }}"
+    locations: "{{ foreman_locations }}"
     organizations:
       - '{{ foreman_organization }}'
     state: 'present'
@@ -26,7 +26,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ template.name }}"
     kind: "{{ template.kind }}"
-    locations: "{{ ['Default Location'] + foreman_locations }}"
+    locations: "{{ foreman_locations }}"
     organizations:
       - '{{ foreman_organization }}'
     state: 'present'

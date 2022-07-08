@@ -82,7 +82,7 @@
     download_policy: "{{ foreman_smartproxy_download_policy }}"
     organizations:
       - "{{ foreman_organization }}"
-    locations: "{{ ['Default Location'] + foreman_locations }}"
+    locations: "{{ foreman_locations }}"
     state: 'present'
 
 - name: 'Ensure Host Collections'

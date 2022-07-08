@@ -26,7 +26,7 @@
           - 'View hosts'
         organizations:
           - "{{ foreman_organization }}"
-        locations: "{{ foreman_locations + ['Default Location'] }}"
+        locations: "{{ foreman_locations }}"
         state: 'present'
 
 # Update any configuration changes on installed Smart Proxies

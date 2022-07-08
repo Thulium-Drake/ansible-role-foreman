@@ -28,7 +28,7 @@
     name: "{{ ptable['name'] }}"
     layout: "{{ ptable['layout'] }}"
     os_family: "{{ ptable['os_family'] | default(omit) }}"
-    locations: "{{ foreman_locations + ['Default Location'] }}"
+    locations: "{{ foreman_locations }}"
     organizations:
       - "{{ foreman_organization }}"
     state: 'present'
@@ -70,7 +70,7 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: 'Kickstart default custom packages'
     kind: 'snippet'
-    locations: "{{ ['Default Location'] + foreman_locations }}"
+    locations: "{{ foreman_locations }}"
     organizations:
       - '{{ foreman_organization }}'
     state: 'present'
