@@ -79,7 +79,7 @@
     echo {{ foreman_installer_cmd | join(' ') }} | sed 's/\\//' | bash
   register: 'installer_output'
   changed_when: installer_output['rc'] == 2
-  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
 
 - name: 'Configure Host Deployment and Discovery'
   block:

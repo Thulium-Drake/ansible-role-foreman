@@ -49,11 +49,10 @@
     {{ (ansible_facts['packages']['foreman-proxy-content'] is defined) | ternary('--enable-foreman-proxy-plugin-discovery', '--enable-foreman-plugin-discovery') }} \
     --foreman-proxy-tftp true \
     --foreman-proxy-tftp-managed true \
-    --foreman-proxy-tftp-servername \
     --detailed-exitcodes
   register: 'installer_output'
   changed_when: installer_output['rc'] == 2
-  failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
   when: foreman_deploy_run_installer
 
 - name: 'Set environment facts (placeholder)'
