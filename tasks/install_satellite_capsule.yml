@@ -77,7 +77,7 @@
 
 - name: 'Compose foreman-installer command'
   ansible.builtin.set_fact:
-    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--detailed-exitcodes'] }}"
+    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-9:] + ['--detailed-exitcodes'] }}"
 
 - name: 'Run foreman-installer on Proxy'
   ansible.builtin.shell: |
