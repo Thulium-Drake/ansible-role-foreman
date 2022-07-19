@@ -19,7 +19,7 @@
   # The dnf ansible module cannot handle dnf modules without a default profile
   # such as satellite-capsule
 - name: 'Ensure Satellite module'
-  ansible.builtin.command: dnf module enable -y satellite:el8
+  ansible.builtin.command: dnf module enable -y satellite-capsule:el8
   register: module_enable
   changed_when: "'Nothing to do' not in module_enable['stdout']"
   when: ansible_facts['distribution_major_version'] == '8'
