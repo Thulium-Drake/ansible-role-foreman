@@ -10,6 +10,11 @@
         pool: 'Red Hat Satellite'
         state: 'present'
 
+    - name: 'Update packages'  # noqa package-latest
+      ansible.builtin.package:
+        name: '*'
+        state: 'latest'
+
     - name: 'Ensure Red Hat Satellite Repositories'
       community.general.rhsm_repository:
         name:
@@ -34,11 +39,6 @@
               - 'satellite-maintenance-6.11-for-rhel-8-x86_64-rpms'
             purge: true
             state: 'present'
-
-        - name: 'Update packages'
-          ansible.builtin.dnf:
-            name: '*'
-            state: 'latest'
 
           # The dnf ansible module cannot handle dnf modules without a default profile
           # such as satellite

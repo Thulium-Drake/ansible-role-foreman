@@ -11,16 +11,24 @@
     pool: 'Red Hat Satellite Capsule'
     state: 'present'
 
+- name: 'Update packages'  # noqa package-latest
+  ansible.builtin.package:
+    name: '*'
+    state: 'latest'
+
+  # The dnf ansible module cannot handle dnf modules without a default profile
+  # such as satellite-capsule
+- name: 'Ensure Satellite module'
+  ansible.builtin.command: dnf module enable -y satellite:el8
+  register: module_enable
+  changed_when: "'Nothing to do' not in module_enable['stdout']"
+  when: ansible_facts['distribution_major_version'] == '8'
+
 - name: 'Install dependencies'
   ansible.builtin.package:
     name:
       - 'satellite-capsule'
     state: 'present'
-
-- name: 'Ensure Satellite Capsule module'
-  ansible.builtin.command: dnf module enable -y satellite-capsule:el8
-  register: module_enable
-  changed_when: "'Nothing to do' not in module_enable['stdout']"
 
 - name: 'Enable Satellite firewalld service'
   ansible.posix.firewalld:
