@@ -28,8 +28,7 @@
     name: "{{ ansible_facts['fqdn'] }}"
     url: "https://{{ ansible_facts['fqdn'] }}:9090"
     download_policy: "{{ foreman_smartproxy_download_policy }}"
-    lifecycle_environments:
-      - "{{ foreman_smart_proxy_lifecycle }}"
+    lifecycle_environments: "{{ foreman_smart_proxy_lifecycles }}"
     organizations:
       - "{{ foreman_organization }}"
     locations:

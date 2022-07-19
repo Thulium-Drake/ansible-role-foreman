@@ -293,7 +293,7 @@ foreman_discovery_image_release: 'latest'
 ## Foreman instance settings
 # Smart Proxy Settings (Smart Proxies only)
 foreman_smart_proxy_location: 'Example Location'
-foreman_smart_proxy_lifecycle: 'Infra'
+foreman_smart_proxy_lifecycle: "{{ foreman_lifecycle + foreman_infrastructure_lifecycle | unique }}"
 
 # Deployment settings (Smart Proxies and Foreman 'Master' server)
 # Which network interface to configure DHCP/DNS for the current instance
