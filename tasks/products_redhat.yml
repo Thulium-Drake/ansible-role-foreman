@@ -7,6 +7,15 @@
 
 - name: 'Upload or refresh manifest to Satellite'
   block:
+    - name: 'Refresh manifest'
+      theforeman.foreman.subscription_manifest:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        state: 'refreshed'
+  rescue:
     - name: 'Upload manifest'
       theforeman.foreman.subscription_manifest:
         username: "{{ foreman_admin_user }}"
@@ -17,15 +26,6 @@
         state: 'present'
         manifest_path: '/root/{{ foreman_organization }}-manifest.zip'
         repository_url: "{{ foreman_redhat_cdn_url }}"
-  rescue:
-    - name: 'Refresh manifest'
-      theforeman.foreman.subscription_manifest:
-        username: "{{ foreman_admin_user }}"
-        password: "{{ foreman_admin_password }}"
-        server_url: "{{ foreman_url }}"
-        validate_certs: "{{ foreman_validate_certs }}"
-        organization: "{{ foreman_organization }}"
-        state: 'refreshed'
 
 - name: 'Ensure Default Red Hat Download Policy'
   theforeman.foreman.setting:
