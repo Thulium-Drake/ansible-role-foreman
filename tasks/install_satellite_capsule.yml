@@ -90,6 +90,7 @@
   failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
 
 - name: 'Configure Host Deployment and Discovery'
+  when: foreman_configure_deployment
   block:
     - name: 'Configure Foreman for deployment'
       ansible.builtin.include_tasks: 'configure_deployment.yml'
