@@ -106,25 +106,3 @@
       register: 'installer_output'
       changed_when: installer_output['rc'] == 2
       failed_when: installer_output['rc'] == 1 or installer_output['rc'] == 4 or installer_output['rc'] == 6
-
-- name: 'Fix warnings by setting permissions'
-  ansible.posix.acl:
-    path: "{{ path }}"
-    entity: 'foreman-proxy'
-    etype: 'user'
-    permissions: 'r'
-    state: 'present'
-  loop:
-    - '/var/lib/pulp/content'
-  loop_control:
-    loop_var: 'path'
-
-- name: 'After installation message'
-  ansible.builtin.pause:
-    prompt: |
-      Installation succesful!
-      As of this time there is no module available to configure Satellite Capsules in Ansible.
-      Please log in on {{ foreman_url }} , assign it manually and sync the proxy.
-      Also run a configuration run for Satellite again to update any Host Groups with the new proxy.
-
-      Press enter to continue
