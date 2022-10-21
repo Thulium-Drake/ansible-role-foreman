@@ -3,6 +3,7 @@
   ansible.builtin.assert:
     that:
       - foreman_deploy_dns_scenario in foreman_deploy_dns_scenarios
+      - foreman_deploy_dhcp_scenario in foreman_deploy_dhcp_scenarios
 
 - name: 'Get Package Versions'
   ansible.builtin.package_facts:
@@ -34,12 +35,7 @@
     export LC_ALL="en_US.UTF-8"
     /usr/sbin/foreman-installer \
     {{ lookup('vars', 'foreman_dns_scenario_' + foreman_deploy_dns_scenario ) }}
-    --foreman-proxy-dhcp true \
-    --foreman-proxy-dhcp-interface {{ foreman_instance_deploy_interface }} \
-    --foreman-proxy-dhcp-range "{{ foreman_instance_network_settings[0]['range_start'] }} {{ foreman_instance_network_settings[0]['range_end'] }}" \
-    --foreman-proxy-dhcp-gateway {{ foreman_instance_network_settings[0]['network_gateway'] }} \
-    --foreman-proxy-dhcp-nameservers {{ foreman_instance_network_settings[0]['dns_primary'] | default(ansible_facts[foreman_instance_deploy_interface]['ipv4']['address']) }} \
-    --foreman-proxy-dhcp-pxeserver {{ ansible_facts[foreman_instance_deploy_interface]['ipv4']['address'] }} \
+    {{ lookup('vars', 'foreman_dhcp_scenario_' + foreman_deploy_dhcp_scenario ) }}
     --foreman-proxy-templates true \
     --foreman-trusted-proxies {{ ansible_facts[foreman_instance_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-httpboot true \

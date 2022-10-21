@@ -6,6 +6,7 @@
     mode: 0600
 
 - name: 'Upload or refresh manifest to Satellite'
+  when: foreman_rh_subscription_manifest_refresh
   block:
     - name: 'Refresh manifest'
       theforeman.foreman.subscription_manifest:

@@ -9,6 +9,7 @@
         auto_attach: true
         pool: 'Red Hat Satellite'
         state: 'present'
+      when: foreman_redhat_register_satellite
 
     - name: 'Update packages'  # noqa package-latest
       ansible.builtin.package:

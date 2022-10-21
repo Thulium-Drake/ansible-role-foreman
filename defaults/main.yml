@@ -30,6 +30,8 @@ foreman_puppet_enabled: false
 foreman_katello_agent_enabled: false
 
 # Satellite installation information
+foreman_redhat_register_satellite: false  # Set to true to use credentials below to auto-register Satllite
+                                          # during installation.
 foreman_redhat_support_user: 'user@example.com'
 foreman_redhat_support_password: 'mysecretpassword'
 foreman_satellite_offline_install: false  # When true, make sure to set the ISO location below
@@ -64,6 +66,10 @@ foreman_http_proxy_exceptions:
 # Red Hat subscription information
 foreman_configure_redhat_repos: false                           # Configure Red Hat subscriptions and repos
 foreman_rh_subscription_manifest: 'files/path/to/manifest.zip'  # Path of the manifest ZIP archive.
+foreman_rh_subscription_manifest_refresh: false                 # Automatically upload or refresh manifest,
+                                                                # sometimes this fails and it is only required
+                                                                # when there have been changes in the manifest
+                                                                # that need to be imported
 foreman_redhat_cdn_url: 'https://cdn.redhat.com'
 foreman_redhat_repositories:
   - label: 'rhel-7-server-rpms'
@@ -217,9 +223,9 @@ foreman_deploy_networks:
     range_start: '192.168.3.150'
     range_end: '192.168.3.200'
     network_gateway: '192.168.3.1'
-    auth_nameserver: '192.168.3.1'
-    dns_primary: '192.168.3.1'    # if not defined, will use the IP of the foreman server
-    dns_secondary: '192.168.3.1'  # optional
+    auth_nameserver: '192.168.3.1' # If not defined, will use the addresses set in the DNS/DHCP scenarios
+    dns_primary: '192.168.3.1'     # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.3.1'   # optional
     dns_zone: 'prod.example.com'
     locations:
       - 'DC1'
@@ -233,12 +239,14 @@ foreman_deploy_networks:
 # If you require a different setup, disable this and prepare the node manually.
 foreman_deploy_run_installer: true
 
-# Select a DNS deployment scenario
-foreman_deploy_dns_scenario: 'internal'  # internal or nsupdate
+# Select a DNS and DHCP deployment scenario
+# NOTE: Infoblox is only tested for both DNS and DHCP together
+foreman_deploy_dns_scenario: 'internal'  # internal, infoblox or nsupdate
+foreman_deploy_dhcp_scenario: 'internal'  # internal or infoblox
 
 ### DNS scenario: nsupdate
 # Upstream server
-foreman_deploy_dns_server: '192.168.1.1'
+foreman_deploy_dns_server: '192.168.1.1'  # If auth_nameserver is not specified on the deploy_networks below
 # RNDC credentials, make sure this file exists before running this role!
 foreman_deploy_dns_rndc_key: '/etc/rndc.key'
 # Default TTL for created records
@@ -249,6 +257,13 @@ foreman_deploy_dns_ttl: 600
 # Which upstream DNS server Foreman should use
 foreman_dns_forwarders: '9.9.9.9'
 ###
+
+### DNS / DHCP Scenario: infoblox
+foreman_infoblox_host: '192.168.1.1'  # If auth_nameserver is not specified on the deploy_networks below
+foreman_infoblox_user: 'admin'
+foreman_infoblox_password: 'infoblox'
+foreman_infoblox_network_view: 'default'
+foreman_infoblox_dns_view: 'default'
 
 # The root password set on all machines deployed by Foreman
 # If not set, will default to 'changemeNOW!'
@@ -296,7 +311,7 @@ foreman_smart_proxy_location: 'Example Location'
 foreman_smart_proxy_lifecycles: "{{ foreman_lifecycle + foreman_infrastructure_lifecycle | unique }}"
 
 # Deployment settings (Smart Proxies and Foreman 'Master' server)
-# Which network interface to configure DHCP/DNS for the current instance
+# Which network interface to configure DHCP/DNS for the current instance, only for DHCP scenario 'internal'
 foreman_instance_deploy_interface: 'eth0'
 ## end of instance settings
 
