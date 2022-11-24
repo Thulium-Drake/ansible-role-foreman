@@ -66,6 +66,18 @@ foreman_http_proxy_url: ''         # e.g. 'http://proxy.example.com:3128'
 foreman_http_proxy_exceptions:
   - '*.example.com'
 
+# CDN configuration
+# This can either configure the CDN upstream URL, or configure ISS
+# NOTE: configuring network_sync or export_sync will cause the role to ignore the
+#       foreman_products and foreman_redhat_repositories sections of the configuration
+foreman_upstream_type: 'redhat_cdn'  # redhat_cdn, export_sync or network_sync
+foreman_upstream_url: 'https://cdn.redhat.com'
+foreman_upstream_username: 'admin'
+foreman_upstream_password: 'password'
+foreman_upstream_organization: 'Upstream-Example-Org'
+foreman_upstream_lifecycle: 'Library'
+foreman_upstream_content_view: 'Default_Organization_View'
+
 # Red Hat subscription information
 foreman_configure_redhat_repos: false                           # Configure Red Hat subscriptions and repos
 foreman_rh_subscription_manifest: 'files/path/to/manifest.zip'  # Path of the manifest ZIP archive.

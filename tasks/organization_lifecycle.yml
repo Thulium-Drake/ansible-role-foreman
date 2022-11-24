@@ -1,5 +1,5 @@
 ---
-- name: 'Ensure organization'
+- name: 'Ensure base Organization'
   theforeman.foreman.organization:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -8,6 +8,67 @@
     name: "{{ foreman_organization }}"
     description: 'Managed by Ansible, your changes will be lost'
     state: 'present'
+
+- name: 'Ensure ISS Network Sync'
+  when: foreman_upstream_type == 'network_sync'
+  block:
+    - name: 'Ensure upstream Satellite CA certificate'
+      theforeman.foreman.content_credential:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        organization: "{{ foreman_organization }}"
+        name: "Upstream CDN Source"
+        content_type: 'cert'
+        content: "{{ lookup('url', foreman_upstream_url + '/pub/katello-server-ca.crt', split_lines=False) }}"
+        state: 'present'
+      register: 'upstream_ca_cert'  ## WORKAROUND while module is not done yet
+      no_log: "{{ not foreman_debug }}"
+
+    - name: 'Ensure Organization with ISS Network Sync'
+      theforeman.foreman.organization:
+        username: "{{ foreman_admin_user }}"
+        password: "{{ foreman_admin_password }}"
+        server_url: "{{ foreman_url }}"
+        validate_certs: "{{ foreman_validate_certs }}"
+        name: "{{ foreman_organization }}"
+        description: 'Managed by Ansible, your changes will be lost'
+        upstream_type: 'network_sync'
+        upstream_url: "{{ foreman_upstream_url }}"
+        # upstream_ca_cert: 'Upstream CDN Source'  ## WORKAROUND while module is not done yet
+        upstream_ca_cert_id: "{{ upstream_ca_cert['entity']['content_credentials'][0]['id'] }}"
+        upstream_username: "{{ foreman_upstream_username }}"
+        upstream_password: "{{ foreman_upstream_password }}"
+        upstream_organization: "{{ foreman_upstream_organization }}"
+        upstream_lifecycle_environment: "{{ foreman_upstream_lifecycle }}"
+        upstream_content_view: "{{ foreman_upstream_content_view }}"
+        state: 'present'
+
+- name: 'Ensure ISS Export Sync'
+  theforeman.foreman.organization:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ foreman_organization }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    upstream_type: 'export_sync'
+    state: 'present'
+  when: foreman_upstream_type == 'export_sync'
+
+- name: 'Ensure Red Hat CDN configuration'
+  theforeman.foreman.organization:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ foreman_organization }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    upstream_type: 'redhat_cdn'
+    upstream_url: "{{ foreman_upstream_url }}"
+    state: 'present'
+  when: foreman_upstream_type == 'redhat_cdn'
 
 - name: 'Ensure Locations'
   theforeman.foreman.location:
