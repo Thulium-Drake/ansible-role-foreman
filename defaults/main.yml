@@ -68,8 +68,6 @@ foreman_http_proxy_exceptions:
 
 # CDN configuration
 # This can either configure the CDN upstream URL, or configure ISS
-# NOTE: configuring network_sync or export_sync will cause the role to ignore the
-#       foreman_products and foreman_redhat_repositories sections of the configuration
 foreman_upstream_type: 'redhat_cdn'  # redhat_cdn, export_sync or network_sync
 foreman_upstream_url: 'https://cdn.redhat.com'
 foreman_upstream_username: 'admin'
