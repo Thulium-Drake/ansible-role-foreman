@@ -43,6 +43,8 @@ foreman_dns_scenario_nsupdate: |-
 
 foreman_dhcp_scenario_internal: |-
   --foreman-proxy-dhcp true \
+  --foreman-proxy-dhcp-managed true \
+  --foreman-proxy-dhcp-server 127.0.0.1 \
   --foreman-proxy-dhcp-interface {{ foreman_instance_deploy_interface }} \
   --foreman-proxy-dhcp-range "{{ foreman_instance_network_settings[0]['range_start'] }} {{ foreman_instance_network_settings[0]['range_end'] }}" \
   --foreman-proxy-dhcp-provider isc \
