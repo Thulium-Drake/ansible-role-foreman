@@ -51,7 +51,6 @@
   loop_control:
     loop_var: 'redhat_repo'
   register: 'repo_enabled'
-  when: foreman_upstream_type == 'redhat_cdn'
 
 - name: 'Get Red Hat Product names'
   theforeman.foreman.resource_info:
