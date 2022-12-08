@@ -20,7 +20,7 @@
       community.general.rhsm_repository:
         name:
           - 'rhel-7-server-rpms'
-          - 'rhel-7-server-satellite-6.10-rpms'
+          - "rhel-7-server-satellite-{{ foreman_satellite_version }}-rpms"
           - 'rhel-7-server-satellite-maintenance-6-rpms'
           - 'rhel-server-rhscl-7-rpms'
           - 'rhel-7-server-ansible-2.9-rpms'
@@ -36,8 +36,8 @@
             name:
               - 'rhel-8-for-x86_64-baseos-rpms'
               - 'rhel-8-for-x86_64-appstream-rpms'
-              - 'satellite-6.11-for-rhel-8-x86_64-rpms'
-              - 'satellite-maintenance-6.11-for-rhel-8-x86_64-rpms'
+              - "satellite-{{ foreman_satellite_version }}-for-rhel-8-x86_64-rpms"
+              - "satellite-maintenance-{{ foreman_satellite_version }}-for-rhel-8-x86_64-rpms"
             purge: true
             state: 'present'
 

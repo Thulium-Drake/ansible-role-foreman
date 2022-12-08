@@ -20,6 +20,9 @@ foreman_validate_certs: false
 foreman_foreman_version: 3.1
 foreman_katello_version: 4.3
 
+# Satellite version
+foreman_satellite_version: 6.12
+
 # Yum configuration
 foreman_disable_foreman_protector_plugin: true     # Some versions of Foreman by default disable installing
                                                    # packages outside of the foreman-installer. This can
