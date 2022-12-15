@@ -116,6 +116,8 @@ foreman_products: []
 #    gpg_key_file: 'files/gpg_keys/RPM-GPG-KEY-CentOS-7'
 #    # Other fields, more info, check theforeman.foreman.foreman_repositories:
 #    #ignored_content: 'srpms'
+#    #mirror_on_sync: true          # Complete mirror the Repo on sync, deprecated on Katello 4.3+
+#    #mirroring_policy: 'additive'  # additive, mirror_content_only or mirror_complete
 #    #ssl_ca_cert: ''               # Repository SSL CA certificate
 #    #ssl_client_cert: ''           # Repository SSL client certificate
 #    #ssl_client_key: ''            # Repository SSL client certificate key

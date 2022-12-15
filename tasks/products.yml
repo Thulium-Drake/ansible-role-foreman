@@ -66,6 +66,7 @@
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
     url: "{{ repo[1]['url'] | default(omit) }}"
     mirror_on_sync: "{{ repo[0]['mirror_on_sync'] | default(omit) }}"
+    mirroring_policy: "{{ repo[0]['mirroring_policy'] | default(omit) }}"
     content_type: "{{ repo[0]['type'] }}"
     ignoreable_content: "{{ repo[1]['ignored_content'] | default(omit) }}"
     ssl_ca_cert: "{{ repo[1]['ssl_ca_cert'] | default(omit) }}"
