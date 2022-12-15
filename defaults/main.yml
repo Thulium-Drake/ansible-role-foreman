@@ -112,7 +112,8 @@ foreman_products: []
 #      - name: 'Base'
 #        url: 'http://mirror.centos.org/centos/7/os/x86_64'
 #    gpg_key: 'RPM-GPG-KEY-CentOS7'
-#    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'
+#    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'   # Requires Internet access on the Ansible Controller, use gpg_key_file if you don't
+#    gpg_key_file: 'files/gpg_keys/RPM-GPG-KEY-CentOS-7'
 #    # Other fields, more info, check theforeman.foreman.foreman_repositories:
 #    #ignored_content: 'srpms'
 #    #ssl_ca_cert: ''               # Repository SSL CA certificate

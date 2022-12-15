@@ -1,5 +1,5 @@
 ---
-- name: 'Ensure product GPG keys'
+- name: 'Ensure product GPG keys (URL)'
   theforeman.foreman.content_credential:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -12,6 +12,24 @@
     state: 'present'
   loop: "{{ foreman_products }}"
   when: product['gpg_key'] is defined
+  loop_control:
+    loop_var: 'product'
+    label: "{{ product['gpg_key'] }}"
+  no_log: "{{ not foreman_debug }}"
+
+- name: 'Ensure product GPG keys (file)'
+  theforeman.foreman.content_credential:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ product['gpg_key'] }}"
+    content_type: 'gpg_key'
+    content: "{{ lookup('file', product['gpg_key_file']) }}"
+    state: 'present'
+  loop: "{{ foreman_products }}"
+  when: product['gpg_key_file'] is defined
   loop_control:
     loop_var: 'product'
     label: "{{ product['gpg_key'] }}"
