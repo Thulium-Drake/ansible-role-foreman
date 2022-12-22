@@ -211,7 +211,7 @@ foreman_deploy_networks:
     boot_mode: 'Static'           # optional, defaults to DHCP
     locations:  # If not defined, uses foreman_locations
       - 'DC1'
-    smart_proxy: 'foreman.infra.example.com'  # If not defined, will use the global foreman server
+    smart_proxy: 'foreman.infra.example.com'
   - name: 'QA'
     address: '192.168.2.0/24'
     range_start: '192.168.2.150'
