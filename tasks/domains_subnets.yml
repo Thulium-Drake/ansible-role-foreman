@@ -36,7 +36,7 @@
     cidr: "{{ network['address'] | ansible.utils.ipaddr('prefix') }}"
     from_ip: "{{ network['range_start'] }}"
     to_ip: "{{ network['range_end'] }}"
-    boot_mode: 'DHCP'
+    boot_mode: "{{ network['boot_mode'] | default('DHCP') }}"
     dns_proxy: "{{ network['smart_proxy'] }}"
     dhcp_proxy: "{{ network['smart_proxy'] }}"
     tftp_proxy: "{{ network['smart_proxy'] }}"
