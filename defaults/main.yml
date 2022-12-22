@@ -207,7 +207,7 @@ foreman_deploy_networks:
     dns_primary: '192.168.1.1'    # if not defined, will use the IP of the foreman server
     dns_secondary: '192.168.1.1'  # optional
     dns_zone: 'dev.example.com'
-    boot_mode: 'Static'           # optional, defaults to DHCP
+    boot_mode: 'Static'           # optional, Static or DHCP, defaults to DHCP
     locations:  # If not defined, uses foreman_locations
       - 'DC1'
     smart_proxy: 'foreman.infra.example.com'

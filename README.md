@@ -114,6 +114,13 @@ To enable iPXE set ```foreman_deploy_ipxe: true``` and use ```pxe_loader: 'None'
 ### Bug: Error creating OSes
 Remove all the OSes from Hosts -> Operating systems (you can't delete the one where the foreman server is in)
 
+### Limitation: DHCP can only be managed for a single subnet
+Foreman's configuration utilities only support managing a single DHCP subnet in DHCPD, which means that if you have
+a single Foreman instance that is used to install systems in multiple subnets, you'll need to figure out a different
+means of configuring DHCP.
+
+Currently this is under investigation and might change in the future.
+
 ### Limitation: Resources with passwords always change
 Because the Foreman modules can't see the current password set for password fields, these cannot be compared.
 
