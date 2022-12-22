@@ -199,7 +199,6 @@ foreman_autoinstall_discovered_hosts: false
 # The names of the networks must be following the lifecycle path (unless lifecycle is set)
 foreman_deploy_networks:
   - name: 'Development-ExtraNet'
-    lifecycle: 'Development'  # if not defined, will default to the network name. Use only when foreman_activation_keys_per_network is true
     address: '192.168.1.0/24'
     range_start: '192.168.1.150'
     range_end: '192.168.1.200'
@@ -230,9 +229,9 @@ foreman_deploy_networks:
     range_start: '192.168.3.150'
     range_end: '192.168.3.200'
     network_gateway: '192.168.3.1'
-    auth_nameserver: '192.168.3.1' # If not defined, will use the addresses set in the DNS/DHCP scenarios
-    dns_primary: '192.168.3.1'     # if not defined, will use the IP of the foreman server
-    dns_secondary: '192.168.3.1'   # optional
+    auth_nameserver: '192.168.3.1'  # If not defined, will use the addresses set in the DNS/DHCP scenarios
+    dns_primary: '192.168.3.1'      # if not defined, will use the IP of the foreman server
+    dns_secondary: '192.168.3.1'    # optional
     dns_zone: 'prod.example.com'
     locations:
       - 'DC1'
@@ -320,6 +319,7 @@ foreman_smart_proxy_lifecycles: "{{ foreman_lifecycle + foreman_infrastructure_l
 # Deployment settings (Smart Proxies and Foreman 'Master' server)
 # Which network interface to configure DHCP/DNS for the current instance, only for DHCP scenario 'internal'
 foreman_instance_deploy_interface: 'eth0'
+foreman_instance_deploy_network: 'Infra'  # Which network to select in case multiple networks are using the same smart_proxy
 ## end of instance settings
 
 # Enable to allow logging for tasks that can contain sensitive information

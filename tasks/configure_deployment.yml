@@ -10,7 +10,7 @@
 
 - name: 'Retrieve Foreman instance network settings'
   ansible.builtin.set_fact:
-    foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('smart_proxy', 'equalto', ansible_facts['fqdn']) }}"
+    foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('name', 'equalto', foreman_instance_deploy_network) }}"
 
 - name: 'Set up prerequisites for nsupdate scenario'
   block:
