@@ -29,6 +29,22 @@
         state: 'present'
   when: foreman_deploy_dns_scenario == 'nsupdate'
 
+- name: 'Prepare custom-hiera.yaml for additional DHCP subnets'
+  ansible.builtin.blockinfile:
+    path: '/etc/foreman-installer/custom-hiera.yaml'
+    block: |
+      dhcp::pools:
+      {% for network in foreman_deploy_networks | rejectaddr('name', 'equalto', foreman_instance_deploy_network) %}
+        {{ network['name'] }}:
+          network: {{ network['address'] | ansible.utils.ipaddr('network') }}
+          mask: {{ network['address'] | ansible.utils.ipaddr('netmask') }}
+          gateway: {{ network['network_gateway'] }}
+          range: {{ network['range_start'] }} {{ network['range_end'] }}
+      {% endfor %}
+  when:
+    - foreman_instance_dhcp_all_networks
+    - foreman_deploy_dhcp_scenario == 'internal'
+
 - name: 'Configure Foreman instance for deployment'
   ansible.builtin.shell: |
     export LANG="en_US.UTF-8"

@@ -319,7 +319,11 @@ foreman_smart_proxy_lifecycles: "{{ foreman_lifecycle + foreman_infrastructure_l
 # Deployment settings (Smart Proxies and Foreman 'Master' server)
 # Which network interface to configure DHCP/DNS for the current instance, only for DHCP scenario 'internal'
 foreman_instance_deploy_interface: 'eth0'
-foreman_instance_deploy_network: 'Infra'  # Which network to select in case multiple networks are using the same smart_proxy
+# Which network to select in case multiple networks are using the same smart_proxy
+foreman_instance_deploy_network: 'Infra'
+# Configure the DHCP server in this instance for all foreman_deploy_networks
+# NOTE: The effects of this setting in environments with Smart proxies is NOT tested!
+foreman_instance_dhcp_all_networks: false
 ## end of instance settings
 
 # Enable to allow logging for tasks that can contain sensitive information
