@@ -34,7 +34,7 @@
     path: '/etc/foreman-installer/custom-hiera.yaml'
     block: |
       dhcp::pools:
-      {% for network in foreman_deploy_networks | rejectaddr('name', 'equalto', foreman_instance_deploy_network) %}
+      {% for network in foreman_deploy_networks | rejectattr('name', 'equalto', foreman_instance_deploy_network) %}
         {{ network['name'] }}:
           network: {{ network['address'] | ansible.utils.ipaddr('network') }}
           mask: {{ network['address'] | ansible.utils.ipaddr('netmask') }}
