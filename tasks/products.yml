@@ -11,7 +11,7 @@
     content: "{{ lookup('url', product['gpg_key_url'], split_lines=False) }}"
     state: 'present'
   loop: "{{ foreman_products }}"
-  when: product['gpg_key'] is defined
+  when: product['gpg_key_url'] is defined
   loop_control:
     loop_var: 'product'
     label: "{{ product['gpg_key'] }}"
