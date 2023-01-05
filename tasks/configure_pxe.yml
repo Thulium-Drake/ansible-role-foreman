@@ -43,6 +43,7 @@
       file: 'ipxe_global_default_custom.template'
   loop_control:
     loop_var: 'template'
+  when: foreman_discovery_image_autodetect
 
 - name: 'Ensure Global Default PXE Template Settings'
   theforeman.foreman.setting:

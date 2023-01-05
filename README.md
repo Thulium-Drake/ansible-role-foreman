@@ -45,6 +45,8 @@ _x-foreman._tcp.dev.example.com 600 IN  SRV 0 5 443 foreman.dev.example.com
 _x-foreman._tcp.dev.example.com 600 IN  SRV 0 5 8443 fm-proxy.dev.example.com
 ```
 
+If your environment does not work with these records, you can also set foreman_discovery_image_autodetect to false. This will use the default settings for Foreman. Those might break when using Smart Proxies.
+
 ## Installing Smart Proxies
 Some of the settings used for Smart Proxies are shared with the Foreman server. In order to prevent duplicate
 settings, the following inventory is suggested

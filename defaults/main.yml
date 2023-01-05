@@ -191,6 +191,10 @@ foreman_configure_deployment: true
 # Configure iPXE for deployment (will override other PXE methods)
 foreman_deploy_ipxe: false
 
+# Configure the FDI to use DNS SRV records to autodetect the Foreman server
+# NOTE: this can have undesiredably effects when using Smart Proxies
+foreman_discovery_image_autodetect: true
+
 # Automatically install discovered hosts according to defined Discovery Rules
 foreman_autoinstall_discovered_hosts: false
 
