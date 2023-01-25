@@ -43,7 +43,6 @@
       file: 'ipxe_global_default_custom.template'
   loop_control:
     loop_var: 'template'
-  when: foreman_discovery_image_autodetect
 
 - name: 'Ensure Global Default PXE Template Settings'
   theforeman.foreman.setting:
@@ -62,6 +61,7 @@
       value: 'iPXE global default custom'
   loop_control:
     loop_var: 'setting'
+  when: foreman_discovery_image_autodetect
 
 - name: 'Ensure Setting for booting unknown hosts'
   theforeman.foreman.setting:
