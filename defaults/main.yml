@@ -111,6 +111,9 @@ foreman_products: []
 #                  # For details https://theforeman.github.io/foreman-ansible-modules/v1.0.1/modules/repository_module.html#repository-module
 #      - name: 'Base'
 #        url: 'http://mirror.centos.org/centos/7/os/x86_64'
+#      - name: 'Base-Unsigned'
+#        url: 'http://mirror.centos.org/centos/7/os/x86_64'
+#        no_gpg_key: true  # Disable GPG verification for a specific repo
 #    gpg_key: 'RPM-GPG-KEY-CentOS7'
 #    gpg_key_url: 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7'   # Requires Internet access on the Ansible Controller, use gpg_key_file if you don't
 #    gpg_key_file: 'files/gpg_keys/RPM-GPG-KEY-CentOS-7'
