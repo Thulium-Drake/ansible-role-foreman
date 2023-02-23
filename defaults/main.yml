@@ -10,6 +10,9 @@ foreman_foreman_admin_group: 'ipa_foreman_admins'  # name of the group in the Fo
 foreman_ipa_server: 'ipa.example.com'              # hostname of the IPA server to which the Foreman server is joined
                                                    # Ansible needs to have access to this server
 
+foreman_ipa_admin_readwrite: true                  # Should the IPA authenticated users have write permissions
+                                                   # this can be undireable in environments where Foreman is
+                                                   # fully managed by Ansible
 # Server information
 foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman'  # or satellite

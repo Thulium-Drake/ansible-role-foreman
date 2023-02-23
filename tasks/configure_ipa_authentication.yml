@@ -29,8 +29,8 @@
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ foreman_foreman_admin_group }}"
     roles:
-      - 'System admin'
-    admin: true
+      - "{{ (foreman_ipa_admin_readwrite) | ternary('System Admin', 'Viewer') }}"
+    admin: "{{ foreman_ipa_admin_readwrite }}"
 
 - name: 'Configure Foreman IPA admin group'
   theforeman.foreman.external_usergroup:
