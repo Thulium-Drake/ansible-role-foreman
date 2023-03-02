@@ -60,6 +60,8 @@ foreman_run_content_sync: true    # Disable to skip content sync task during the
                                   # This is mainly meant for config runs after the initial sync, as the repository
                                   # attribute 'download_concurrency' breaks idempotency
                                   # https://github.com/theforeman/foreman-ansible-modules/pull/1303
+foreman_publish_pause: 5          # Amount of minutes to wait when publishing new CV versions before
+                                  # promoting COVs
 
 # HTTP proxy information
 foreman_http_proxy_policy: 'none'  # or global_default_http_proxy

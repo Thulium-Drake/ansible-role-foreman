@@ -72,7 +72,7 @@
 
     - name: 'Wait for COV autopublish to settle'
       pause:
-        minutes: 5
+        minutes: "{{ foreman_publish_pause | default(5) }}"
       when: input_cvs_list | length > 0
 
     - name: 'Publish new version for all COVs for selected Lifecycle environments'  # noqa no-handler
