@@ -34,7 +34,6 @@ local Clone() = {
           "ansible-galaxy collection install theforeman.foreman",
           "ansible-galaxy collection install ansible.posix",
           "molecule --version",
-          "molecule lint",
           "molecule syntax"
         ],
         privileged: true,
