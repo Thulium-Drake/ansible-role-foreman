@@ -12,7 +12,7 @@
     foreman_installer_package: 'foreman-installer-katello'
     foreman_installer_scenario: 'katello'
 
-- name: 'Set installer options'
+- name: 'Set installer options'  # yamllint disable rule:line-length
   ansible.builtin.set_fact:
     foreman_installer_options:
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
@@ -25,6 +25,7 @@
 
 - name: 'Run Katello upgrade check'
   ansible.builtin.command: foreman-rake katello:upgrade_check
+  changed_when: false
   when: foreman_upgrade
 
 - name: 'Install EPEL on EL7'

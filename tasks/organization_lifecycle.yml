@@ -32,7 +32,7 @@
     organization: "{{ foreman_organization }}"
     name: "{{ infra_lifecycle }}"
     description: 'Managed by Ansible, your changes will be lost'
-    prior: "{{ foreman_infrastructure_lifecycle[index-1] }}"
+    prior: "{{ foreman_infrastructure_lifecycle[index - 1] }}"
     state: 'present'
   loop: "{{ foreman_infrastructure_lifecycle }}"
   when: infra_lifecycle != 'Library'
@@ -49,7 +49,7 @@
     organization: "{{ foreman_organization }}"
     name: "{{ lifecycle }}"
     description: 'Managed by Ansible, your changes will be lost'
-    prior: "{{ foreman_lifecycle[index-1] }}"
+    prior: "{{ foreman_lifecycle[index - 1] }}"
     state: 'present'
   loop: "{{ foreman_lifecycle }}"
   when: lifecycle != 'Library'

@@ -60,7 +60,7 @@
   ansible.builtin.copy:
     src: "/tmp/{{ ansible_facts['fqdn'] | lower }}.tar"
     dest: '/root'
-    mode: 0600
+    mode: '0600'
 
 - name: 'Remove certificate tar from Ansible Controller'
   ansible.builtin.file:

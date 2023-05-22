@@ -3,7 +3,7 @@
   hosts: 'foreman'
   tasks:
     - name: 'Run Foreman role'
-      import_role:
+      ansible.builtin.import_role:
         name: 'foreman'
         tasks_from: 'install_satellite.yml'
 
@@ -11,6 +11,6 @@
   hosts: 'foreman_proxies'
   tasks:
     - name: 'Run Foreman role'
-      import_role:
+      ansible.builtin.import_role:
         name: 'foreman'
         tasks_from: 'install_satellite_capsule.yml'

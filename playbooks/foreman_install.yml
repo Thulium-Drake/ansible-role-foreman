@@ -5,7 +5,7 @@
     foreman_upgrade: false  # Set to true to upgrade current Foreman server
   tasks:
     - name: 'Run Foreman role'
-      import_role:
+      ansible.builtin.import_role:
         name: 'foreman'
         tasks_from: 'install_foreman.yml'
 
@@ -13,6 +13,6 @@
   hosts: 'foreman_proxies'
   tasks:
     - name: 'Run Foreman role'
-      import_role:
+      ansible.builtin.import_role:
         name: 'foreman'
         tasks_from: 'install_foreman_smartproxy.yml'

@@ -1,6 +1,7 @@
 ---
-- name: 'restart foreman'
-  shell: |
+- name: 'Restart foreman'
+  ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
     /bin/foreman-maintain service restart
+  changed_when: true

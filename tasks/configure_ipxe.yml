@@ -11,7 +11,7 @@
     remote_src: true
     owner: 'foreman-proxy'
     group: 'root'
-    mode: 0644
+    mode: '0644'
     seuser: 'system_u'
     serole: 'object_r'
     setype: 'cobbler_var_lib_t'
@@ -21,7 +21,7 @@
   loop_control:
     loop_var: 'image'
 
-- name: 'Ensure DHCP settings for iPXE'
+- name: 'Ensure DHCP settings for iPXE'  # yamllint disable rule:line-length
   ansible.builtin.copy:
     dest: '/etc/dhcp/dhcpd-ipxe.conf'
     content: |
@@ -38,14 +38,14 @@
       }
     owner: 'root'
     group: 'dhcpd'
-    mode: 0444
+    mode: '0444'
 
 - name: 'Configure DHCP server for iPXE'
   ansible.builtin.lineinfile:
     path: '/etc/foreman-installer/custom-hiera.yaml'
     owner: 'root'
     group: 'root'
-    mode: 0444
+    mode: '0444'
     line: 'dhcp::includes: "/etc/dhcp/dhcpd-ipxe.conf"'
     regexp: '^dhcp::includes'
   register: 'set_dhcp_includes'

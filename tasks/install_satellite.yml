@@ -71,6 +71,7 @@
       ansible.builtin.shell: |
         cd /mnt/sat_iso
         ./install_packages
+      changed_when: true
 
 - name: 'Enable Satellite firewalld service'
   ansible.posix.firewalld:

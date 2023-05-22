@@ -3,7 +3,7 @@
   ansible.builtin.copy:
     src: "{{ foreman_rh_subscription_manifest }}"
     dest: '/root/{{ foreman_organization }}-manifest.zip'
-    mode: 0600
+    mode: '0600'
 
 - name: 'Upload or refresh manifest to Satellite'
   when: foreman_rh_subscription_manifest_refresh
@@ -46,7 +46,7 @@
     organization: "{{ foreman_organization }}"
     label: "{{ redhat_repo['label'] }}"
     repositories: "{{ redhat_repo['repositories'] | default(omit) }}"
-    all_repositories: "{{ (redhat_repo['repositories'] is defined ) | ternary(false, true) }}"
+    all_repositories: "{{ (redhat_repo['repositories'] is defined) | ternary(false, true) }}"
   loop: "{{ foreman_redhat_repositories }}"
   loop_control:
     loop_var: 'redhat_repo'
@@ -68,7 +68,7 @@
 
 - name: 'Set Red Hat Product list'
   ansible.builtin.set_fact:
-    redhat_product_list: "{{ redhat_product_list | default([]) + [ product_info['resources'][0]['product']['name'] ] }}"
+    redhat_product_list: "{{ redhat_product_list | default([]) + [product_info['resources'][0]['product']['name']] }}"
   loop: "{{ redhat_products['results'] }}"
   loop_control:
     loop_var: 'product_info'

@@ -13,13 +13,14 @@
     foreman_instance_network_settings: "{{ foreman_deploy_networks | selectattr('name', 'equalto', foreman_instance_deploy_network) }}"
 
 - name: 'Set up prerequisites for nsupdate scenario'
+  when: foreman_deploy_dns_scenario == 'nsupdate'
   block:
     - name: 'Check permissions on rndc key'
       ansible.builtin.file:
         path: "{{ foreman_deploy_dns_rndc_key }}"
         owner: 'root'
         group: 'foreman-proxy'
-        mode: 0640
+        mode: '0640'
         setype: 'dnssec_t'
         serole: 'object_r'
 
@@ -27,7 +28,6 @@
       ansible.builtin.package:
         name: 'bind-utils'
         state: 'present'
-  when: foreman_deploy_dns_scenario == 'nsupdate'
 
 - name: 'Prepare custom-hiera.yaml for additional DHCP subnets'
   ansible.builtin.blockinfile:
@@ -45,13 +45,13 @@
     - foreman_instance_dhcp_all_networks
     - foreman_deploy_dhcp_scenario == 'internal'
 
-- name: 'Configure Foreman instance for deployment'
+- name: 'Configure Foreman instance for deployment'  # yamllint disable rule:line-length
   ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
     /usr/sbin/foreman-installer \
-    {{ lookup('vars', 'foreman_dns_scenario_' + foreman_deploy_dns_scenario ) }}
-    {{ lookup('vars', 'foreman_dhcp_scenario_' + foreman_deploy_dhcp_scenario ) }}
+    {{ lookup('vars', 'foreman_dns_scenario_' + foreman_deploy_dns_scenario) }}
+    {{ lookup('vars', 'foreman_dhcp_scenario_' + foreman_deploy_dhcp_scenario) }}
     --foreman-proxy-templates true \
     --foreman-trusted-proxies {{ ansible_facts[foreman_instance_deploy_interface]['ipv4']['address'] }} \
     --foreman-proxy-httpboot true \

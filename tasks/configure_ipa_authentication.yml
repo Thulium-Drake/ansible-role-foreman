@@ -16,7 +16,7 @@
   register: 'installer_output'
   changed_when: installer_output['rc'] == 2
   failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
-  notify: 'restart foreman'
+  notify: 'Restart foreman'
 
 - name: 'Restart services'
   ansible.builtin.meta: 'flush_handlers'

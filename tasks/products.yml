@@ -44,7 +44,7 @@
     organization: "{{ foreman_organization }}"
     name: "{{ product['name'] }}"
     description: 'Managed by Ansible, your changes will be lost'
-    sync_plan: "{{ (product['no_sync'] | default(false)) |ternary(omit, 'Daily repo sync') }}"
+    sync_plan: "{{ (product['no_sync'] | default(false)) | ternary(omit, 'Daily repo sync') }}"
     state: 'present'
   loop: "{{ foreman_products }}"
   loop_control:
@@ -52,7 +52,7 @@
     label: "{{ product['name'] }}"
   no_log: "{{ not foreman_debug }}"
 
-- name: 'Ensure product repositories'
+- name: 'Ensure product repositories'  # yamllint disable rule:line-length
   theforeman.foreman.repository:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
@@ -80,7 +80,7 @@
     gpg_key: "{{ (repo[1]['no_gpg_key'] | default(False) or repo[0]['type'] == 'docker') | ternary(omit, repo[0]['gpg_key']) }}"
     state: 'present'
   register: 'repo_created'
-  loop: "{{ foreman_products | ansible.builtin.subelements('repositories', { 'skip_missing': true}) }}"
+  loop: "{{ foreman_products | ansible.builtin.subelements('repositories', {'skip_missing': true}) }}"
   loop_control:
     loop_var: 'repo'
     label: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
@@ -92,7 +92,7 @@
 
 - name: 'Set Product list'
   ansible.builtin.set_fact:
-    product_list: "{{ product_list + [ product['repo'][0]['name'] ] }}"
+    product_list: "{{ product_list + [product['repo'][0]['name']] }}"
   when: >
     product['changed'] and ((product['repo'][0]['no_sync'] is defined and not product['repo'][0]['no_sync']) or
     product['repo'][0]['no_sync'] is not defined)

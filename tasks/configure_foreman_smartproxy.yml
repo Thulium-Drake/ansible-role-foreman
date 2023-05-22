@@ -1,5 +1,6 @@
 ---
 - name: 'Configure Host Deployment and Discovery'
+  when: foreman_configure_deployment
   block:
     - name: 'Configure Foreman for deployment'
       ansible.builtin.include_tasks: 'configure_deployment.yml'
@@ -17,7 +18,6 @@
       register: 'installer_output'
       changed_when: installer_output['rc'] == 2
       failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
-  when: foreman_configure_deployment
 
 - name: 'Update Foreman Smart Proxy Config'
   theforeman.foreman.smart_proxy:

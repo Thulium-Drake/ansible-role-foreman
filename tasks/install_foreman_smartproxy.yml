@@ -13,7 +13,7 @@
       {{ ansible_user }} ALL = (ALL) NOPASSWD : ALL
       Defaults:{{ ansible_user }} !requiretty
     dest: '/etc/sudoers.d/foreman_sudo'
-    mode: 0640
+    mode: '0640'
 
 - name: 'Get Pulp repo'
   theforeman.foreman.resource_info:
@@ -66,7 +66,7 @@
   ansible.builtin.copy:
     src: "/tmp/{{ ansible_facts['fqdn'] }}.tar"
     dest: '/root'
-    mode: 0600
+    mode: '0600'
 
 - name: 'Remove certificate tar from Ansible Controller'
   ansible.builtin.file:
@@ -79,7 +79,7 @@
     foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--detailed-exitcodes'] }}"
   when: foreman_puppet_enabled
 
-- name: 'Compose foreman-installer command'
+- name: 'Compose foreman-installer command'  # yamllint disable rule:line-length
   ansible.builtin.set_fact:
     foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false --detailed-exitcodes --no-lock-package-versions'] }}"  # noqa yaml
   when: not foreman_puppet_enabled

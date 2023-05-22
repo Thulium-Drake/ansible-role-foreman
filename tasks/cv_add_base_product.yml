@@ -5,7 +5,7 @@
 
 - name: 'Make repo list for content views'
   ansible.builtin.set_fact:
-    cv_repo_list: "{{ cv_repo_list + [{'product': item['name'], 'name': item['name'] + '-' + repo['name'] } ] }}"
+    cv_repo_list: "{{ cv_repo_list + [{'product': item['name'], 'name': item['name'] + '-' + repo['name']}] }}"
   loop: "{{ item['repositories'] }}"
   loop_control:
     loop_var: 'repo'

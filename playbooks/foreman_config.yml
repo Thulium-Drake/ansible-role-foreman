@@ -4,7 +4,7 @@
   hosts: 'foreman'
   tasks:
     - name: 'Configure Foreman'
-      import_role:
+      ansible.builtin.import_role:
         name: 'foreman'
 
     - name: 'Create user for Ansible'
@@ -34,6 +34,6 @@
   hosts: 'foreman_proxies'
   tasks:
     - name: 'Run Foreman role'
-      import_role:
+      ansible.builtin.import_role:
         name: 'foreman'
         tasks_from: 'configure_foreman_smartproxy.yml'
