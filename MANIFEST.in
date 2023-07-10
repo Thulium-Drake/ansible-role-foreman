@@ -1,0 +1,6 @@
+# Include all
+global-include *
+
+# Exclude dynamic or external stuff
+global-exclude *.swp *.pyc
+recursive-exclude .git *
