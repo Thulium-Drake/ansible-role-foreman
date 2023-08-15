@@ -4,9 +4,10 @@
     src: "{{ foreman_rh_subscription_manifest }}"
     dest: '/root/{{ foreman_organization }}-manifest.zip'
     mode: '0600'
+  register: 'foreman_upload_subscriptions'
 
 - name: 'Upload or refresh manifest to Satellite'
-  when: foreman_rh_subscription_manifest_refresh
+  when: foreman_rh_subscription_manifest_refresh or foreman_upload_subscriptions['changed']
   block:
     - name: 'Refresh manifest'
       theforeman.foreman.subscription_manifest:
