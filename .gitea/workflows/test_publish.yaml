@@ -1,0 +1,42 @@
+---
+name: Converge test & publish
+run-name: Checking role and publish on Ansible Galaxy
+on:  # yamllint disable-line rule:truthy
+  schedule:
+    - cron: '@weekly'
+  push:
+    branches:
+      - 'master'
+      - 'main'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_KEY }}
+          ssh-known-hosts: ${{ secrets.SSH_HOST_KEY }}
+      - name: Ensure Python
+        uses: https://github.com/actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Molecule and dependencies
+        run: |
+          python -m pip install molecule molecule_docker ansible ansible-lint ansible-merge-vars yamllint
+          molecule --version
+      - name: Molecule tests
+        run: |
+          cd ${{ gitea.workspace }}
+          molecule syntax
+          molecule converge
+          molecule idempotence
+          molecule destroy
+      - name: Publish to Galaxy
+        run: |
+          cd ${{ gitea.workspace }}
+          ansible-galaxy import --token $GALAXY_TOKEN Thulium-Drake ansible-role-${GITEA_REPO_NAME##*-} --role-name=${GITEA_REPO_NAME##*-}
+        env:
+          GALAXY_TOKEN: ${{ secrets.ANSIBLE_GALAXY_TOKEN }}
+          GITEA_REPO_NAME: ${{ gitea.repository }}
