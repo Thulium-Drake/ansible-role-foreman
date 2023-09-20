@@ -80,6 +80,9 @@
     permanent: true
     immediate: true
 
+- name: 'Gather Package facts'
+  ansible.builtin.package_facts:
+
 - name: 'Set installer options'
   ansible.builtin.set_fact:
     foreman_installer_options:
