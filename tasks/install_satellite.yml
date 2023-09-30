@@ -54,9 +54,6 @@
           - 'satellite'
         state: 'present'
 
-    - name: 'Collect package versions'
-      ansible.builtin.package_facts:
-
 - name: 'Install Red Hat Satellite from ISO'
   when: foreman_satellite_offline_install
   block:
