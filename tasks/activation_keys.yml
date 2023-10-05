@@ -16,7 +16,7 @@
       {{ key_lifecycle['host_collection'] +
       [key['name'] | lower] +
       [key['os'] | lower] }}
-    release_version: "{{ key['release_version'] }}"
+    release_version: "{{ key['release_version'] | default(omit) }}"
   loop: "{{ foreman_activation_keys }}"
   when:
     - key['os'] == key_lifecycle['os']
