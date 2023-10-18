@@ -3,6 +3,19 @@
   ansible.builtin.package_facts:
   tags: 'always'
 
+- name: 'Ensure hammer credential file'
+  ansible.builtin.copy:
+    dest: '/root/.hammer/cli.modules.d/foreman.yml'
+    content: |
+      # Maintained by Ansible, YOUR CHANGES WILL BE LOST!
+      :foreman:
+        :username: '{{ foreman_admin_user }}'
+        :password: '{{ foreman_admin_password }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  no_log: "{{ not foreman_debug }}"
+
 - name: 'Check input'
   ansible.builtin.assert:
     that:
