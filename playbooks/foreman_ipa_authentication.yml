@@ -1,8 +1,0 @@
----
-- name: 'Configure IPA authentication for Foreman'
-  hosts: 'foreman'
-  tasks:
-    - name: 'Run Foreman Role'
-      ansible.builtin.import_role:
-        name: 'foreman'
-        tasks_from: 'configure_ipa_authentication.yml'
