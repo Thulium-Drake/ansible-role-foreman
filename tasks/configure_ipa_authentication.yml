@@ -28,9 +28,8 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ foreman_foreman_admin_group }}"
-    roles:
-      - "{{ (foreman_ipa_admin_readwrite) | ternary('System admin', 'Viewer') }}"
-    admin: "{{ foreman_ipa_admin_readwrite }}"
+    roles: "{{ foreman_ipa_admin_group_roles }}"
+    admin: "{{ foreman_ipa_admin_group_superuser }}"
 
 - name: 'Configure Foreman IPA admin group'
   theforeman.foreman.external_usergroup:
