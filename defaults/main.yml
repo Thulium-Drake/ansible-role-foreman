@@ -11,7 +11,7 @@ foreman_ipa_server: 'ipa.example.com'              # hostname of the IPA server 
 foreman_ipa_admin_group: 'foreman_admins'          # name of the group in the IPA domain
 foreman_foreman_admin_group: 'ipa_foreman_admins'  # name of the group in the Foreman Server
 foreman_ipa_admin_group_superuser: true            # makes members of the group superuser in Foreman
-foreman_ipa_admin_roles: []                        # Which system roles to assign to members of this group
+foreman_ipa_admin_group_roles: []                  # Which system roles to assign to members of this group
                                                    # NOTE: setting superuser permissions nullifies this!
 # Server information
 foreman_url: 'https://foreman.example.com'
