@@ -78,12 +78,15 @@ foreman_rh_subscription_manifest_refresh: false                 # Automatically 
                                                                 # sometimes this fails and it is only required
                                                                 # when there have been changes in the manifest
                                                                 # that need to be imported
+# Which upstream source to use to download repositories from
 foreman_redhat_cdn_url: 'https://cdn.redhat.com'
+
+# Define which repositories need to be synced
 foreman_redhat_repositories:
-  - label: 'rhel-7-server-rpms'
-    repositories:
-      - releasever: "7Server"
-        basearch: "x86_64"
+  - label: 'rhel-7-server-rpms'  # Label of the repository, you can find it in the Satellite WebUI
+    repositories:                # Optional, which release and architecture you want to download
+      - releasever: "7Server"    # When not defined, it will download all repos found under the label
+        basearch: "x86_64"       #
 
 # Set the environments in the order you wish to have them
 foreman_lifecycle:
