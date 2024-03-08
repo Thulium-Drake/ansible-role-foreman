@@ -13,7 +13,7 @@
 
         Use 'none' for promoting existing versions to other Lifecycles, define CVs if you want to make new versions
 
-        NOTE: You MUST follow the Lifecycle Paths.
+        NOTE: You MUST follow the Lifecycle Paths. If you want to force an update anyway, set foreman_force_promote to true
       default: 'all'
       private: false
 
@@ -24,17 +24,18 @@
 
   tasks:
     - name: 'Process input'
-      set_fact:
+      ansible.builtin.set_fact:
         input_cvs_list: []
 
     - name: 'Process input'
-      set_fact:
+      ansible.builtin.set_fact:
         input_cvs_list: "{{ input_cvs.split(',') }}"
       when:
         - input_cvs != 'all'
         - input_cvs != 'none'
 
     - name: 'Process input'
+      when: input_cvs == 'all'
       block:
         - name: 'Get all CVs from Foreman'
           theforeman.foreman.resource_info:
@@ -48,13 +49,12 @@
           register: 'content_view_info'
 
         - name: 'Process output'
-          set_fact:
-            input_cvs_list: "{{ input_cvs_list + [ item['name'] ] }}"
+          ansible.builtin.set_fact:
+            input_cvs_list: "{{ input_cvs_list + [item['name']] }}"
           loop: "{{ content_view_info['resources'] }}"
-      when: input_cvs == 'all'
 
     - name: 'Process input'
-      set_fact:
+      ansible.builtin.set_fact:
         input_env_list: "{{ input_envs.split(',') }}"
 
     - name: 'Publish new CV versions'
@@ -71,7 +71,7 @@
       register: 'content_view_published'
 
     - name: 'Wait for COV autopublish to settle'
-      pause:
+      ansible.builtin.pause:
         minutes: "{{ foreman_publish_pause | default(5) }}"
       when: input_cvs_list | length > 0
 
@@ -89,7 +89,7 @@
       loop: "{{ foreman_composite_content_views }}"
       loop_control:
         loop_var: 'comp_content_view'
-      when: content_view_published.changed
+      when: content_view_published['changed']
 
     - name: 'Promote all COVs for selected Lifecycle environments'  # noqa no-handler
       theforeman.foreman.content_view_version:
@@ -98,11 +98,12 @@
         server_url: "{{ foreman_url }}"
         validate_certs: "{{ foreman_validate_certs }}"
         organization: "{{ foreman_organization }}"
-        content_view: "{{ comp_content_view.name }}"
+        content_view: "{{ comp_content_view['name'] }}"
+        force_promote: "{{ foreman_force_promote | default(false) }}"
         lifecycle_environments: "{{ input_env_list }}"
         current_lifecycle_environment: 'Library'
         force_yum_metadata_regeneration: true
       loop: "{{ foreman_composite_content_views }}"
       loop_control:
         loop_var: 'comp_content_view'
-      when: not content_view_published.changed or content_view_published.changed is not defined
+      when: not content_view_published['changed'] or content_view_published['changed'] is not defined
