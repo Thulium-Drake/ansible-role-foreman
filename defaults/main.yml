@@ -36,12 +36,14 @@ foreman_puppet_enabled: false
 foreman_katello_agent_enabled: false
 
 # Satellite installation information
-foreman_redhat_register_satellite: false  # Set to true to use credentials below to auto-register Satllite
-                                          # during installation.
-foreman_redhat_support_user: 'user@example.com'
-foreman_redhat_support_password: 'mysecretpassword'
-foreman_satellite_offline_install: false  # When true, make sure to set the ISO location below
-foreman_satellite_dvd_drive: '/dev/sr0'   # this role assumes you mount the ISO to a VM as a drive
+foreman_redhat_register_satellite: false   # Set to true to use credentials below to auto-register Satllite
+                                           # during installation.
+foreman_redhat_support_org_id: ''          # RH Organization ID
+foreman_redhat_support_activation_key: ''  # RH activation key
+foreman_redhat_support_user: ''            # RH support login name
+foreman_redhat_support_password: ''        # RH Support login password
+foreman_satellite_offline_install: false   # When true, make sure to set the ISO location below
+foreman_satellite_dvd_drive: '/dev/sr0'    # this role assumes you mount the ISO to a VM as a drive
 
 # Satellite-specific features
 foreman_simple_content_mode: false  # Set to true for Simple Content Mode, which eases subscription management

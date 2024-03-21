@@ -4,8 +4,10 @@
   block:
     - name: 'Ensure Red Hat Subscriptions'
       community.general.redhat_subscription:
-        username: "{{ foreman_redhat_support_user }}"
-        password: "{{ foreman_redhat_support_password }}"
+        username: "{{ foreman_redhat_support_user | default(omit, true) }}"
+        password: "{{ foreman_redhat_support_password | default(omit, true) }}"
+        activationkey: "{{ foreman_redhat_support_activation_key | default(omit, true) }}"
+        org_id: "{{ foreman_redhat_support_org_id | default(omit, true) }}"
         auto_attach: true
         pool: 'Red Hat Satellite'
         state: 'present'
