@@ -53,4 +53,12 @@ jobs:
         if: always()
         run: |
           cd ${{ gitea.workspace }}
-          molecule destroy
+          if test -e molecule/default/test.convergence
+          then
+            for i in $(cat molecule/default/test.convergence)
+            do
+              MOLECULE_DISTRO=$i molecule destroy
+            done
+          else
+            molecule destroy
+          fi
