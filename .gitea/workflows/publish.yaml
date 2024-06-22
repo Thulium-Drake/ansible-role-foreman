@@ -55,3 +55,8 @@ jobs:
         env:
           GALAXY_TOKEN: ${{ secrets.ANSIBLE_GALAXY_TOKEN }}
           GITEA_REPO_NAME: ${{ gitea.repository }}
+      - name: Clean up our mess
+        if: always()
+        run: |
+          cd ${{ gitea.workspace }}
+          molecule destroy

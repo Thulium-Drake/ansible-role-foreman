@@ -49,3 +49,8 @@ jobs:
               echo "Distro $i succes"
             done
           fi
+      - name: Clean up our mess
+        if: always()
+        run: |
+          cd ${{ gitea.workspace }}
+          molecule destroy
