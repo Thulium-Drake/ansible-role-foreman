@@ -4,6 +4,8 @@
     that:
       - foreman_deploy_dns_scenario in foreman_deploy_dns_scenarios
       - foreman_deploy_dhcp_scenario in foreman_deploy_dhcp_scenarios
+      - foreman_instance_deploy_network | length > 0
+      - foreman_instance_deploy_interface | length > 0
 
 - name: 'Get Package Versions'
   ansible.builtin.package_facts:
