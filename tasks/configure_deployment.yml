@@ -93,7 +93,7 @@
   environment: "{{ proxy_env }}"
 
 - name: 'Ensure Discovery Image present (Satellite)'
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name: 'foreman-discovery-image'
     state: 'present'
     disable_plugin: 'foreman-protector'

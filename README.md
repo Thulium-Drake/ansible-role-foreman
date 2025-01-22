@@ -4,13 +4,13 @@ This role provides a means to provision a Foreman or Satellite server with an or
 
 This role requires the following Ansible Collections in order to work:
 
-* 'theforeman.foreman' 3.4.0 or higher
-* 'ansible.utils' 2.6.0 or higher
-* 'ansible.posix' 1.4.0 or higher
+* 'theforeman.foreman' 4.0.0 or higher
+* 'ansible.utils' 5.0.0 or higher
+* 'ansible.posix' 1.6.0 or higher
 
-Tested with Ansible 2.12 and higher
+Tested with Ansible 2.16 and higher
 
-This role supports Foreman 3.2 / Katello 4.4 and up or Red Hat Satellite 6.11 and up.
+This role supports Foreman 3.13 / Katello 4.15 and up or Red Hat Satellite 6.15 and up.
 
 Other requirements on the Ansible controller:
 
@@ -164,4 +164,3 @@ foreman_operating_systems:
       - name: 'autopart_options'
         value: '--nohome'
 ```
-

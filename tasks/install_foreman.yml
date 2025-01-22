@@ -28,12 +28,6 @@
   changed_when: false
   when: foreman_upgrade
 
-- name: 'Install EPEL on EL7'
-  ansible.builtin.yum:
-    name: 'epel-release'
-    state: 'present'
-  when: ansible_facts['distribution_major_version'] == '7'
-
 - name: 'Run common tasks'
   ansible.builtin.include_tasks: 'install_foreman_common.yml'
 
@@ -55,7 +49,7 @@
     state: 'absent'
 
 - name: 'Upgrade all installed packages'  # noqa package-latest
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name: '*'
     state: 'latest'
     update_cache: true

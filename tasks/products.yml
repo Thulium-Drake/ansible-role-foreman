@@ -61,8 +61,8 @@
     organization: "{{ foreman_organization }}"
     download_policy: "{{ (repo[0]['type'] == 'docker' or repo[0]['type'] == 'file') | ternary(omit, repo[0]['download_policy']) | default(foreman_download_policy) }}"  # noqa yaml
     download_concurrency: "{{ repo[0]['download_concurrency'] | default(omit) }}"
-    http_proxy_policy: "{{ foreman_http_proxy_policy | default('none') }}"
-    http_proxy: "{{ repo[0]['proxy'] | default(omit) }}"
+    http_proxy_policy: "{{ repo[1]['http_proxy_policy'] | default(foreman_http_proxy_policy) }}"
+    http_proxy: "{{ repo[1]['http_proxy'] | default(omit) }}"
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
     url: "{{ repo[1]['url'] | default(omit) }}"
     mirror_on_sync: "{{ repo[0]['mirror_on_sync'] | default(omit) }}"

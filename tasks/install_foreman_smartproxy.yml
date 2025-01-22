@@ -34,7 +34,7 @@
   changed_when: true
 
 - name: 'Install dependencies'
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - 'foreman-proxy-content'
       - 'puppet-agent-oauth'
