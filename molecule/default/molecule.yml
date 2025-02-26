@@ -15,7 +15,8 @@ platforms:
     privileged: true
 provisioner:
   name: 'ansible'
-  env:
-    ANSIBLE_COLLECTIONS_PATHS: '/root/.ansible/collections'
+  config_options:
+    collections_path: "$MOLECULE_PROJECT_DIRECTORY/../.ansible"
+    roles_path: "$MOLECULE_PROJECT_DIRECTORY/.."
 verifier:
   name: 'ansible'

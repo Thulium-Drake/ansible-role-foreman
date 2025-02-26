@@ -1,3 +1,4 @@
 molecule/default/tests/__pycache__/
 *.swp
 *.pyc
+.ansible
