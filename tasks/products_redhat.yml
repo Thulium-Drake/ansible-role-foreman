@@ -67,6 +67,25 @@
     loop_var: 'product'
   register: 'redhat_products'
 
+- name: 'Ensure download_policy for Red Hat repositories'
+  theforeman.foreman.repository:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ repo['resources'][0]['repositories'][0]['name'] }}"
+    product: "{{ repo['resources'][0]['product']['name'] }}"
+    content_type: "{{ (repo['resources'][0]['type'] == 'kickstart') | ternary('yum', repo['resources'][0]['type']) }}"
+    download_policy: "{{ repo['product']['download_policy'] }}"
+    state: 'present'
+  when: repo['product']['download_policy'] is defined
+  loop: "{{ redhat_products['results'] }}"
+  loop_control:
+    loop_var: 'repo'
+    label: "{{ repo['resources'][0]['name'] }}"
+  # no_log: "{{ not foreman_debug }}"
+
 - name: 'Set Red Hat Product list'
   ansible.builtin.set_fact:
     redhat_product_list: "{{ redhat_product_list | default([]) + [product_info['resources'][0]['product']['name']] }}"

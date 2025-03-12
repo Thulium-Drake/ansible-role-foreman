@@ -112,6 +112,20 @@ foreman_infrastructure_lifecycle:
 foreman_host_collections_lifecycle:
   - 'centos7'
 
+foreman_redhat_products: []
+# Below is an example of the base repos for RHEL8
+# Note that for the kickstart repos the download policy is overridden
+#  - label: 'rhel-8-for-x86_64-baseos-kickstart'
+#    repositories:
+#      - releasever: '8.8'
+#    download_policy: 'on_demand'
+#  - label: 'rhel-8-for-x86_64-appstream-kickstart'
+#    repositories:
+#      - releasever: '8.8'
+#    download_policy: 'immediate'
+#  - label: 'rhel-8-for-x86_64-baseos-rpms'
+#  - label: 'rhel-8-for-x86_64-appstream-rpms'
+
 foreman_products: []
 # Below is an example of an Product and it's Repositories
 #  - name: 'CentOS7' # This name will be used for products as well as CVs (content views)
