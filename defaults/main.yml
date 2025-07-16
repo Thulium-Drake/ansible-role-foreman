@@ -357,5 +357,10 @@ foreman_instance_deploy_network: ''
 foreman_instance_dhcp_all_networks: false
 ## end of instance settings
 
+# Installer-related settings
+# foreman_custom_hiera:
+#  key1: 'value'
+#  key2: 'value'
+
 # Enable to allow logging for tasks that can contain sensitive information
 foreman_debug: false
