@@ -1,13 +1,13 @@
 ---
 - name: 'Configure Host Deployment and Discovery'
-  when: foreman_configure_deployment
+  when: foreman_configure_deployment | bool
   block:
     - name: 'Configure Foreman for deployment'
       ansible.builtin.include_tasks: 'configure_deployment.yml'
 
     - name: 'Configure Foreman for iPXE'
       ansible.builtin.include_tasks: 'configure_ipxe.yml'
-      when: foreman_deploy_ipxe
+      when: foreman_deploy_ipxe | bool
 
     - name: 'Configure Host Discovery'
       ansible.builtin.shell: |

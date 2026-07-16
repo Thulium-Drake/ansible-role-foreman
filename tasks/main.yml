@@ -16,6 +16,12 @@
     mode: '0600'
   no_log: "{{ not foreman_debug }}"
 
+- name: 'Update WebUI TLS certificates'
+  ansible.builtin.include_tasks: 'configure_custom_tls.yml'
+  vars:
+    foreman_custom_webui_run_installer: true
+  when: foreman_custom_webui_cert | length > 0
+
 - name: 'Check input'
   ansible.builtin.assert:
     that:
@@ -33,7 +39,7 @@
     mode: '0640'
     owner: 'root'
     group: 'root'
-  when: foreman_disable_foreman_protector_plugin
+  when: foreman_disable_foreman_protector_plugin | bool
 
 - name: 'Disable automatic creation of new Operating Systems based on facts'
   theforeman.foreman.setting:
@@ -45,32 +51,8 @@
     value: true
 
 - name: 'Ensure firewall ports'
-  ansible.posix.firewalld:
-    port: "{{ port['name'] }}"
-    permanent: true
-    immediate: true
-    state: 'enabled'
-  loop:
-    - name: '7/tcp'
-    - name: '7/udp'
-    - name: '53/tcp'
-    - name: '53/udp'
-    - name: '67/udp'
-    - name: '69/udp'
-    - name: '80/tcp'
-    - name: '443/tcp'
-    - name: '5000/tcp'
-    - name: '5646/tcp'
-    - name: '5647/tcp'
-    - name: '8000/tcp'
-    - name: '8140/tcp'
-      enable: "{{ foreman_puppet_enabled }}"
-    - name: '8443/tcp'
-    - name: '9090/tcp'
-  loop_control:
-    loop_var: 'port'
+  ansible.builtin.include_tasks: 'install_foreman_common.yml'
   when:
-    - port['enable'] | default(true)
     - foreman_server_type == 'foreman'
 
 - name: 'Ensure Red Hat Satellite firewalld profile'
@@ -130,7 +112,7 @@
 
 - name: 'Ensure Red Hat Products and Repositories'
   ansible.builtin.include_tasks: 'products_redhat.yml'
-  when: foreman_configure_redhat_repos
+  when: foreman_configure_redhat_repos | bool
 
 - name: 'Ensure Products and Repositories'
   ansible.builtin.import_tasks: 'products.yml'
@@ -161,7 +143,7 @@
     loop_var: 'key_lifecycle'
 
 - name: 'Configure Host deploment and discovery'
-  when: foreman_configure_deployment
+  when: foreman_configure_deployment | bool
   block:
     - name: 'Configure Foreman for deployment'
       ansible.builtin.include_tasks: 'configure_deployment.yml'
@@ -205,6 +187,11 @@
     name: 'default_proxy_download_policy'
     value: "{{ foreman_smartproxy_download_policy }}"
 
-- name: 'Configure IPA authentication'
-  ansible.builtin.include_tasks: 'configure_ipa_authentication.yml'
-  when: foreman_configure_ipa
+- name: 'Configure External authentication'
+  when: foreman_authentication_type != 'none'
+  block:
+    - name: 'Configure authentication source'
+      ansible.builtin.include_tasks: 'configure_authentication_{{ foreman_authentication_type }}.yml'
+
+    - name: 'Configure External usergroups'
+      ansible.builtin.include_tasks: 'configure_authentication_external_groups.yml'

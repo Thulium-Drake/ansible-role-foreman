@@ -12,7 +12,7 @@
     path: "{{ medium['path'] }}"
     os_family: "{{ medium['os_family'] }}"
     state: 'present'
-  when: not medium['kickstart']
+  when: not medium['kickstart'] | bool
   no_log: "{{ not foreman_debug }}"
   loop: "{{ foreman_operating_systems }}"
   loop_control:

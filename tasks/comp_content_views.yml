@@ -26,7 +26,7 @@
     organization: "{{ foreman_organization }}"
     content_view: "{{ comp_content_view['comp_content_view']['name'] }}"
     lifecycle_environments: "{{ foreman_lifecycle + foreman_infrastructure_lifecycle }}"
-  when: comp_content_view['changed']
+  when: comp_content_view['changed'] | bool
   loop: "{{ cov_created['results'] }}"
   loop_control:
     loop_var: 'comp_content_view'

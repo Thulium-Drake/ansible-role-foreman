@@ -7,7 +7,7 @@
   register: 'foreman_upload_subscriptions'
 
 - name: 'Upload or refresh manifest to Satellite'
-  when: foreman_rh_subscription_manifest_refresh or foreman_upload_subscriptions['changed']
+  when: foreman_rh_subscription_manifest_refresh or foreman_upload_subscriptions['changed'] | bool
   block:
     - name: 'Refresh manifest'
       theforeman.foreman.subscription_manifest:
@@ -84,7 +84,6 @@
   loop_control:
     loop_var: 'repo'
     label: "{{ repo['resources'][0]['name'] }}"
-  # no_log: "{{ not foreman_debug }}"
 
 - name: 'Set Red Hat Product list'
   ansible.builtin.set_fact:
@@ -107,7 +106,7 @@
   loop_control:
     loop_var: 'product'
 
-- name: 'Sync Red Hat Repositories, this may take long...'  # noqa no-handler ignore-errors
+- name: 'Sync repositories for changed products, this may take long...'
   # Yes, we sync all Red Hat Products when a change has been made to one of them
   # This is because the repository_set module does not return the Product name.
   theforeman.foreman.repository_sync:
@@ -117,14 +116,10 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     product: "{{ product }}"
-  when:
-    - repo_enabled['changed']
-    - foreman_run_content_sync|bool
   loop: "{{ redhat_product_list | unique }}"
   loop_control:
     loop_var: 'product'
-  async: 10800
-  poll: 60
-  retries: 5
-  delay: 5
-  ignore_errors: true  # ignore errors, as a failed sync is not the end of the world
+    label: "{{ product }}"
+  when:
+    - foreman_run_content_sync | bool
+    - repo_enabled['changed']

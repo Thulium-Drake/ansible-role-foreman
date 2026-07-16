@@ -1,0 +1,20 @@
+---
+- name: 'Ensure Foreman Admin Group'
+  theforeman.foreman.usergroup:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ foreman_admin_group }}"
+    roles: "{{ foreman_admin_group_roles }}"
+    admin: "{{ foreman_admin_group_superuser }}"
+
+- name: 'Ensure external IdM group link'
+  theforeman.foreman.external_usergroup:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    name: "{{ foreman_external_admin_group }}"
+    usergroup: "{{ foreman_admin_group }}"
+    auth_source: "{{ (foreman_authentication_type == 'ldap') | ternary (foreman_ldap_config['name'], 'External') }}"

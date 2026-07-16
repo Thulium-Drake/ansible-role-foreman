@@ -61,7 +61,7 @@
       value: 'iPXE global default custom'
   loop_control:
     loop_var: 'setting'
-  when: foreman_discovery_image_autodetect
+  when: foreman_discovery_image_autodetect | bool
 
 - name: 'Ensure Setting for booting unknown hosts'
   theforeman.foreman.setting:
@@ -87,4 +87,4 @@
 
 - name: 'Configure iPXE'
   ansible.builtin.include_tasks: 'configure_ipxe.yml'
-  when: foreman_deploy_ipxe
+  when: foreman_deploy_ipxe | bool

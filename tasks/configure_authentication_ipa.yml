@@ -1,0 +1,22 @@
+---
+# These tasks also require the freeipa.ansible_freeipa collection to be available
+- name: 'Ensure Kerberos Principal'
+  freeipa.ansible_freeipa.ipaservice:
+    name: "HTTP/{{ ansible_facts['fqdn'] }}@{{ ipaclient_domain | upper }}"
+    state: 'present'
+    ipaadmin_principal: "{{ ipaadmin_principal }}"
+    ipaadmin_password: "{{ ipaadmin_password }}"
+  delegate_to: "{{ foreman_ipa_server }}"
+
+- name: 'Configure Foreman for EXTERNAL authentication'
+  ansible.builtin.shell: |
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+    foreman-installer --foreman-ipa-authentication=true --detailed-exitcodes
+  register: 'installer_output'
+  changed_when: installer_output['rc'] == 2
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
+  notify: 'Restart foreman'
+
+- name: 'Restart services'
+  ansible.builtin.meta: 'flush_handlers'

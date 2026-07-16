@@ -35,6 +35,8 @@
   ansible.builtin.template:
     src: 'templates/custom-hiera.yaml.j2'
     dest: '/etc/foreman-installer/custom-hiera.yaml'
+    mode: '0640'
+  when: foreman_custom_hiera | length > 0
 
 - name: 'Configure Foreman instance for deployment'  # yamllint disable rule:line-length
   ansible.builtin.shell: |

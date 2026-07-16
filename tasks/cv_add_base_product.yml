@@ -32,4 +32,4 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     content_view: "CV {{ item['name'] }}"
-  when: cv_created['changed']
+  when: cv_created['changed'] | bool

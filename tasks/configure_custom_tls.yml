@@ -1,0 +1,58 @@
+---
+- name: 'Ensure directory'
+  ansible.builtin.file:
+    path: '/root/custom-tls-cert'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+
+- name: 'Ensure TLS certificate files'
+  ansible.builtin.copy:
+    src: "{{ tls_cert_file['src'] }}"
+    dest: "/root/custom-tls-cert/{{ tls_cert_file['dest'] }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  loop:
+    - src: "{{ foreman_custom_webui_cert }}"
+      dest: 'server.crt'
+    - src: "{{ foreman_custom_webui_key }}"
+      dest: 'server.key'
+    - src: "{{ foreman_custom_webui_ca_bundle }}"
+      dest: 'ca.crt'
+  loop_control:
+    loop_var: 'tls_cert_file'
+  register: 'foreman_custom_webui_cert_copy'
+
+- name: 'Configure WebUI TLS certificate - run installer'
+  ansible.builtin.shell: |
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+    /usr/sbin/foreman-installer \
+      --certs-server-cert /root/custom-tls-cert/server.crt \
+      --certs-server-key /root/custom-tls-cert/server.key \
+      --certs-server-ca-cert /root/custom-tls-cert/ca.crt \
+      --certs-update-server \
+      --certs-update-server-ca \
+      --detailed-exitcodes
+  register: 'installer_output'
+  changed_when: installer_output['rc'] == 2
+  failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
+  when:
+    - foreman_custom_webui_cert_copy['changed'] | bool
+    - foreman_custom_webui_run_installer | bool
+
+- name: 'Set installer options for SSL certificate - set installer options only'
+  ansible.builtin.set_fact:
+    foreman_installer_options: "{{ foreman_installer_options +
+         [
+         '--certs-server-cert /root/custom-tls-cert/server.crt',
+         '--certs-server-key /root/custom-tls-cert/server.key',
+         '--certs-server-ca-cert /root/custom-tls-cert/ca.crt',
+         '--certs-update-server',
+         '--certs-update-server-ca'
+         ] }}"
+  when:
+    - foreman_custom_webui_cert_copy['changed'] | bool
+    - not foreman_custom_webui_run_installer | bool

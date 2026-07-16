@@ -3,25 +3,41 @@
 foreman_admin_user: 'admin'
 foreman_admin_password: 'secret'
 
-## Only when using FreeIPA (and the system is already a member of the IPA domain)
-foreman_configure_ipa: false                       # configure IPA authentication
+# External authentication
+foreman_authentication_type: 'none'  # or 'ldap', or 'ipa'
+
+## Only when using FreeIPA (and the system is already a member of the IPA domain), exclusive with LDAP authentication
 foreman_ipa_server: 'ipa.example.com'              # hostname of the IPA server to which the Foreman server is joined
                                                    # Ansible needs to have access to this server
 
-foreman_ipa_admin_group: 'foreman_admins'          # name of the group in the IPA domain
-foreman_foreman_admin_group: 'ipa_foreman_admins'  # name of the group in the Foreman Server
-foreman_ipa_admin_group_superuser: true            # makes members of the group superuser in Foreman
-foreman_ipa_admin_group_roles: []                  # Which system roles to assign to members of this group
-                                                   # NOTE: setting superuser permissions nullifies this!
+## LDAP authentication
+foreman_ldap_config:  # For a full example, please check theforeman.foreman.auth_source_ldap module documentation
+  name: 'Example LDAP'
+  host: 'ldap.example.com'
+
+## External usergroups (via LDAP or FreeIPA/EXTERNAL authentication)
+foreman_external_admin_group: 'org_foreman_admins'  # name of the group in the IPA domain
+foreman_admin_group: 'foreman_admins'               # name of the group in the Foreman Server
+foreman_admin_group_superuser: true                 # makes members of the group superuser in Foreman
+foreman_admin_group_roles: []                       # Which system roles to assign to members of this group
+                                                    # NOTE: setting superuser permissions nullifies this!
+
 # Server information
 foreman_url: 'https://foreman.example.com'
 foreman_server_type: 'foreman'  # or satellite
 foreman_validate_certs: false
 
+# Custom WebUI certificate
+# NOTE: Katello still uses it's own internal CA certificate for mTLS certificates for clients
+# this only changes the TLS cert used for the Foreman WebUI
+foreman_custom_webui_cert: ''
+foreman_custom_webui_key: ''
+foreman_custom_webui_ca_bundle: ''
+
 # Foreman/Katello version
 # NOTE: Check the documentation on which Katello version requires which Foreman version and vice versa!!!
-foreman_foreman_version: 3.1
-foreman_katello_version: 4.3
+foreman_foreman_version: 3.19
+foreman_katello_version: 4.21
 
 # Satellite version
 foreman_satellite_version: 6.12
@@ -33,7 +49,6 @@ foreman_disable_foreman_protector_plugin: true     # Some versions of Foreman by
 
 # Server features
 foreman_puppet_enabled: false
-foreman_katello_agent_enabled: false
 
 # Satellite installation information
 foreman_redhat_register_satellite: false   # Set to true to use credentials below to auto-register Satllite
@@ -84,11 +99,11 @@ foreman_rh_subscription_manifest_refresh: false                 # Automatically 
 foreman_redhat_cdn_url: 'https://cdn.redhat.com'
 
 # Define which repositories need to be synced
-foreman_redhat_repositories:
-  - label: 'rhel-7-server-rpms'  # Label of the repository, you can find it in the Satellite WebUI
-    repositories:                # Optional, which release and architecture you want to download
-      - releasever: "7Server"    # When not defined, it will download all repos found under the label
-        basearch: "x86_64"       #
+foreman_redhat_repositories: []
+#  - label: 'rhel-7-server-rpms'  # Label of the repository, you can find it in the Satellite WebUI
+#    repositories:                # Optional, which release and architecture you want to download
+#      - releasever: "7Server"    # When not defined, it will download all repos found under the label
+#        basearch: "x86_64"       #
 
 # Set the environments in the order you wish to have them
 foreman_lifecycle:
@@ -358,7 +373,7 @@ foreman_instance_dhcp_all_networks: false
 ## end of instance settings
 
 # Installer-related settings
-# foreman_custom_hiera:
+foreman_custom_hiera: []
 #  key1: 'value'
 #  key2: 'value'
 

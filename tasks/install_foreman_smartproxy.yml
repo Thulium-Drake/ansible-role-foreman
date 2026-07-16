@@ -1,11 +1,4 @@
 ---
-- name: 'Enable Ruby 2.7 module on EL8'
-  ansible.builtin.dnf:
-    name: '@ruby:2.7'
-    state: 'present'
-  when:
-    - ansible_facts['distribution_major_version']|int >= 8
-
 - name: 'Ensure sudo privileges'
   ansible.builtin.copy:
     content: |
@@ -77,12 +70,12 @@
 - name: 'Compose foreman-installer command'
   ansible.builtin.set_fact:
     foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--detailed-exitcodes'] }}"
-  when: foreman_puppet_enabled
+  when: foreman_puppet_enabled | bool
 
 - name: 'Compose foreman-installer command'  # yamllint disable rule:line-length
   ansible.builtin.set_fact:
-    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false --detailed-exitcodes --no-lock-package-versions'] }}"  # noqa yaml
-  when: not foreman_puppet_enabled
+    foreman_installer_cmd: "{{ foreman_certs_gen['stdout_lines'][-11:] + ['--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --detailed-exitcodes --no-lock-package-versions'] }}"  # noqa yaml
+  when: not foreman_puppet_enabled | bool
 
 - name: 'Run foreman-installer on Proxy'
   ansible.builtin.shell: |

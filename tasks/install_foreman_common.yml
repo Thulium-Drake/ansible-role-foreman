@@ -1,4 +1,33 @@
 ---
+- name: 'Gather running services'
+  ansible.builtin.service_facts:
+
+- name: 'Ensure current IP is tied to hostname in /etc/hosts for DNS resolution check'
+  ansible.builtin.lineinfile:
+    path: '/etc/hosts'
+    line: "{{ ansible_facts['default_ipv4']['address'] }} {{ ansible_facts['fqdn'] }}"
+
+- name: 'Set firewall services'
+  ansible.posix.firewalld:
+    service: "{{ service['name'] }}"
+    permanent: true
+    immediate: true
+    state: 'enabled'
+  loop:
+    - name: 'dhcp'
+    - name: 'dns'
+    - name: 'http'
+    - name: 'https'
+    - name: 'puppetmaster'
+      enable: "{{ foreman_puppet_enabled }}"
+    - name: 'tftp'
+  loop_control:
+    loop_var: 'port'
+  when:
+    - service['enable'] | default(true) | bool
+    - ansible_facts['services']['firewalld']['status'] is defined
+    - ansible_facts['services']['firewalld']['status'] == 'enabled'
+
 - name: 'Set firewall ports'
   ansible.posix.firewalld:
     port: "{{ port['name'] }}"
@@ -6,22 +35,11 @@
     immediate: true
     state: 'enabled'
   loop:
-    - name: '7/tcp'
-    - name: '7/udp'
-    - name: '53/tcp'
-    - name: '53/udp'
-    - name: '67/udp'
-    - name: '69/udp'
-    - name: '80/tcp'
-    - name: '443/tcp'
-    - name: '5000/tcp'
-    - name: '5646/tcp'
-    - name: '5647/tcp'
     - name: '8000/tcp'
-    - name: '8140/tcp'
-      enable: "{{ foreman_puppet_enabled }}"
-    - name: '8443/tcp'
     - name: '9090/tcp'
   loop_control:
     loop_var: 'port'
-  when: port['enable'] | default(true)
+  when:
+    - port['enable'] | default(true) | bool
+    - ansible_facts['services']['firewalld']['status'] is defined
+    - ansible_facts['services']['firewalld']['status'] == 'enabled'

@@ -18,15 +18,20 @@
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
       - "--foreman-initial-organization {{ foreman_organization }}"
       - "--foreman-initial-location {{ foreman_locations[0] }}"
-      - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false --foreman-proxy-content-puppet false') }}"  # noqa yaml
-      - "{{ foreman_katello_agent_enabled | ternary('--foreman-proxy-content-enable-katello-agent=true', '--foreman-proxy-content-enable-katello-agent=false') }}"  # noqa yaml
+      - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false') }}"  # noqa yaml
       - '--no-lock-package-versions'
-  when: not foreman_upgrade
+  when: not foreman_upgrade | bool
+
+- name: 'Set installer options for TLS certificate'
+  ansible.builtin.include_tasks: 'configure_custom_tls.yml'
+  vars:
+    foreman_custom_webui_run_installer: false  # Only set options
+  when: foreman_custom_webui_cert | length > 0
 
 - name: 'Run Katello upgrade check'
   ansible.builtin.command: foreman-rake katello:upgrade_check
   changed_when: false
-  when: foreman_upgrade
+  when: foreman_upgrade | bool
 
 - name: 'Run common tasks'
   ansible.builtin.include_tasks: 'install_foreman_common.yml'
@@ -34,10 +39,6 @@
 - name: 'Setup Foreman & Katello repositories'
   ansible.builtin.include_role:
     name: 'theforeman.operations.foreman_repositories'
-
-- name: 'Setup Ansible repositories'
-  ansible.builtin.include_role:
-    name: 'theforeman.operations.ansible_repositories'
 
 - name: 'Setup Puppet repositories'
   ansible.builtin.include_role:
@@ -48,13 +49,23 @@
     path: '/var/cache/yum'
     state: 'absent'
 
+- name: 'Enable maintenance-mode'
+  ansible.builtin.command: foreman-maintain maintenance-mode start
+  changed_when: true
+  when: foreman_upgrade | bool
+
 - name: 'Upgrade all installed packages'  # noqa package-latest
   ansible.builtin.package:
     name: '*'
     state: 'latest'
     update_cache: true
-  when: foreman_upgrade
+  when: foreman_upgrade | bool
 
 - name: 'Run Foreman/Katello installer'
   ansible.builtin.include_role:
     name: 'theforeman.operations.installer'
+
+- name: 'Disable maintenance-mode'
+  ansible.builtin.command: foreman-maintain maintenance-mode stop
+  changed_when: true
+  when: foreman_upgrade | bool

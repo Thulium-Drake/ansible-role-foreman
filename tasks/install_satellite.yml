@@ -1,6 +1,6 @@
 ---
 - name: 'Prepare system for Red Hat Satellite installtion'
-  when: not foreman_satellite_offline_install
+  when: not foreman_satellite_offline_install | bool
   block:
     - name: 'Ensure Red Hat Subscriptions'
       community.general.redhat_subscription:
@@ -11,24 +11,12 @@
         auto_attach: true
         pool: 'Red Hat Satellite'
         state: 'present'
-      when: foreman_redhat_register_satellite
+      when: foreman_redhat_register_satellite | bool
 
     - name: 'Update packages'  # noqa package-latest
       ansible.builtin.package:
         name: '*'
         state: 'latest'
-
-    - name: 'Ensure Red Hat Satellite Repositories'
-      community.general.rhsm_repository:
-        name:
-          - 'rhel-7-server-rpms'
-          - "rhel-7-server-satellite-{{ foreman_satellite_version }}-rpms"
-          - 'rhel-7-server-satellite-maintenance-6-rpms'
-          - 'rhel-server-rhscl-7-rpms'
-          - 'rhel-7-server-ansible-2.9-rpms'
-        purge: true
-        state: 'present'
-      when: ansible_facts['distribution_major_version'] == '7'
 
     - name: 'Ensure repositories and modules for EL8'
       when: ansible_facts['distribution_major_version'] == '8'
@@ -41,7 +29,7 @@
               - "satellite-{{ foreman_satellite_version }}-for-rhel-8-x86_64-rpms"
               - "satellite-maintenance-{{ foreman_satellite_version }}-for-rhel-8-x86_64-rpms"
             purge: true
-            state: 'present'
+            state: 'enabled'
 
           # The dnf ansible module cannot handle dnf modules without a default profile
           # such as satellite
@@ -57,7 +45,7 @@
         state: 'present'
 
 - name: 'Install Red Hat Satellite from ISO'
-  when: foreman_satellite_offline_install
+  when: foreman_satellite_offline_install | bool
   block:
     - name: 'Mount Red Hat Satellite ISO'
       ansible.posix.mount:
@@ -101,6 +89,12 @@
       - '--no-lock-package-versions'
       - '--detailed-exitcodes'
 
+- name: 'Set installer options for TLS certificate'
+  ansible.builtin.include_tasks: 'configure_custom_tls.yml'
+  vars:
+    foreman_custom_webui_run_installer: false  # Only set options
+  when: foreman_custom_webui_cert | length > 0
+
 - name: 'Run Satellite installer default scenario (see /var/log/foreman-installer/satellite.log for details)'
   ansible.builtin.shell: |
     export LANG="en_US.UTF-8"
@@ -116,4 +110,4 @@
       NOTICE: You have installed Satellite in Offline mode, please note the following points:
         1. This system CAN NOT be registered to the Satellite Server it hosts!
         2. This system might still be unlicensed, please check https://access.redhat.com/solutions/3121571
-  when: foreman_satellite_offline_install
+  when: foreman_satellite_offline_install | bool

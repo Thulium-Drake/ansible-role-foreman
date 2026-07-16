@@ -3,14 +3,6 @@
   ansible.builtin.set_fact:
     foreman_server_type: 'satellite_capsule'
 
-- name: 'Ensure Red Hat Subscriptions'
-  community.general.redhat_subscription:
-    username: "{{ foreman_redhat_support_user }}"
-    password: "{{ foreman_redhat_support_password }}"
-    auto_attach: true
-    pool: 'Red Hat Satellite Capsule'
-    state: 'present'
-
 - name: 'Update packages'  # noqa package-latest
   ansible.builtin.package:
     name: '*'
@@ -83,7 +75,7 @@
   failed_when: installer_output['rc'] == 1 or installer_output['rc'] >= 4
 
 - name: 'Configure Host Deployment and Discovery'
-  when: foreman_configure_deployment
+  when: foreman_configure_deployment | bool
   block:
     - name: 'Configure Foreman for deployment'
       ansible.builtin.include_tasks: 'configure_deployment.yml'

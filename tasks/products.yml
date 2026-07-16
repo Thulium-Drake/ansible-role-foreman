@@ -14,7 +14,7 @@
   when: product['gpg_key_url'] is defined
   loop_control:
     loop_var: 'product'
-    label: "{{ product['gpg_key'] }}"
+    label: "{{ product['gpg_key'] | default('Product has no key defined') }}"
   no_log: "{{ not foreman_debug }}"
 
 - name: 'Ensure product GPG keys (file)'
@@ -32,7 +32,7 @@
   when: product['gpg_key_file'] is defined
   loop_control:
     loop_var: 'product'
-    label: "{{ product['gpg_key'] }}"
+    label: "{{ product['gpg_key'] | default('Product has no key defined') }}"
   no_log: "{{ not foreman_debug }}"
 
 - name: 'Ensure products'
@@ -52,14 +52,17 @@
     label: "{{ product['name'] }}"
   no_log: "{{ not foreman_debug }}"
 
-- name: 'Ensure product repositories'  # yamllint disable rule:line-length
+- name: 'Ensure product repositories'
   theforeman.foreman.repository:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    download_policy: "{{ (repo[0]['type'] == 'docker' or repo[0]['type'] == 'file') | ternary(omit, repo[0]['download_policy']) | default(foreman_download_policy) }}"  # noqa yaml
+    download_policy: >-
+      {{ (repo[0]['type'] == 'docker' or repo[0]['type'] == 'file')
+      | ternary(omit, repo[0]['download_policy'])
+      | default(foreman_download_policy) }}"
     download_concurrency: "{{ repo[0]['download_concurrency'] | default(omit) }}"
     http_proxy_policy: "{{ repo[1]['http_proxy_policy'] | default(foreman_http_proxy_policy) }}"
     http_proxy: "{{ repo[1]['http_proxy'] | default(omit) }}"
@@ -77,7 +80,7 @@
     docker_upstream_name: "{{ repo[1]['docker_upstream_name'] | default(omit) }}"
     docker_tags_whitelist: "{{ repo[1]['docker_tags_whitelist'] | default(omit) }}"
     product: "{{ repo[0]['name'] }}"
-    gpg_key: "{{ (repo[1]['no_gpg_key'] | default(False) or repo[0]['type'] == 'docker') | ternary(omit, repo[0]['gpg_key']) }}"
+    gpg_key: "{{ ((repo[1]['no_gpg_key'] | default(False) or repo[0]['type'] == 'docker') | ternary(omit, repo[0]['gpg_key']) | default(omit)) }}"
     state: 'present'
   register: 'repo_created'
   loop: "{{ foreman_products | ansible.builtin.subelements('repositories', {'skip_missing': true}) }}"
@@ -88,35 +91,39 @@
 
 - name: 'Set empty list'
   ansible.builtin.set_fact:
-    product_list: []
+    repo_sync_list: []
 
-- name: 'Set Product list'
+- name: 'Set list with repositories to sync'
   ansible.builtin.set_fact:
-    product_list: "{{ product_list + [product['repo'][0]['name']] }}"
-  when: >
-    product['changed'] and ((product['repo'][0]['no_sync'] is defined and not product['repo'][0]['no_sync']) or
-    product['repo'][0]['no_sync'] is not defined)
+    repo_sync_list:
+      "{{ repo_sync_list +
+         [
+           {
+           'product': repo['repo'][0]['name'],
+           'repository': repo['diff']['after']['repositories'] | map(attribute='name') | first
+           }
+         ]
+       }}"
   loop: "{{ repo_created['results'] }}"
   loop_control:
-    loop_var: 'product'
-    label: "{{ product['repo'][0]['name'] }}"
+    loop_var: 'repo'
+    label: "{{ repo['diff']['after']['repositories'] | map(attribute='name') }}"
+  when:
+    - repo['changed'] | bool
+    - ((repo['repo'][0]['no_sync'] is defined and not repo['repo'][0]['no_sync']) or repo['repo'][0]['no_sync'] is not defined)
   no_log: "{{ not foreman_debug }}"
 
-- name: 'Sync repositories for changed Products, this may take long...'  # noqa ignore-errors
+- name: 'Sync repositories for changed repositories, this may take long...'
   theforeman.foreman.repository_sync:
     username: "{{ foreman_admin_user }}"
     password: "{{ foreman_admin_password }}"
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    product: "{{ product }}"
-  loop: "{{ product_list | unique }}"
+    product: "{{ repo['product'] }}"
+    repository: "{{ repo['repository'] }}"
+  loop: "{{ repo_sync_list }}"
   loop_control:
-    loop_var: 'product'
-    label: "{{ product }}"
-  async: 10800
-  poll: 60
-  retries: 5
-  delay: 5
-  ignore_errors: true  # ignore errors, as a failed sync is not the end of the world
-  when: foreman_run_content_sync|bool
+    loop_var: 'repo'
+    label: "{{ repo['repository'] }}"
+  when: foreman_run_content_sync | bool
