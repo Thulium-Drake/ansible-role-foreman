@@ -66,11 +66,13 @@ foreman_simple_content_mode: false  # Set to true for Simple Content Mode, which
 
 # Organization, Locations and Lifecycle path
 foreman_organization: 'Example-Org'
-foreman_download_policy: 'immediate'
 foreman_smartproxy_download_policy: 'on_demand'
 foreman_locations:
   - 'Example Location'
   - 'Cloud/Other Location'  # Nested example
+
+foreman_download_policy: 'immediate'
+foreman_mirroring_policy: 'mirror_content_only'
 
 foreman_sync_timeout: 300         # Total timeout in seconds for connections when syncing
 foreman_run_content_sync: true    # Disable to skip content sync task during the 'normal' run

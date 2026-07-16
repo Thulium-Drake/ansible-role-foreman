@@ -62,14 +62,14 @@
     download_policy: >-
       {{ (repo[0]['type'] == 'docker' or repo[0]['type'] == 'file')
       | ternary(omit, repo[0]['download_policy'])
-      | default(foreman_download_policy) }}"
+      | default(foreman_download_policy) }}
     download_concurrency: "{{ repo[0]['download_concurrency'] | default(omit) }}"
     http_proxy_policy: "{{ repo[1]['http_proxy_policy'] | default(foreman_http_proxy_policy) }}"
     http_proxy: "{{ repo[1]['http_proxy'] | default(omit) }}"
     name: "{{ repo[0]['name'] }}-{{ repo[1]['name'] }}"
     url: "{{ repo[1]['url'] | default(omit) }}"
     mirror_on_sync: "{{ repo[0]['mirror_on_sync'] | default(omit) }}"
-    mirroring_policy: "{{ repo[0]['mirroring_policy'] | default(omit) }}"
+    mirroring_policy: "{{ repo[0]['mirroring_policy'] | default(foreman_mirroring_policy) }}"
     content_type: "{{ repo[0]['type'] }}"
     ignoreable_content: "{{ repo[1]['ignored_content'] | default(omit) }}"
     ssl_ca_cert: "{{ repo[1]['ssl_ca_cert'] | default(omit) }}"
