@@ -77,7 +77,7 @@
     name: "{{ repo['resources'][0]['repositories'][0]['name'] }}"
     product: "{{ repo['resources'][0]['product']['name'] }}"
     content_type: "{{ (repo['resources'][0]['type'] == 'kickstart') | ternary('yum', repo['resources'][0]['type']) }}"
-    download_policy: "{{ repo['product']['download_policy'] }}"
+    download_policy: "{{ repo['product']['download_policy'] | default(foreman_download_policy) }}"
     state: 'present'
   when: repo['product']['download_policy'] is defined
   loop: "{{ redhat_products['results'] }}"
