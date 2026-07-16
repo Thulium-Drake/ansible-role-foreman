@@ -7,9 +7,9 @@ This role requires the following Ansible Collections in order to work:
 * 'ansible.utils' 5.0.0 or higher
 * 'ansible.posix' 1.6.0 or higher
 
-Tested with Ansible 2.16 and higher
+Tested with Ansible 2.18 and higher
 
-This role supports Foreman 3.13 / Katello 4.15 and up or Red Hat Satellite 6.15 and up.
+This role supports Foreman 3.19 / Katello 4.21 and up or Red Hat Satellite 6.15 and up.
 
 Other requirements on the Ansible controller:
 
