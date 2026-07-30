@@ -107,7 +107,7 @@
     name: 'Daily repo sync'
     description: 'Managed by Ansible, your changes will be lost'
     enabled: true
-    sync_date: '2020-01-01 00:00:00 UTC'
+    sync_date: "{{ '2020-01-01 ' ~ foreman_daily_sync_time ~ ' UTC' }}"
     state: 'present'
 
 - name: 'Ensure Red Hat Products and Repositories'
