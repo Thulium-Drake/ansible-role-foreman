@@ -8,8 +8,18 @@
     organization: "{{ foreman_organization }}"
     name: "{{ key['name'] }}-{{ key_lifecycle['lifecycle'] }}"
     description: 'Managed by Ansible, your changes will be lost'
-    lifecycle_environment: "{{ key_lifecycle['lifecycle'] }}"
-    content_view: "{{ key['content_view'] }}"
+    content_view_environments: >-
+      {{
+        [key_lifecycle['lifecycle']]
+        | product(
+            key['content_view']
+            if key['content_view'] is sequence and key['content_view'] is not string
+            else [key['content_view']]
+          )
+        | map('join', '/')
+        | map('regex_replace', ' ', '_')
+        | list
+      }}
     subscriptions: "{{ (foreman_simple_content_mode) | ternary(omit, key['subscriptions']) | default(omit) }}"
     content_overrides: "{{ key['content_overrides'] | default(omit) }}"
     host_collections: >-

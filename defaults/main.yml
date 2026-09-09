@@ -180,6 +180,13 @@ foreman_products: []
 #      - name: 'Thing'
 #        no_gpg_key: true
 #
+# Create a local repo with no upstream to sync
+#
+#  - name: 'NoUpstream'
+#    type: 'yum'
+#    repositories:
+#      - name: 'Thing'
+#
 # Override the default download policy for all repos in this product:
 #
 #  - name: 'DownloadPolicy'
@@ -188,6 +195,14 @@ foreman_products: []
 #    repositories:
 #      - name: 'Thing'
 #        no_gpg_key: true
+#
+# Make the CV and all it's repos rolling (always have latest content available):
+#
+#  - name: 'Rolling'
+#    type: 'yum'
+#    rolling: true
+#    repositories:
+#      - name: 'Thing'
 
 foreman_composite_content_views: []
 # Below is an example of an Composite Content View
@@ -226,6 +241,12 @@ foreman_activation_keys: []
 #   auto_attach: true
 #   host_collections:
 #     - 'centos7-servers'
+#
+# With Foreman 3.19 / Katello 4.21 supports multiple CV's on an Activation Key
+# - key: 'Rocky9-Base'
+#   content_view:
+#     - 'COV Example'
+#     - 'COV OtherThing'
 
 ###
 # Deployment settings

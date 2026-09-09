@@ -18,7 +18,9 @@
     server_url: "{{ foreman_url }}"
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
-    name: "CV {{ item['name'] }}"
+    name: "{{ (item['rolling'] | default(false) | bool) | ternary('RCV', 'CV') }} {{ item['name'] }}"
+    rolling: "{{ item['rolling'] | default(false) }}"
+    lifecycle_environments: "{{ (item['rolling'] | default(false) | bool) | ternary(foreman_lifecycle + foreman_infrastructure_lifecycle, omit) }}"
     description: 'Managed by Ansible, your changes will be lost'
     repositories: "{{ cv_repo_list }}"
     state: 'present'
@@ -32,4 +34,6 @@
     validate_certs: "{{ foreman_validate_certs }}"
     organization: "{{ foreman_organization }}"
     content_view: "CV {{ item['name'] }}"
-  when: cv_created['changed'] | bool
+  when:
+    - cv_created['changed'] | bool
+    - not (item['rolling'] | default(false) | bool)

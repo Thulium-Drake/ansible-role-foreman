@@ -111,6 +111,7 @@
   when:
     - repo['changed'] | bool
     - ((repo['repo'][0]['no_sync'] is defined and not repo['repo'][0]['no_sync']) or repo['repo'][0]['no_sync'] is not defined)
+    - repo['repo'][1]['url'] is defined
   no_log: "{{ not foreman_debug }}"
 
 - name: 'Sync repositories for changed repositories, this may take long...'

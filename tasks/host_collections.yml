@@ -35,6 +35,20 @@
   loop_control:
     loop_var: 'os_collection'
 
+- name: 'Ensure custom Host Collections'
+  theforeman.foreman.host_collection:
+    username: "{{ foreman_admin_user }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url }}"
+    validate_certs: "{{ foreman_validate_certs }}"
+    organization: "{{ foreman_organization }}"
+    name: "{{ host_collection }}"
+    description: 'Managed by Ansible, your changes will be lost'
+    state: 'present'
+  loop: "{{ foreman_host_collections_custom | default([]) }}"
+  loop_control:
+    loop_var: 'host_collection'
+
 - name: 'Ensure Activation key Host Collections'
   theforeman.foreman.host_collection:
     username: "{{ foreman_admin_user }}"
