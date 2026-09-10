@@ -18,6 +18,7 @@
       - "--foreman-initial-admin-password {{ foreman_admin_password | quote }}"
       - "--foreman-initial-organization {{ foreman_organization }}"
       - "--foreman-initial-location {{ foreman_locations[0] }}"
+      - '--enable-foreman-plugin-ansible'
       - "{{ foreman_puppet_enabled | ternary(None, '--no-enable-puppet --foreman-proxy-puppet false --foreman-proxy-puppetca false') }}"  # noqa yaml
       - '--no-lock-package-versions'
   when: not foreman_upgrade | bool
